@@ -6,7 +6,7 @@ public class UserNotFoundException extends RuntimeException {
         super(message);
     }
 
-    public static UserNotFoundException create(final String username) {
-        return new UserNotFoundException("User: " + username + " could not be found!");
+    public static UserNotFoundException create(final String email) {
+        return new UserNotFoundException("User: " + email + " could not be found!");
     }
 }

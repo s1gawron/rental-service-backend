@@ -16,13 +16,13 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public UserDTO validateAndRegisterUser(final UserRegisterDTO userRegisterDTO) {
         userRegisterDTO.validate();
 
-        final Optional<User> userEmailExistOptional = getUser(userRegisterDTO.getEmail());
+        final Optional<User> userEmailExistOptional = getUserByEmail(userRegisterDTO.getEmail());
 
         if (userEmailExistOptional.isPresent()) {
             throw UserEmailExistsException.create();
@@ -37,7 +37,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUser(final String email) {
+    public Optional<User> getUserByEmail(final String email) {
         return userRepository.findByEmail(email);
     }
+
 }

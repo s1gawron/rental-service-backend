@@ -26,4 +26,5 @@ public class UserController extends UserErrorHandlerController {
     public UserDTO registerUser(@RequestBody final UserRegisterDTO userRegisterDTO) {
         return userService.validateAndRegisterUser(userRegisterDTO);
     }
+
 }

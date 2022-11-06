@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.reservationhastool.model;
 
 import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.tool.model.Tool;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @Table(name = "reservation_has_tool")
 @DynamicUpdate
 @NoArgsConstructor
+@Getter
 public class ReservationHasTool {
 
     @EmbeddedId
@@ -27,4 +29,9 @@ public class ReservationHasTool {
     @Column(name = "tool_quantity")
     private int toolQuantity;
 
+    public ReservationHasTool(final Tool tool, final Reservation reservation, final int toolQuantity) {
+        this.tool = tool;
+        this.reservation = reservation;
+        this.toolQuantity = toolQuantity;
+    }
 }

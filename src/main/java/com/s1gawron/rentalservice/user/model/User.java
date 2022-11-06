@@ -1,20 +1,24 @@
 package com.s1gawron.rentalservice.user.model;
 
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
-import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.address.model.Address;
+import com.s1gawron.rentalservice.reservation.model.Reservation;
+import com.s1gawron.rentalservice.reservationhastool.model.ReservationHasTool;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "user")
 @DynamicUpdate
 @NoArgsConstructor
+@Getter
 public class User {
 
     @Id
@@ -87,5 +91,16 @@ public class User {
         }
 
         return new UserDTO(this.firstName, this.lastName, this.email, null);
+    }
+
+    public boolean isNotCustomer() {
+        return this.userType == UserType.WORKER;
+    }
+
+    public List<ReservationHasTool> getReservationHasTool() {
+        final List<ReservationHasTool> allCustomerReservationHasTools = new ArrayList<>();
+        this.customerReservations.forEach(customerReservation -> allCustomerReservationHasTools.addAll(customerReservation.getTools()));
+
+        return allCustomerReservationHasTools;
     }
 }
