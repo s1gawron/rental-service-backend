@@ -2,7 +2,7 @@ package com.s1gawron.rentalservice.address.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.s1gawron.rentalservice.address.exception.AddressRegisterEmptyPropertyException;
+import com.s1gawron.rentalservice.address.exception.AddressRegisterEmptyPropertiesException;
 import com.s1gawron.rentalservice.address.exception.PostCodePatternViolationException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,38 +23,38 @@ public class AddressDTO {
 
     private static final Pattern POLISH_POST_CODE_PATTERN = Pattern.compile("[0-9]{2}-[0-9]{3}");
 
-    private String country;
+    private final String country;
 
-    private String city;
+    private final String city;
 
-    private String street;
+    private final String street;
 
-    private String postCode;
+    private final String postCode;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class AddressDTOBuilder {
 
     }
 
-    public void validate() {
+    public boolean validate() {
         if (this.country == null) {
             log.error("Country" + MESSAGE);
-            throw AddressRegisterEmptyPropertyException.createForCountry();
+            throw AddressRegisterEmptyPropertiesException.createForCountry();
         }
 
         if (this.city == null) {
             log.error("City" + MESSAGE);
-            throw AddressRegisterEmptyPropertyException.createForCity();
+            throw AddressRegisterEmptyPropertiesException.createForCity();
         }
 
         if (this.street == null) {
             log.error("Street" + MESSAGE);
-            throw AddressRegisterEmptyPropertyException.createForStreet();
+            throw AddressRegisterEmptyPropertiesException.createForStreet();
         }
 
         if (this.postCode == null) {
             log.error("Post code" + MESSAGE);
-            throw AddressRegisterEmptyPropertyException.createForPostCode();
+            throw AddressRegisterEmptyPropertiesException.createForPostCode();
         }
 
         final Matcher postCodeMatcher = POLISH_POST_CODE_PATTERN.matcher(this.postCode);
@@ -63,6 +63,8 @@ public class AddressDTO {
             log.error("Provided post code does not match pattern: XX-XXX!!!");
             throw PostCodePatternViolationException.create(this.postCode);
         }
+
+        return true;
     }
 
 }

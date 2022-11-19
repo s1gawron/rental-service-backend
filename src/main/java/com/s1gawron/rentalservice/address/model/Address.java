@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.address.model;
 
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -10,6 +11,7 @@ import javax.persistence.*;
 @Table(name = "address")
 @DynamicUpdate
 @NoArgsConstructor
+@Getter
 public class Address {
 
     @Id
