@@ -52,17 +52,6 @@ public class User {
     @OneToMany(mappedBy = "customer")
     private List<Reservation> customerReservations;
 
-    private User(final boolean active, final String email, final String password, final String firstName, final String lastName, final UserType userType,
-        final Address customerAddress) {
-        this.active = active;
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.userType = userType;
-        this.customerAddress = customerAddress;
-    }
-
     private User(final boolean active, final String email, final String password, final String firstName, final String lastName, final UserType userType) {
         this.active = active;
         this.email = email;
@@ -73,13 +62,6 @@ public class User {
     }
 
     public static User createUser(final UserRegisterDTO userRegisterDTO, final String encryptedPassword) {
-        final AddressDTO customerAddress = userRegisterDTO.getAddress();
-
-        if (userRegisterDTO.getUserType() == UserType.CUSTOMER) {
-            return new User(true, userRegisterDTO.getEmail(), encryptedPassword, userRegisterDTO.getFirstName(), userRegisterDTO.getLastName(),
-                userRegisterDTO.getUserType(), Address.from(customerAddress));
-        }
-
         return new User(true, userRegisterDTO.getEmail(), encryptedPassword, userRegisterDTO.getFirstName(), userRegisterDTO.getLastName(),
             userRegisterDTO.getUserType());
     }
@@ -99,8 +81,12 @@ public class User {
 
     public List<ReservationHasTool> getReservationHasTool() {
         final List<ReservationHasTool> allCustomerReservationHasTools = new ArrayList<>();
-        this.customerReservations.forEach(customerReservation -> allCustomerReservationHasTools.addAll(customerReservation.getTools()));
+        this.customerReservations.forEach(customerReservation -> allCustomerReservationHasTools.addAll(customerReservation.getReservationHasTools()));
 
         return allCustomerReservationHasTools;
+    }
+
+    public void setCustomerAddress(final Address customerAddress) {
+        this.customerAddress = customerAddress;
     }
 }

@@ -1,0 +1,13 @@
+{
+  "email": "test@test.pl",
+  "password": "Start00!",
+  "firstName": "John",
+  "lastName": "Kowalski",
+  "userType": "CUSTOMER",
+  "address": {
+    "country": "Poland",
+    "city": "Warsaw",
+    "street": "Test",
+    "postCode": "01-000"
+  }
+}

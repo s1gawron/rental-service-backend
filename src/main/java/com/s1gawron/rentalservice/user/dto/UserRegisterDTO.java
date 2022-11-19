@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.user.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.user.exception.UserEmailPatternViolationException;
 import com.s1gawron.rentalservice.user.exception.UserPasswordTooWeakException;
@@ -31,13 +32,18 @@ public class UserRegisterDTO {
 
     private final String password;
 
-    private String firstName;
+    private final String firstName;
 
-    private String lastName;
+    private final String lastName;
 
-    private UserType userType;
+    private final UserType userType;
 
-    private AddressDTO address;
+    private final AddressDTO address;
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class UserRegisterDTOBuilder {
+
+    }
 
     public boolean validate() {
         if (this.email == null) {
@@ -63,10 +69,6 @@ public class UserRegisterDTO {
         if (this.userType == null) {
             log.error("User type" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForUserType();
-        }
-
-        if (this.userType == UserType.CUSTOMER) {
-            this.address.validate();
         }
 
         final Matcher emailMatcher = EMAIL_PATTERN.matcher(this.email);

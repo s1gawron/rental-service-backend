@@ -1,0 +1,11 @@
+{
+  "firstName": "John",
+  "lastName": "Kowalski",
+  "email": "test@test.pl",
+  "customerAddress": {
+    "country": "Poland",
+    "city": "Warsaw",
+    "street": "Test",
+    "postCode": "01-000"
+  }
+}

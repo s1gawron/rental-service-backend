@@ -1,5 +1,6 @@
 package com.s1gawron.rentalservice.user.service;
 
+import com.s1gawron.rentalservice.address.service.AddressService;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
@@ -18,6 +19,8 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    private final AddressService addressService;
+
     @Transactional
     public UserDTO validateAndRegisterUser(final UserRegisterDTO userRegisterDTO) {
         userRegisterDTO.validate();
@@ -31,6 +34,8 @@ public class UserService {
         final String encryptedPassword = new BCryptPasswordEncoder().encode(userRegisterDTO.getPassword());
         final User user = User.createUser(userRegisterDTO, encryptedPassword);
 
+        addressService.validateAndSaveAddress(userRegisterDTO.getAddress(), userRegisterDTO.getUserType())
+            .ifPresent(user::setCustomerAddress);
         userRepository.save(user);
 
         return user.toUserDTO();
@@ -39,6 +44,11 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<User> getUserByEmail(final String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Transactional
+    public void deleteUser(final String email) {
+        getUserByEmail(email).ifPresent(userRepository::delete);
     }
 
 }

@@ -22,9 +22,9 @@ import java.util.List;
 @CrossOrigin
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private static final String USER_AUTH_QUERY = "SELECT email, password, enabled from user WHERE email=?";
+    private static final String USER_AUTH_QUERY = "SELECT email, password, active from user WHERE email=?";
 
-    private static final String USER_AUTHORITY_QUERY = "SELECT email, role from user WHERE email=?";
+    private static final String USER_AUTHORITY_QUERY = "SELECT email, user_type from user WHERE email=?";
 
     private final DataSource dataSource;
 

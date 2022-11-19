@@ -12,7 +12,7 @@ import lombok.Getter;
 @JsonDeserialize(builder = UserLoginDTO.UserLoginDTOBuilder.class)
 public class UserLoginDTO {
 
-    private final String username;
+    private final String email;
 
     private final String password;
 
