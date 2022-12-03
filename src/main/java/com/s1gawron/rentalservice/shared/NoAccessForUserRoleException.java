@@ -1,4 +1,4 @@
-package com.s1gawron.rentalservice.reservation.exception;
+package com.s1gawron.rentalservice.shared;
 
 public class NoAccessForUserRoleException extends RuntimeException {
 

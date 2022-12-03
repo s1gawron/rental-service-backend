@@ -1,4 +1,4 @@
-package com.s1gawron.rentalservice.user.exception;
+package com.s1gawron.rentalservice.shared;
 
 public class UserNotFoundException extends RuntimeException {
 

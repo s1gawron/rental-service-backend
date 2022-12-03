@@ -1,6 +1,6 @@
 package com.s1gawron.rentalservice.tool.controller;
 
-import com.s1gawron.rentalservice.shared.AbstractGeneralErrorHandlerController;
+import com.s1gawron.rentalservice.shared.AbstractErrorHandlerController;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
 import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolEmptyPropertiesException;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 
-public abstract class ToolErrorHandlerController extends AbstractGeneralErrorHandlerController {
+public abstract class ToolErrorHandlerController extends AbstractErrorHandlerController {
 
     @ExceptionHandler(ToolNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
