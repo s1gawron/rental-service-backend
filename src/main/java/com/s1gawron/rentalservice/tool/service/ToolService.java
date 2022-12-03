@@ -5,6 +5,7 @@ import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.validator.ToolDTOValidator;
+import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,8 +36,9 @@ public class ToolService {
     private final UserService userService;
 
     @Transactional(readOnly = true)
-    public ToolListingDTO getToolsByCategory(final ToolCategory category) {
-        final List<ToolDTO> toolDTOSByCategory = toolRepository.findAllByToolCategory(category)
+    public ToolListingDTO getToolsByCategory(final String category) {
+        final ToolCategory toolCategory = ToolCategory.findByValue(category).orElseThrow(() -> ToolCategoryDoesNotExistException.create(category));
+        final List<ToolDTO> toolDTOSByCategory = toolRepository.findAllByToolCategory(toolCategory)
             .stream()
             .map(ToolDTO::from)
             .collect(Collectors.toList());
@@ -55,13 +56,8 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public ToolDTO getToolById(final Long toolId) {
-        final Optional<Tool> tool = toolRepository.findById(toolId);
-
-        if (tool.isEmpty()) {
-            throw ToolNotFoundException.create(toolId);
-        }
-
-        return ToolDTO.from(tool.get());
+        final Tool tool = toolRepository.findById(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
+        return ToolDTO.from(tool);
     }
 
     @Transactional
@@ -83,8 +79,7 @@ public class ToolService {
         canUserPerformActionOnTools();
         ToolDTOValidator.I.validate(toolDTO);
 
-        final Tool tool = toolRepository.findById(toolId)
-            .orElseThrow(() -> ToolNotFoundException.create(toolId));
+        final Tool tool = toolRepository.findById(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
         final ToolState toolState = tool.getToolState();
 
         toolState.edit(toolDTO.getToolState());
@@ -99,8 +94,7 @@ public class ToolService {
     public boolean deleteTool(final Long toolId) {
         canUserPerformActionOnTools();
 
-        final Tool tool = toolRepository.findById(toolId)
-            .orElseThrow(() -> ToolNotFoundException.create(toolId));
+        final Tool tool = toolRepository.findById(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
         final ToolState toolState = tool.getToolState();
 
         toolStateRepository.delete(toolState);
@@ -111,8 +105,7 @@ public class ToolService {
 
     private void canUserPerformActionOnTools() {
         final String authenticatedUserEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        final User user = userService.getUserByEmail(authenticatedUserEmail)
-            .orElseThrow(() -> UserNotFoundException.create(authenticatedUserEmail));
+        final User user = userService.getUserByEmail(authenticatedUserEmail).orElseThrow(() -> UserNotFoundException.create(authenticatedUserEmail));
 
         if (user.getUserType() != UserType.WORKER) {
             throw NoAccessForUserRoleException.create(ELEMENT_NAME);

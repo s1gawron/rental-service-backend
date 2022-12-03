@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.tool.controller;
 
 import com.s1gawron.rentalservice.shared.AbstractGeneralErrorHandlerController;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
+import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolEmptyPropertiesException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,14 @@ public abstract class ToolErrorHandlerController extends AbstractGeneralErrorHan
         final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
             toolEmptyPropertiesException.getMessage(), httpServletRequest.getRequestURI());
+    }
+
+    @ExceptionHandler(ToolCategoryDoesNotExistException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse toolCategoryDoesNotExistExceptionExceptionHandler(final ToolCategoryDoesNotExistException toolCategoryDoesNotExistException,
+        final HttpServletRequest httpServletRequest) {
+        return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
+            toolCategoryDoesNotExistException.getMessage(), httpServletRequest.getRequestURI());
     }
 
 }

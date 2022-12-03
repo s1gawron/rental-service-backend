@@ -2,7 +2,6 @@ package com.s1gawron.rentalservice.tool.controller;
 
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
-import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,8 @@ public class ToolController extends ToolErrorHandlerController {
 
     private final ToolService toolService;
 
-    @GetMapping("get/{category}")
-    public ToolListingDTO getToolsByCategory(@PathVariable ToolCategory category) {
+    @GetMapping("get/category/{category}")
+    public ToolListingDTO getToolsByCategory(@PathVariable String category) {
         return toolService.getToolsByCategory(category);
     }
 
@@ -26,7 +25,7 @@ public class ToolController extends ToolErrorHandlerController {
         return toolService.getNewTools();
     }
 
-    @GetMapping("get/{toolId}")
+    @GetMapping("get/id/{toolId}")
     public ToolDTO getToolById(@PathVariable final Long toolId) {
         return toolService.getToolById(toolId);
     }

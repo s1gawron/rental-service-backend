@@ -5,6 +5,7 @@ import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
+import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
@@ -66,7 +67,7 @@ class ToolServiceTest {
 
         Mockito.when(toolRepositoryMock.findAllByToolCategory(ToolCategory.HEAVY)).thenReturn(heavyTools);
 
-        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.HEAVY);
+        final ToolListingDTO result = toolService.getToolsByCategory("heavy");
 
         assertEquals(2, result.getCount());
         assertEquals(2, result.getTools().size());
@@ -74,17 +75,25 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldNotGetLightToolsByHeavyCategory() {
+    void shouldNotGetHeavyToolsByLightCategory() {
         final List<Tool> lightTools = ToolCreatorHelper.I.createHeavyTools().stream()
             .filter(tool -> tool.getToolCategory().equals(ToolCategory.LIGHT))
             .collect(Collectors.toList());
 
         Mockito.when(toolRepositoryMock.findAllByToolCategory(ToolCategory.LIGHT)).thenReturn(lightTools);
 
-        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.LIGHT);
+        final ToolListingDTO result = toolService.getToolsByCategory("light");
 
         assertEquals(0, result.getCount());
         assertEquals(0, result.getTools().size());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCategoryDoesNotExist() {
+        final String categoryDoesNotExistName = "medium";
+
+        assertThrows(ToolCategoryDoesNotExistException.class, () -> toolService.getToolsByCategory(categoryDoesNotExistName),
+            "Category: " + categoryDoesNotExistName + " does not exist!");
     }
 
     @Test
