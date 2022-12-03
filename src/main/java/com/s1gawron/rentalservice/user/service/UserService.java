@@ -3,6 +3,7 @@ package com.s1gawron.rentalservice.user.service;
 import com.s1gawron.rentalservice.address.service.AddressService;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
+import com.s1gawron.rentalservice.user.dto.validator.UserDTOValidator;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
@@ -23,7 +24,7 @@ public class UserService {
 
     @Transactional
     public UserDTO validateAndRegisterUser(final UserRegisterDTO userRegisterDTO) {
-        userRegisterDTO.validate();
+        UserDTOValidator.I.validate(userRegisterDTO);
 
         final Optional<User> userEmailExistOptional = getUserByEmail(userRegisterDTO.getEmail());
 

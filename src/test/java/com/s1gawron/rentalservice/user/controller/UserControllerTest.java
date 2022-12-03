@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @WebMvcTest(UserController.class)
 @ActiveProfiles("test")
 @WithMockUser
-class UserControllerIntegrationTest {
+class UserControllerTest {
 
     private static final AddressDTO ADDRESS_DTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
 
