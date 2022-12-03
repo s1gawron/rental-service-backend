@@ -1,0 +1,35 @@
+{
+  "count": 3,
+  "tools": [
+    {
+      "name": "Hammer",
+      "description": "It's just a hammer :)",
+      "toolCategory": "LIGHT",
+      "price": 10.99,
+      "toolState": {
+        "stateType": "NEW",
+        "description": "New and shiny tool"
+      }
+    },
+    {
+      "name": "Loader",
+      "description": "4 wheeled loader :)",
+      "toolCategory": "HEAVY",
+      "price": 1000.99,
+      "toolState": {
+        "stateType": "MINIMAL_WEAR",
+        "description": "No signs of usage"
+      }
+    },
+    {
+      "name": "Crane",
+      "description": "Mechanical giraffe",
+      "toolCategory": "HEAVY",
+      "price": 19999.99,
+      "toolState": {
+        "stateType": "WELL_WORN",
+        "description": "Rusty"
+      }
+    }
+  ]
+}

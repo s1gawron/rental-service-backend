@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.tool.model;
 
-public enum ToolType {
+public enum ToolCategory {
 
-
+    LIGHT, HEAVY
 
 }

@@ -8,6 +8,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -29,8 +30,8 @@ public class Tool {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tool_type")
-    private ToolType toolType;
+    @Column(name = "tool_category")
+    private ToolCategory toolCategory;
 
     @Column(name = "price")
     private BigDecimal price;
@@ -39,19 +40,30 @@ public class Tool {
     @JoinColumn(name = "tool_state_id", referencedColumnName = "tool_state_id")
     private ToolState toolState;
 
-    @OneToMany(mappedBy = "tool")
-    private List<ReservationHasTool> reservations;
+    @Column(name = "date_added")
+    private LocalDate dateAdded;
 
-    public Tool(final String name, final String description, final ToolType toolType, final BigDecimal price, final ToolState toolState) {
+    @OneToMany(mappedBy = "tool")
+    private List<ReservationHasTool> reservationsHasTools;
+
+    private Tool(final String name, final String description, final ToolCategory toolCategory, final BigDecimal price, final ToolState toolState,
+        final LocalDate dateAdded) {
         this.name = name;
         this.description = description;
-        this.toolType = toolType;
+        this.toolCategory = toolCategory;
         this.price = price;
         this.toolState = toolState;
+        this.dateAdded = dateAdded;
     }
 
-    public static Tool from(final ToolDTO toolReservation) {
-        return new Tool(toolReservation.getName(), toolReservation.getDescription(), toolReservation.getToolType(), toolReservation.getPrice(),
-            toolReservation.getToolState());
+    public static Tool from(final ToolDTO toolDTO, final ToolState toolState) {
+        return new Tool(toolDTO.getName(), toolDTO.getDescription(), toolDTO.getToolCategory(), toolDTO.getPrice(), toolState, LocalDate.now());
+    }
+
+    public void edit(final ToolDTO toolDTO) {
+        this.name = toolDTO.getName();
+        this.description = toolDTO.getDescription();
+        this.toolCategory = toolDTO.getToolCategory();
+        this.price = toolDTO.getPrice();
     }
 }

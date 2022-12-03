@@ -1,0 +1,10 @@
+{
+  "name": "Hammer",
+  "description": "It's just a hammer :)",
+  "toolCategory": "LIGHT",
+  "price": 10.99,
+  "toolState": {
+    "stateType": "NEW",
+    "description": "New and shiny tool"
+  }
+}
