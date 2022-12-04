@@ -3,7 +3,7 @@
   "password": "Start00!",
   "firstName": "John",
   "lastName": "Kowalski",
-  "userType": "CUSTOMER",
+  "userRole": "CUSTOMER",
   "address": {
     "country": "Poland",
     "city": "Warsaw",

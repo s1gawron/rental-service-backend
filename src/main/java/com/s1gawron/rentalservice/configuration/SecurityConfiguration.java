@@ -24,7 +24,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final String USER_AUTH_QUERY = "SELECT email, password, active from user WHERE email=?";
 
-    private static final String USER_AUTHORITY_QUERY = "SELECT email, user_type from user WHERE email=?";
+    private static final String USER_AUTHORITY_QUERY = "SELECT email, user_role from user WHERE email=?";
 
     private final DataSource dataSource;
 
@@ -51,6 +51,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .addFilterAfter(new JwtTokenVerifier(jwtConfig), JwtUsernamePasswordAuthenticationFilter.class)
             .authorizeRequests()
             .antMatchers("/api/customer/**").authenticated()
+            .antMatchers("/api/tool/**").authenticated()
             .anyRequest().permitAll();
     }
 

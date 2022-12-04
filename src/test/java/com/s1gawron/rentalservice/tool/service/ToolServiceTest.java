@@ -16,7 +16,7 @@ import com.s1gawron.rentalservice.tool.repository.ToolRepository;
 import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.model.UserType;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -129,7 +129,7 @@ class ToolServiceTest {
 
     @Test
     void shouldValidateAndAddTool() {
-        final User user = createUser(UserType.WORKER);
+        final User user = createUser(UserRole.WORKER);
         final AddToolDTO expected = ToolCreatorHelper.I.createAddToolDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
@@ -151,7 +151,7 @@ class ToolServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToAddTool() {
-        final User user = createUser(UserType.CUSTOMER);
+        final User user = createUser(UserRole.CUSTOMER);
         final AddToolDTO expected = ToolCreatorHelper.I.createAddToolDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
@@ -162,7 +162,7 @@ class ToolServiceTest {
 
     @Test
     void shouldValidateAndEditTool() {
-        final User user = createUser(UserType.WORKER);
+        final User user = createUser(UserRole.WORKER);
         final Tool originalTool = ToolCreatorHelper.I.createTool();
         final ToolDTO editedTool = ToolCreatorHelper.I.createEditedToolDTO();
 
@@ -194,7 +194,7 @@ class ToolServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToEditTool() {
-        final User user = createUser(UserType.CUSTOMER);
+        final User user = createUser(UserRole.CUSTOMER);
         final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
@@ -205,7 +205,7 @@ class ToolServiceTest {
 
     @Test
     void shouldDeleteTool() {
-        final User user = createUser(UserType.WORKER);
+        final User user = createUser(UserRole.WORKER);
         final Tool tool = ToolCreatorHelper.I.createTool();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
@@ -226,7 +226,7 @@ class ToolServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToDeleteTool() {
-        final User user = createUser(UserType.CUSTOMER);
+        final User user = createUser(UserRole.CUSTOMER);
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
 
@@ -264,9 +264,9 @@ class ToolServiceTest {
         assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
     }
 
-    private User createUser(final UserType userType) {
+    private User createUser(final UserRole userRole) {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(USER_EMAIL, "Start00!", "John", "Kowalski", userType, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(USER_EMAIL, "Start00!", "John", "Kowalski", userRole, addressDTO);
         return User.createUser(userRegisterDTO, "encryptedPassword");
     }
 

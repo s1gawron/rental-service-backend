@@ -7,7 +7,7 @@ import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.model.UserType;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class UserServiceTest {
     @Test
     void shouldFindUserByEmail() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserType.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
         final User user = User.createUser(userRegisterDTO, "encryptedPassword");
 
         user.setCustomerAddress(Address.from(addressDTO));
@@ -49,7 +49,7 @@ class UserServiceTest {
         assertEquals(EMAIL, result.get().getEmail());
         assertEquals("John", result.get().getFirstName());
         assertEquals("Kowalski", result.get().getLastName());
-        assertEquals(UserType.CUSTOMER, result.get().getUserType());
+        assertEquals(UserRole.CUSTOMER, result.get().getUserRole());
         assertEquals("Poland", result.get().getCustomerAddress().getCountry());
         assertEquals("01-000", result.get().getCustomerAddress().getPostCode());
     }
@@ -64,7 +64,7 @@ class UserServiceTest {
     @Test
     void shouldDeleteUser() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserType.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
         final User user = User.createUser(userRegisterDTO, "encryptedPassword");
 
         Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
@@ -77,10 +77,10 @@ class UserServiceTest {
     @Test
     void shouldValidateAndRegisterUser() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserType.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
         final Address address = Address.from(addressDTO);
 
-        Mockito.when(addressServiceMock.validateAndSaveAddress(addressDTO, UserType.CUSTOMER)).thenReturn(Optional.of(address));
+        Mockito.when(addressServiceMock.validateAndSaveAddress(addressDTO, UserRole.CUSTOMER)).thenReturn(Optional.of(address));
 
         final UserDTO result = userService.validateAndRegisterUser(userRegisterDTO);
 
@@ -95,7 +95,7 @@ class UserServiceTest {
     @Test
     void shouldThrowExceptionWhenEmailAlreadyExists() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserType.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
         final User user = User.createUser(userRegisterDTO, "encryptedPassword");
 
         Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));

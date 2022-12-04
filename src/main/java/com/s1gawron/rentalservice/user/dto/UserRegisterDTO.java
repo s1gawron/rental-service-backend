@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.user.dto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
-import com.s1gawron.rentalservice.user.model.UserType;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +22,7 @@ public class UserRegisterDTO {
 
     private final String lastName;
 
-    private final UserType userType;
+    private final UserRole userRole;
 
     private final AddressDTO address;
 

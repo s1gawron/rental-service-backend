@@ -41,7 +41,7 @@ public enum UserDTOValidator {
             throw UserRegisterEmptyPropertiesException.createForLastName();
         }
 
-        if (userRegisterDTO.getUserType() == null) {
+        if (userRegisterDTO.getUserRole() == null) {
             log.error("User type" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForUserType();
         }

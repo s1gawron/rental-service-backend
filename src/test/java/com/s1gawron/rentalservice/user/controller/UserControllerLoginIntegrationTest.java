@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
-import com.s1gawron.rentalservice.user.model.UserType;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.UserService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,7 @@ public class UserControllerLoginIntegrationTest {
     void setUp() {
         userService.deleteUser(EMAIL);
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, PASSWORD, "John", "Kowalski", UserType.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
         userService.validateAndRegisterUser(userRegisterDTO);
     }
 

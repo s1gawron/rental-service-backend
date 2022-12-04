@@ -14,7 +14,7 @@ import com.s1gawron.rentalservice.tool.model.ToolState;
 import com.s1gawron.rentalservice.tool.repository.ToolRepository;
 import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.model.UserType;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -108,7 +108,7 @@ public class ToolService {
         final String authenticatedUserEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         final User user = userService.getUserByEmail(authenticatedUserEmail).orElseThrow(() -> UserNotFoundException.create(authenticatedUserEmail));
 
-        if (user.getUserType() != UserType.WORKER) {
+        if (user.getUserRole() != UserRole.WORKER) {
             throw NoAccessForUserRoleException.create(ELEMENT_NAME);
         }
     }

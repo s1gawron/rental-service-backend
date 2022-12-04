@@ -4,7 +4,7 @@ import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.address.exception.AddressRegisterEmptyPropertiesException;
 import com.s1gawron.rentalservice.address.model.Address;
 import com.s1gawron.rentalservice.address.repository.AddressRepository;
-import com.s1gawron.rentalservice.user.model.UserType;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,14 +29,14 @@ class AddressServiceTest {
     void shouldReturnEmptyOptionalWhenUserTypeIsWorker() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
 
-        final Optional<Address> result = addressService.validateAndSaveAddress(addressDTO, UserType.WORKER);
+        final Optional<Address> result = addressService.validateAndSaveAddress(addressDTO, UserRole.WORKER);
 
         assertTrue(result.isEmpty());
     }
 
     @Test
     void shouldThrowExceptionWhenAddressDTOIsNull() {
-        assertThrows(AddressRegisterEmptyPropertiesException.class, () -> addressService.validateAndSaveAddress(null, UserType.CUSTOMER),
+        assertThrows(AddressRegisterEmptyPropertiesException.class, () -> addressService.validateAndSaveAddress(null, UserRole.CUSTOMER),
             "Address cannot be empty!");
     }
 
@@ -47,7 +47,7 @@ class AddressServiceTest {
 
         Mockito.when(addressRepositoryMock.save(Mockito.any(Address.class))).thenReturn(address);
 
-        final Optional<Address> result = addressService.validateAndSaveAddress(addressDTO, UserType.CUSTOMER);
+        final Optional<Address> result = addressService.validateAndSaveAddress(addressDTO, UserRole.CUSTOMER);
 
         Mockito.verify(addressRepositoryMock, Mockito.times(1)).save(Mockito.any(Address.class));
         assertTrue(result.isPresent());

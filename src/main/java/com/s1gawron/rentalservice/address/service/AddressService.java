@@ -1,10 +1,11 @@
 package com.s1gawron.rentalservice.address.service;
 
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
+import com.s1gawron.rentalservice.address.dto.validator.AddressDTOValidator;
 import com.s1gawron.rentalservice.address.exception.AddressRegisterEmptyPropertiesException;
 import com.s1gawron.rentalservice.address.model.Address;
 import com.s1gawron.rentalservice.address.repository.AddressRepository;
-import com.s1gawron.rentalservice.user.model.UserType;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +19,9 @@ public class AddressService {
     private final AddressRepository addressRepository;
 
     @Transactional
-    public Optional<Address> validateAndSaveAddress(final AddressDTO addressDTO, final UserType userType) {
+    public Optional<Address> validateAndSaveAddress(final AddressDTO addressDTO, final UserRole userRole) {
         //No need to save user address for worker
-        if (userType == UserType.WORKER) {
+        if (userRole == UserRole.WORKER) {
             return Optional.empty();
         }
 
@@ -28,7 +29,7 @@ public class AddressService {
             throw AddressRegisterEmptyPropertiesException.create();
         }
 
-        addressDTO.validate();
+        AddressDTOValidator.I.validate(addressDTO);
 
         final Address address = addressRepository.save(Address.from(addressDTO));
         return Optional.of(address);

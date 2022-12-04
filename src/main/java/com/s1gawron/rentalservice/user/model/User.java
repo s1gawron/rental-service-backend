@@ -42,8 +42,8 @@ public class User {
     private String lastName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_type")
-    private UserType userType;
+    @Column(name = "user_role")
+    private UserRole userRole;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_address_id", referencedColumnName = "address_id")
@@ -52,22 +52,22 @@ public class User {
     @OneToMany(mappedBy = "customer")
     private List<Reservation> customerReservations;
 
-    private User(final boolean active, final String email, final String password, final String firstName, final String lastName, final UserType userType) {
+    private User(final boolean active, final String email, final String password, final String firstName, final String lastName, final UserRole userRole) {
         this.active = active;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.userType = userType;
+        this.userRole = userRole;
     }
 
     public static User createUser(final UserRegisterDTO userRegisterDTO, final String encryptedPassword) {
         return new User(true, userRegisterDTO.getEmail(), encryptedPassword, userRegisterDTO.getFirstName(), userRegisterDTO.getLastName(),
-            userRegisterDTO.getUserType());
+            userRegisterDTO.getUserRole());
     }
 
     public UserDTO toUserDTO() {
-        if (this.userType == UserType.CUSTOMER) {
+        if (this.userRole == UserRole.CUSTOMER) {
             final AddressDTO userAddress = this.customerAddress.toAddressDTO();
             return new UserDTO(this.firstName, this.lastName, this.email, userAddress);
         }
@@ -76,7 +76,7 @@ public class User {
     }
 
     public boolean isNotCustomer() {
-        return this.userType == UserType.WORKER;
+        return this.userRole == UserRole.WORKER;
     }
 
     public List<ReservationHasTool> getReservationHasTool() {

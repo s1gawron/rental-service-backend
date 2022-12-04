@@ -35,8 +35,7 @@ public class UserService {
         final String encryptedPassword = new BCryptPasswordEncoder().encode(userRegisterDTO.getPassword());
         final User user = User.createUser(userRegisterDTO, encryptedPassword);
 
-        addressService.validateAndSaveAddress(userRegisterDTO.getAddress(), userRegisterDTO.getUserType())
-            .ifPresent(user::setCustomerAddress);
+        addressService.validateAndSaveAddress(userRegisterDTO.getAddress(), userRegisterDTO.getUserRole()).ifPresent(user::setCustomerAddress);
         userRepository.save(user);
 
         return user.toUserDTO();
