@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.tool.service;
 
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.tool.dto.AddToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.validator.ToolDTOValidator;
@@ -61,12 +62,12 @@ public class ToolService {
     }
 
     @Transactional
-    public ToolDTO validateAndAddTool(final ToolDTO toolDTO) {
+    public ToolDTO validateAndAddTool(final AddToolDTO addToolDTO) {
         canUserPerformActionOnTools();
-        ToolDTOValidator.I.validate(toolDTO);
+        ToolDTOValidator.I.validate(addToolDTO);
 
-        final ToolState toolState = ToolState.from(toolDTO.getToolState());
-        final Tool tool = Tool.from(toolDTO, toolState);
+        final ToolState toolState = ToolState.from(addToolDTO.getToolState());
+        final Tool tool = Tool.from(addToolDTO, toolState);
 
         toolStateRepository.save(toolState);
         toolRepository.save(tool);
@@ -75,11 +76,11 @@ public class ToolService {
     }
 
     @Transactional
-    public ToolDTO validateAndEditTool(final Long toolId, final ToolDTO toolDTO) {
+    public ToolDTO validateAndEditTool(final ToolDTO toolDTO) {
         canUserPerformActionOnTools();
         ToolDTOValidator.I.validate(toolDTO);
 
-        final Tool tool = toolRepository.findById(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
+        final Tool tool = toolRepository.findById(toolDTO.getToolId()).orElseThrow(() -> ToolNotFoundException.create(toolDTO.getToolId()));
         final ToolState toolState = tool.getToolState();
 
         toolState.edit(toolDTO.getToolState());

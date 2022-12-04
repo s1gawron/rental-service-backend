@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.tool.controller;
 
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.tool.dto.AddToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolEmptyPropertiesException;
@@ -30,12 +31,15 @@ class AddToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldValidateAndAddTool() {
         final ToolDTO toolDTO = ToolCreatorHelper.I.createToolDTO();
-        final String expectedJson = objectMapper.writeValueAsString(toolDTO);
+        final AddToolDTO addToolDTO = ToolCreatorHelper.I.createAddToolDTO();
+        final String addToolDTOJson = objectMapper.writeValueAsString(addToolDTO);
 
-        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenReturn(toolDTO);
+        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(AddToolDTO.class))).thenReturn(toolDTO);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/tool/add").content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post("/api/tool/add").content(addToolDTOJson).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
+
+        final String expectedJson = objectMapper.writeValueAsString(toolDTO);
         final String jsonResult = result.getResponse().getContentAsString();
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
@@ -47,10 +51,10 @@ class AddToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnNotFoundResponseWhenUserIsNotFoundWhileAddingTool() {
         final UserNotFoundException expectedException = UserNotFoundException.create("test@test.pl");
-        final ToolDTO toolDTO = ToolCreatorHelper.I.createToolDTO();
+        final AddToolDTO toolDTO = ToolCreatorHelper.I.createAddToolDTO();
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
-        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
+        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(AddToolDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -63,10 +67,10 @@ class AddToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnForbiddenResponseWhenUserIsNotAllowedToAddTool() {
         final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("TOOL MANAGEMENT");
-        final ToolDTO toolDTO = ToolCreatorHelper.I.createToolDTO();
+        final AddToolDTO toolDTO = ToolCreatorHelper.I.createAddToolDTO();
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
-        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
+        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(AddToolDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -80,10 +84,10 @@ class AddToolControllerTest extends AbstractToolControllerTest {
     void shouldReturnBadRequestResponseWhenToolNameIsEmptyWhileAddingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForName();
         final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New");
-        final ToolDTO toolDTO = new ToolDTO(null, "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
+        final AddToolDTO toolDTO = new AddToolDTO(null, "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
-        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
+        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(AddToolDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -97,10 +101,10 @@ class AddToolControllerTest extends AbstractToolControllerTest {
     void shouldReturnBadRequestResponseWhenToolDescriptionIsEmptyWhileAddingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForDescription();
         final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New");
-        final ToolDTO toolDTO = new ToolDTO("Hammer", null, ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
+        final AddToolDTO toolDTO = new AddToolDTO("Hammer", null, ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
-        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
+        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(AddToolDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -114,10 +118,10 @@ class AddToolControllerTest extends AbstractToolControllerTest {
     void shouldReturnBadRequestResponseWhenToolCategoryIsEmptyWhileAddingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForCategory();
         final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New");
-        final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", null, BigDecimal.valueOf(5.99), toolStateDTO);
+        final AddToolDTO toolDTO = new AddToolDTO("Hammer", "Just a hammer", null, BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
-        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
+        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(AddToolDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -131,10 +135,10 @@ class AddToolControllerTest extends AbstractToolControllerTest {
     void shouldReturnBadRequestResponseWhenToolPriceIsEmptyWhileAddingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForPrice();
         final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New");
-        final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", ToolCategory.LIGHT, null, toolStateDTO);
+        final AddToolDTO toolDTO = new AddToolDTO("Hammer", "Just a hammer", ToolCategory.LIGHT, null, toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
-        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
+        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(AddToolDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -147,10 +151,10 @@ class AddToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnBadRequestResponseWhenToolStateIsEmptyWhileAddingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolState();
-        final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), null);
+        final AddToolDTO toolDTO = new AddToolDTO("Hammer", "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), null);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
-        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
+        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(AddToolDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -164,10 +168,10 @@ class AddToolControllerTest extends AbstractToolControllerTest {
     void shouldReturnBadRequestResponseWhenToolStateTypeIsEmptyWhileAddingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolStateType();
         final ToolStateDTO toolStateDTO = new ToolStateDTO(null, "New");
-        final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
+        final AddToolDTO toolDTO = new AddToolDTO("Hammer", "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
-        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
+        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(AddToolDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -181,10 +185,10 @@ class AddToolControllerTest extends AbstractToolControllerTest {
     void shouldReturnBadRequestResponseWhenToolStateDescriptionIsEmptyWhileAddingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolStateDescription();
         final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, null);
-        final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
+        final AddToolDTO toolDTO = new AddToolDTO("Hammer", "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
-        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
+        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(AddToolDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();

@@ -24,7 +24,7 @@ class ToolDTOSerializationTest {
     @SneakyThrows
     void shouldSerialize() {
         final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New and shiny tool");
-        final ToolDTO toolDTO = new ToolDTO("Hammer", "It's just a hammer :)", ToolCategory.LIGHT, BigDecimal.valueOf(10.99), toolStateDTO);
+        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT, BigDecimal.valueOf(10.99), toolStateDTO);
 
         final String toolDTOJsonResult = mapper.writeValueAsString(toolDTO);
         final String expectedToolDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-dto.json"));

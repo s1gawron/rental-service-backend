@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.tool.model;
 
 import com.s1gawron.rentalservice.reservationhastool.model.ReservationHasTool;
+import com.s1gawron.rentalservice.tool.dto.AddToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,6 +59,10 @@ public class Tool {
 
     public static Tool from(final ToolDTO toolDTO, final ToolState toolState) {
         return new Tool(toolDTO.getName(), toolDTO.getDescription(), toolDTO.getToolCategory(), toolDTO.getPrice(), toolState, LocalDate.now());
+    }
+
+    public static Tool from(final AddToolDTO addToolDTO, final ToolState toolState) {
+        return new Tool(addToolDTO.getName(), addToolDTO.getDescription(), addToolDTO.getToolCategory(), addToolDTO.getPrice(), toolState, LocalDate.now());
     }
 
     public void edit(final ToolDTO toolDTO) {

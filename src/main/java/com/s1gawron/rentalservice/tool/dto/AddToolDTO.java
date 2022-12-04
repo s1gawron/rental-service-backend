@@ -2,7 +2,6 @@ package com.s1gawron.rentalservice.tool.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,10 +12,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Getter
 @Builder
-@JsonDeserialize(builder = ToolDTO.ToolDTOBuilder.class)
-public class ToolDTO implements ToolDTOProperties {
-
-    private final Long toolId;
+@JsonDeserialize(builder = AddToolDTO.AddToolDTOBuilder.class)
+public class AddToolDTO implements ToolDTOProperties {
 
     private final String name;
 
@@ -29,12 +26,8 @@ public class ToolDTO implements ToolDTOProperties {
     private final ToolStateDTO toolState;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class ToolDTOBuilder {
+    public static class AddToolDTOBuilder {
 
     }
 
-    public static ToolDTO from(final Tool tool) {
-        return new ToolDTO(tool.getToolId(), tool.getName(), tool.getDescription(), tool.getToolCategory(), tool.getPrice(),
-            ToolStateDTO.from(tool.getToolState()));
-    }
 }

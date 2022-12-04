@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.tool.model.ToolStateType;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ToolStateDTOSerializationTest {
 
@@ -25,7 +26,17 @@ class ToolStateDTOSerializationTest {
         final JsonNode expected = mapper.readTree(expectedToolStateDTOJsonResult);
         final JsonNode result = mapper.readTree(toolStateDTOJsonResult);
 
-        Assertions.assertEquals(expected, result);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldDeserialize() {
+        final String toolStateJson = Files.readString(Path.of("src/test/resources/tool-state-dto.json"));
+        final ToolStateDTO result = mapper.readValue(toolStateJson, ToolStateDTO.class);
+
+        assertEquals(ToolStateType.NEW, result.getStateType());
+        assertEquals("New and shiny tool", result.getDescription());
     }
 
 }

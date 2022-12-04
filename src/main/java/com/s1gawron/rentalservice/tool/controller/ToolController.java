@@ -1,5 +1,6 @@
 package com.s1gawron.rentalservice.tool.controller;
 
+import com.s1gawron.rentalservice.tool.dto.AddToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
@@ -31,13 +32,13 @@ public class ToolController extends ToolErrorHandlerController {
     }
 
     @PostMapping("add")
-    public ToolDTO addTool(@RequestBody final ToolDTO toolDTO) {
-        return toolService.validateAndAddTool(toolDTO);
+    public ToolDTO addTool(@RequestBody final AddToolDTO addToolDTO) {
+        return toolService.validateAndAddTool(addToolDTO);
     }
 
-    @PutMapping("edit/{toolId}")
-    public ToolDTO editTool(@PathVariable final Long toolId, @RequestBody final ToolDTO toolDTO) {
-        return toolService.validateAndEditTool(toolId, toolDTO);
+    @PutMapping("edit")
+    public ToolDTO editTool(@RequestBody final ToolDTO toolDTO) {
+        return toolService.validateAndEditTool(toolDTO);
     }
 
     @DeleteMapping("delete/{toolId}")

@@ -3,6 +3,7 @@ package com.s1gawron.rentalservice.tool.service;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.tool.dto.AddToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
@@ -109,28 +110,6 @@ class ToolServiceTest {
         assertTools(expectedTools, result);
     }
 
-    private void assertTools(final List<ToolDTO> expectedTools, final List<ToolDTO> resultTools) {
-        resultTools.forEach(resultTool -> {
-            final Optional<ToolDTO> expected = expectedTools.stream()
-                .filter(expectedTool -> expectedTool.getName().equals(resultTool.getName()))
-                .findFirst();
-
-            if (expected.isEmpty()) {
-                throw new IllegalStateException("Expected tool cannot be empty!");
-            }
-
-            assertToolDTO(expected.get(), resultTool);
-        });
-    }
-
-    private void assertToolDTO(final ToolDTO expected, final ToolDTO resultTool) {
-        assertEquals(expected.getName(), resultTool.getName());
-        assertEquals(expected.getDescription(), resultTool.getDescription());
-        assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
-        assertEquals(expected.getPrice(), resultTool.getPrice());
-        assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
-    }
-
     @Test
     void shouldGetToolById() {
         final Tool tool = ToolCreatorHelper.I.createTool();
@@ -151,7 +130,7 @@ class ToolServiceTest {
     @Test
     void shouldValidateAndAddTool() {
         final User user = createUser(UserType.WORKER);
-        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
+        final AddToolDTO expected = ToolCreatorHelper.I.createAddToolDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
 
@@ -159,12 +138,12 @@ class ToolServiceTest {
 
         Mockito.verify(toolStateRepositoryMock, Mockito.times(1)).save(Mockito.any(ToolState.class));
         Mockito.verify(toolRepositoryMock, Mockito.times(1)).save(Mockito.any(Tool.class));
-        assertToolDTO(expected, result);
+        assertAddToolDTO(expected, result);
     }
 
     @Test
     void shouldThrowExceptionWhenUserDoesNotExistWhileAddingTool() {
-        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
+        final AddToolDTO expected = ToolCreatorHelper.I.createAddToolDTO();
 
         assertThrows(UserNotFoundException.class, () -> toolService.validateAndAddTool(expected),
             "User: " + USER_EMAIL + " could not be found!");
@@ -173,7 +152,7 @@ class ToolServiceTest {
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToAddTool() {
         final User user = createUser(UserType.CUSTOMER);
-        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
+        final AddToolDTO expected = ToolCreatorHelper.I.createAddToolDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
 
@@ -190,7 +169,7 @@ class ToolServiceTest {
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
         Mockito.when(toolRepositoryMock.findById(1L)).thenReturn(Optional.of(originalTool));
 
-        final ToolDTO result = toolService.validateAndEditTool(1L, editedTool);
+        final ToolDTO result = toolService.validateAndEditTool(editedTool);
 
         Mockito.verify(toolStateRepositoryMock, Mockito.times(1)).save(Mockito.any(ToolState.class));
         Mockito.verify(toolRepositoryMock, Mockito.times(1)).save(Mockito.any(Tool.class));
@@ -209,7 +188,7 @@ class ToolServiceTest {
     void shouldThrowExceptionWhenUserDoesNotExistWhileEditingTool() {
         final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
 
-        assertThrows(UserNotFoundException.class, () -> toolService.validateAndEditTool(1L, expected),
+        assertThrows(UserNotFoundException.class, () -> toolService.validateAndEditTool(expected),
             "User: " + USER_EMAIL + " could not be found!");
     }
 
@@ -220,7 +199,7 @@ class ToolServiceTest {
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
 
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndEditTool(1L, expected),
+        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndEditTool(expected),
             "Current user role is not allowed to use: TOOL MANAGEMENT module!");
     }
 
@@ -253,6 +232,36 @@ class ToolServiceTest {
 
         assertThrows(NoAccessForUserRoleException.class, () -> toolService.deleteTool(1L),
             "Current user role is not allowed to use: TOOL MANAGEMENT module!");
+    }
+
+    private void assertTools(final List<ToolDTO> expectedTools, final List<ToolDTO> resultTools) {
+        resultTools.forEach(resultTool -> {
+            final Optional<ToolDTO> expected = expectedTools.stream()
+                .filter(expectedTool -> expectedTool.getName().equals(resultTool.getName()))
+                .findFirst();
+
+            if (expected.isEmpty()) {
+                throw new IllegalStateException("Expected tool cannot be empty!");
+            }
+
+            assertToolDTO(expected.get(), resultTool);
+        });
+    }
+
+    private void assertAddToolDTO(final AddToolDTO expected, final ToolDTO resultTool) {
+        assertEquals(expected.getName(), resultTool.getName());
+        assertEquals(expected.getDescription(), resultTool.getDescription());
+        assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
+        assertEquals(expected.getPrice(), resultTool.getPrice());
+        assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
+    }
+
+    private void assertToolDTO(final ToolDTO expected, final ToolDTO resultTool) {
+        assertEquals(expected.getName(), resultTool.getName());
+        assertEquals(expected.getDescription(), resultTool.getDescription());
+        assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
+        assertEquals(expected.getPrice(), resultTool.getPrice());
+        assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
     }
 
     private User createUser(final UserType userType) {

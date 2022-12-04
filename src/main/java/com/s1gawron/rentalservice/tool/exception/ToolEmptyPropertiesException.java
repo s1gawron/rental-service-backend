@@ -6,6 +6,10 @@ public class ToolEmptyPropertiesException extends RuntimeException {
         super(message);
     }
 
+    public static ToolEmptyPropertiesException createForId() {
+        return new ToolEmptyPropertiesException("Tool id cannot be empty!");
+    }
+
     public static ToolEmptyPropertiesException createForName() {
         return new ToolEmptyPropertiesException("Tool name cannot be empty!");
     }
