@@ -37,8 +37,8 @@ class UserServiceTest {
     @Test
     void shouldFindUserByEmail() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
-        final User user = User.createUser(userRegisterDTO, "encryptedPassword");
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", "CUSTOMER", addressDTO);
+        final User user = User.createUser(userRegisterDTO, UserRole.CUSTOMER, "encryptedPassword");
 
         user.setCustomerAddress(Address.from(addressDTO));
         Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
@@ -64,8 +64,8 @@ class UserServiceTest {
     @Test
     void shouldDeleteUser() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
-        final User user = User.createUser(userRegisterDTO, "encryptedPassword");
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", "CUSTOMER", addressDTO);
+        final User user = User.createUser(userRegisterDTO, UserRole.CUSTOMER, "encryptedPassword");
 
         Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
 
@@ -77,7 +77,7 @@ class UserServiceTest {
     @Test
     void shouldValidateAndRegisterUser() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", "CUSTOMER", addressDTO);
         final Address address = Address.from(addressDTO);
 
         Mockito.when(addressServiceMock.validateAndSaveAddress(addressDTO, UserRole.CUSTOMER)).thenReturn(Optional.of(address));
@@ -95,8 +95,8 @@ class UserServiceTest {
     @Test
     void shouldThrowExceptionWhenEmailAlreadyExists() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
-        final User user = User.createUser(userRegisterDTO, "encryptedPassword");
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", "CUSTOMER", addressDTO);
+        final User user = User.createUser(userRegisterDTO, UserRole.CUSTOMER, "encryptedPassword");
 
         Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
 

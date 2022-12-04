@@ -14,8 +14,8 @@ public class UserRegisterEmptyPropertiesException extends RuntimeException {
         return new UserRegisterEmptyPropertiesException("Last name cannot be empty!");
     }
 
-    public static UserRegisterEmptyPropertiesException createForUserType() {
-        return new UserRegisterEmptyPropertiesException("User type cannot be empty!");
+    public static UserRegisterEmptyPropertiesException createForUserRole() {
+        return new UserRegisterEmptyPropertiesException("User role cannot be empty!");
     }
 
     public static UserRegisterEmptyPropertiesException createForEmail() {

@@ -266,8 +266,8 @@ class ToolServiceTest {
 
     private User createUser(final UserRole userRole) {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(USER_EMAIL, "Start00!", "John", "Kowalski", userRole, addressDTO);
-        return User.createUser(userRegisterDTO, "encryptedPassword");
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(USER_EMAIL, "Start00!", "John", "Kowalski", userRole.getName(), addressDTO);
+        return User.createUser(userRegisterDTO, userRole, "encryptedPassword");
     }
 
 }

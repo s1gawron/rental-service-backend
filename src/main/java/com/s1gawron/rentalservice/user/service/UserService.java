@@ -5,7 +5,9 @@ import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.dto.validator.UserDTOValidator;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
+import com.s1gawron.rentalservice.user.exception.UserRoleDoesNotExistException;
 import com.s1gawron.rentalservice.user.model.User;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,9 +35,11 @@ public class UserService {
         }
 
         final String encryptedPassword = new BCryptPasswordEncoder().encode(userRegisterDTO.getPassword());
-        final User user = User.createUser(userRegisterDTO, encryptedPassword);
+        final UserRole userRole = UserRole.findByValue(userRegisterDTO.getUserRole())
+            .orElseThrow(() -> UserRoleDoesNotExistException.create(userRegisterDTO.getUserRole()));
+        final User user = User.createUser(userRegisterDTO, userRole, encryptedPassword);
 
-        addressService.validateAndSaveAddress(userRegisterDTO.getAddress(), userRegisterDTO.getUserRole()).ifPresent(user::setCustomerAddress);
+        addressService.validateAndSaveAddress(userRegisterDTO.getAddress(), userRole).ifPresent(user::setCustomerAddress);
         userRepository.save(user);
 
         return user.toUserDTO();

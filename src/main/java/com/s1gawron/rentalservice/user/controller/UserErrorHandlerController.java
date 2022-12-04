@@ -61,4 +61,12 @@ public abstract class UserErrorHandlerController {
             postCodePatternViolationException.getMessage(), httpServletRequest.getRequestURI());
     }
 
+    @ExceptionHandler(UserRoleDoesNotExistException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse userRoleDoesNotExistExceptionHandler(final UserRoleDoesNotExistException userRoleDoesNotExistException,
+        final HttpServletRequest httpServletRequest) {
+        return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
+            userRoleDoesNotExistException.getMessage(), httpServletRequest.getRequestURI());
+    }
+
 }

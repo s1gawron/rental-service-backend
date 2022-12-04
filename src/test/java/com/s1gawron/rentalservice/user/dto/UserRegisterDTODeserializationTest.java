@@ -1,7 +1,6 @@
 package com.s1gawron.rentalservice.user.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +23,7 @@ class UserRegisterDTODeserializationTest {
         assertEquals("Start00!", result.getPassword());
         assertEquals("John", result.getFirstName());
         assertEquals("Kowalski", result.getLastName());
-        assertEquals(UserRole.CUSTOMER, result.getUserRole());
+        assertEquals("CUSTOMER", result.getUserRole());
         assertEquals("Poland", result.getAddress().getCountry());
         assertEquals("01-000", result.getAddress().getPostCode());
     }

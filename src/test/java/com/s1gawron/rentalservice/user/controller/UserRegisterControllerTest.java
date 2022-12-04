@@ -9,7 +9,6 @@ import com.s1gawron.rentalservice.shared.ErrorResponse;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.*;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.UserService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,8 +38,7 @@ class UserRegisterControllerTest {
 
     private static final AddressDTO ADDRESS_DTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
 
-    private static final UserRegisterDTO USER_REGISTER_DTO = new UserRegisterDTO("test@test.pl", "Start00!", "John", "Kowalski", UserRole.CUSTOMER,
-        ADDRESS_DTO);
+    private static final UserRegisterDTO USER_REGISTER_DTO = new UserRegisterDTO("test@test.pl", "Start00!", "John", "Kowalski", "CUSTOMER", ADDRESS_DTO);
 
     private static final String USER_REGISTER_ENDPOINT = "/api/user/register";
 
@@ -168,6 +166,20 @@ class UserRegisterControllerTest {
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertErrorResponse(HttpStatus.BAD_REQUEST, postCodePatternViolationException.getMessage(), USER_REGISTER_ENDPOINT,
+            toErrorResponse(result.getResponse().getContentAsString()));
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldReturnBadRequestResponseWhenUserRoleDoesNotExistWhileRegisteringUser() {
+        final UserRoleDoesNotExistException userRegisterEmptyPropertiesException = UserRoleDoesNotExistException.create("UNKNOWN");
+
+        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(userRegisterEmptyPropertiesException);
+
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(userRegisterJson).contentType(MediaType.APPLICATION_JSON);
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertErrorResponse(HttpStatus.BAD_REQUEST, userRegisterEmptyPropertiesException.getMessage(), USER_REGISTER_ENDPOINT,
             toErrorResponse(result.getResponse().getContentAsString()));
     }
 

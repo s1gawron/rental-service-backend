@@ -61,9 +61,8 @@ public class User {
         this.userRole = userRole;
     }
 
-    public static User createUser(final UserRegisterDTO userRegisterDTO, final String encryptedPassword) {
-        return new User(true, userRegisterDTO.getEmail(), encryptedPassword, userRegisterDTO.getFirstName(), userRegisterDTO.getLastName(),
-            userRegisterDTO.getUserRole());
+    public static User createUser(final UserRegisterDTO userRegisterDTO, final UserRole userRole, final String encryptedPassword) {
+        return new User(true, userRegisterDTO.getEmail(), encryptedPassword, userRegisterDTO.getFirstName(), userRegisterDTO.getLastName(), userRole);
     }
 
     public UserDTO toUserDTO() {

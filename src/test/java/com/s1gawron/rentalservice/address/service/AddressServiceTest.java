@@ -26,7 +26,7 @@ class AddressServiceTest {
     }
 
     @Test
-    void shouldReturnEmptyOptionalWhenUserTypeIsWorker() {
+    void shouldReturnEmptyOptionalWhenUserRoleIsWorker() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
 
         final Optional<Address> result = addressService.validateAndSaveAddress(addressDTO, UserRole.WORKER);
