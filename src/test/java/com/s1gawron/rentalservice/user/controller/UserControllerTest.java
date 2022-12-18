@@ -6,9 +6,11 @@ import com.s1gawron.rentalservice.address.exception.AddressRegisterEmptyProperti
 import com.s1gawron.rentalservice.address.exception.PostCodePatternViolationException;
 import com.s1gawron.rentalservice.jwt.JwtConfig;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
+import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.*;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.UserService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,13 +36,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @WebMvcTest(UserController.class)
 @ActiveProfiles("test")
 @WithMockUser
-class UserRegisterControllerTest {
+class UserControllerTest {
 
     private static final AddressDTO ADDRESS_DTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
 
     private static final UserRegisterDTO USER_REGISTER_DTO = new UserRegisterDTO("test@test.pl", "Start00!", "John", "Kowalski", "CUSTOMER", ADDRESS_DTO);
 
     private static final String USER_REGISTER_ENDPOINT = "/api/user/register";
+
+    private static final String USER_DETAILS_ENDPOINT = "/api/user/details";
 
     @Autowired
     private MockMvc mockMvc;
@@ -68,7 +72,7 @@ class UserRegisterControllerTest {
     @SneakyThrows
     void shouldRegisterUser() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserDTO userDTO = new UserDTO("John", "Kowalski", "test@test.pl", addressDTO);
+        final UserDTO userDTO = new UserDTO("John", "Kowalski", "test@test.pl", UserRole.CUSTOMER.getName(), addressDTO);
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenReturn(userDTO);
 
@@ -180,6 +184,41 @@ class UserRegisterControllerTest {
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertErrorResponse(HttpStatus.BAD_REQUEST, userRegisterEmptyPropertiesException.getMessage(), USER_REGISTER_ENDPOINT,
+            toErrorResponse(result.getResponse().getContentAsString()));
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldGetUserDetails() {
+        final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
+        final UserDTO userDTO = new UserDTO("John", "Kowalski", "test@test.pl", UserRole.CUSTOMER.getName(), addressDTO);
+
+        Mockito.when(userServiceMock.getUserDetails()).thenReturn(userDTO);
+
+        final RequestBuilder request = MockMvcRequestBuilders.get(USER_DETAILS_ENDPOINT).content(userRegisterJson);
+        final MvcResult result = mockMvc.perform(request).andReturn();
+        final String jsonResult = result.getResponse().getContentAsString();
+        final UserDTO userDTOResult = objectMapper.readValue(jsonResult, UserDTO.class);
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        assertNotNull(userDTOResult);
+        assertEquals(userDTO.getEmail(), userDTOResult.getEmail());
+        assertEquals(userDTO.getEmail(), userDTOResult.getEmail());
+        assertEquals(userDTO.getCustomerAddress().getCountry(), userDTOResult.getCustomerAddress().getCountry());
+        assertEquals(userDTO.getCustomerAddress().getPostCode(), userDTOResult.getCustomerAddress().getPostCode());
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldReturnNotFoundResponseWhenUserIsNotFoundWhileGettingUserDetails() {
+        final UserNotFoundException expectedException = UserNotFoundException.create("test@test.pl");
+
+        Mockito.when(userServiceMock.getUserDetails()).thenThrow(expectedException);
+
+        final RequestBuilder request = MockMvcRequestBuilders.get(USER_DETAILS_ENDPOINT).content(userRegisterJson);
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), USER_DETAILS_ENDPOINT,
             toErrorResponse(result.getResponse().getContentAsString()));
     }
 

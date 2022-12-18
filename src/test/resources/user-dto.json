@@ -2,6 +2,7 @@
   "firstName": "John",
   "lastName": "Kowalski",
   "email": "test@test.pl",
+  "userRole": "customer",
   "customerAddress": {
     "country": "Poland",
     "city": "Warsaw",

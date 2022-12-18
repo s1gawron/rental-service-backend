@@ -51,12 +51,12 @@ public class JwtTokenVerifier extends OncePerRequestFilter {
                 .parseClaimsJws(jwtConfig.getJwtTokenFromAuthorizationHeader(authorizationHeader))
                 .getBody();
 
-            final String username = claims.getSubject();
+            final String email = claims.getSubject();
             final List<Map<String, String>> authorities = (List<Map<String, String>>) claims.get("authorities");
             final Set<SimpleGrantedAuthority> simpleGrantedAuthoritySet = authorities.stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.get("authority")))
                 .collect(Collectors.toSet());
-            final Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, simpleGrantedAuthoritySet);
+            final Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, simpleGrantedAuthoritySet);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (JwtException e) {

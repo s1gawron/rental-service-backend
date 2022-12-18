@@ -5,10 +5,7 @@ import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/user")
@@ -25,6 +22,11 @@ public class UserController extends UserErrorHandlerController {
     @PostMapping("register")
     public UserDTO registerUser(@RequestBody final UserRegisterDTO userRegisterDTO) {
         return userService.validateAndRegisterUser(userRegisterDTO);
+    }
+
+    @GetMapping("details")
+    public UserDTO getUserDetails() {
+        return userService.getUserDetails();
     }
 
 }

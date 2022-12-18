@@ -68,10 +68,10 @@ public class User {
     public UserDTO toUserDTO() {
         if (this.userRole == UserRole.CUSTOMER) {
             final AddressDTO userAddress = this.customerAddress.toAddressDTO();
-            return new UserDTO(this.firstName, this.lastName, this.email, userAddress);
+            return new UserDTO(this.firstName, this.lastName, this.email, this.userRole.getName(), userAddress);
         }
 
-        return new UserDTO(this.firstName, this.lastName, this.email, null);
+        return new UserDTO(this.firstName, this.lastName, this.email, this.userRole.getName(), null);
     }
 
     public boolean isNotCustomer() {

@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.user.service;
 
 import com.s1gawron.rentalservice.address.service.AddressService;
+import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.dto.validator.UserDTOValidator;
@@ -10,6 +11,7 @@ import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +50,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<User> getUserByEmail(final String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    public UserDTO getUserDetails() {
+        final String authenticatedUserEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        final User user = getUserByEmail(authenticatedUserEmail).orElseThrow(() -> UserNotFoundException.create(authenticatedUserEmail));
+
+        return user.toUserDTO();
     }
 
     @Transactional

@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.user.controller;
 
 import com.s1gawron.rentalservice.address.exception.AddressRegisterEmptyPropertiesException;
 import com.s1gawron.rentalservice.address.exception.PostCodePatternViolationException;
+import com.s1gawron.rentalservice.shared.AbstractErrorHandlerController;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
 import com.s1gawron.rentalservice.user.exception.*;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 
-public abstract class UserErrorHandlerController {
+public abstract class UserErrorHandlerController extends AbstractErrorHandlerController {
 
     @ExceptionHandler(UserEmailExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)

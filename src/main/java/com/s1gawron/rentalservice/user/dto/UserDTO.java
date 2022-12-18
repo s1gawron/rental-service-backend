@@ -19,6 +19,8 @@ public class UserDTO {
 
     private final String email;
 
+    private final String userRole;
+
     private final AddressDTO customerAddress;
 
     @JsonPOJOBuilder(withPrefix = "")

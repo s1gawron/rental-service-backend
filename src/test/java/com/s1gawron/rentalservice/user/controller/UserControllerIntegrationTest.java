@@ -2,6 +2,8 @@ package com.s1gawron.rentalservice.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
+import com.s1gawron.rentalservice.shared.ErrorResponse;
+import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.service.UserService;
@@ -30,6 +32,10 @@ public class UserControllerIntegrationTest {
 
     private static final String PASSWORD = "Start00!";
 
+    private static final String USER_REGISTER_ENDPOINT = "/api/user/register";
+
+    private static final String NO_USER_IN_DB_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJub3VzZXJpbmRiQHRlc3QucGwiLCJhdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiQ1VTVE9NRVIifV0sImlhdCI6MTY3MTM1NDkzNiwiZXhwIjoxNjcxNDA0NDAwfQ.2sY9w-SsmqGp7WwU7KFmwLoYNtlJzpayd7TFT_o_ERA";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -47,13 +53,10 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    @SneakyThrows
     void shouldLoginAndReturnValidTokenInHeader() {
         final UserLoginDTO userLoginDTO = new UserLoginDTO(EMAIL, PASSWORD);
-        final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/user/login").content(userLoginJson);
 
-        final MvcResult result = mockMvc.perform(request).andReturn();
+        final MvcResult result = performLoginAction(userLoginDTO);
         final String token = result.getResponse().getHeader("Authorization");
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
@@ -62,17 +65,22 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
-    @SneakyThrows
     void shouldReturnUnauthorizedStatus() {
         final UserLoginDTO userLoginDTO = new UserLoginDTO("testUser", "wrongPassword");
-        final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/user/login").content(userLoginJson);
 
-        final MvcResult result = mockMvc.perform(request).andReturn();
+        final MvcResult result = performLoginAction(userLoginDTO);
         final String token = result.getResponse().getHeader("Authorization");
 
         assertEquals(HttpStatus.UNAUTHORIZED.value(), result.getResponse().getStatus());
         assertNull(token);
+    }
+
+    @SneakyThrows
+    private MvcResult performLoginAction(final UserLoginDTO userLoginDTO) {
+        final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
+        final RequestBuilder request = MockMvcRequestBuilders.post("/api/user/login").content(userLoginJson);
+
+        return mockMvc.perform(request).andReturn();
     }
 
     @Test
@@ -91,7 +99,7 @@ public class UserControllerIntegrationTest {
             + "    \"postCode\": \"01-000\"\n"
             + "  }\n"
             + "}";
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/user/register").content(json).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON);
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -115,7 +123,7 @@ public class UserControllerIntegrationTest {
             + "    \"postCode\": \"01-000\"\n"
             + "  }\n"
             + "}";
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/user/register").content(json).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON);
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -138,7 +146,7 @@ public class UserControllerIntegrationTest {
             + "    \"postCode\": \"01-000\"\n"
             + "  }\n"
             + "}";
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/user/register").content(json).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON);
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -161,7 +169,7 @@ public class UserControllerIntegrationTest {
             + "    \"postCode\": \"01-000\"\n"
             + "  }\n"
             + "}";
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/user/register").content(json).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON);
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -185,7 +193,7 @@ public class UserControllerIntegrationTest {
             + "    \"postCode\": \"01-000\"\n"
             + "  }\n"
             + "}";
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/user/register").content(json).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON);
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -209,12 +217,60 @@ public class UserControllerIntegrationTest {
             + "    \"postCode\": \"0100\"\n"
             + "  }\n"
             + "}";
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/user/register").content(json).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON);
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
         assertTrue(userService.getUserByEmail("wrong-post-code@test.pl").isEmpty());
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldGetUserDetails() {
+        final UserDTO expectedUserDto = userService.getUserByEmail(EMAIL)
+            .orElseThrow(() -> new IllegalStateException("Expected user dto cannot be null!"))
+            .toUserDTO();
+        final UserLoginDTO userLoginDTO = new UserLoginDTO(EMAIL, PASSWORD);
+        final MvcResult loginResult = performLoginAction(userLoginDTO);
+        final String token = loginResult.getResponse().getHeader("Authorization");
+        final RequestBuilder request = MockMvcRequestBuilders.get("/api/user/details").header("Authorization", token);
+
+        final MvcResult result = mockMvc.perform(request).andReturn();
+        final String jsonResult = result.getResponse().getContentAsString();
+        final UserDTO userDTOResult = objectMapper.readValue(jsonResult, UserDTO.class);
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        assertNotNull(userDTOResult);
+        assertEquals(expectedUserDto.getEmail(), userDTOResult.getEmail());
+        assertEquals(expectedUserDto.getFirstName(), userDTOResult.getFirstName());
+        assertEquals(expectedUserDto.getLastName(), userDTOResult.getLastName());
+        assertEquals(expectedUserDto.getUserRole(), userDTOResult.getUserRole());
+        assertEquals(expectedUserDto.getCustomerAddress().getCountry(), userDTOResult.getCustomerAddress().getCountry());
+        assertEquals(expectedUserDto.getCustomerAddress().getPostCode(), userDTOResult.getCustomerAddress().getPostCode());
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldNotGetUserDetailsAndReturnForbiddenWhenUserIsNotLoggedIn() {
+        final RequestBuilder request = MockMvcRequestBuilders.get("/api/user/details");
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldNotGetUserDetailsAndReturnNotFoundWhenUserIsNotFound() {
+        final RequestBuilder request = MockMvcRequestBuilders.get("/api/user/details").header("Authorization", NO_USER_IN_DB_TOKEN);
+
+        final MvcResult result = mockMvc.perform(request).andReturn();
+        final String jsonResult = result.getResponse().getContentAsString();
+        final ErrorResponse errorResponse = objectMapper.readValue(jsonResult, ErrorResponse.class);
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
+        assertEquals("User: nouserindb@test.pl could not be found!", errorResponse.getMessage());
+
     }
 
 }
