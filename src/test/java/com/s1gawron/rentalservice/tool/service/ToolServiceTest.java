@@ -72,7 +72,7 @@ class ToolServiceTest {
 
         assertEquals(2, result.getCount());
         assertEquals(2, result.getTools().size());
-        result.getTools().forEach(toolDTO -> assertEquals(ToolCategory.HEAVY, toolDTO.getToolCategory()));
+        result.getTools().forEach(toolDTO -> assertEquals(ToolCategory.HEAVY.getName(), toolDTO.getToolCategory()));
     }
 
     @Test
@@ -116,15 +116,15 @@ class ToolServiceTest {
 
         Mockito.when(toolRepositoryMock.findById(1L)).thenReturn(Optional.of(tool));
 
-        final ToolDTO expected = ToolDTO.from(tool);
-        final ToolDTO result = toolService.getToolById(1L);
+        final ToolDTO expected = tool.toToolDTO();
+        final ToolDTO result = toolService.getToolDetails(1L);
 
         assertToolDTO(expected, result);
     }
 
     @Test
     void shouldThrowExceptionWhenToolIsEmpty() {
-        assertThrows(ToolNotFoundException.class, () -> toolService.getToolById(1L), "Tool: 1 could not be found!");
+        assertThrows(ToolNotFoundException.class, () -> toolService.getToolDetails(1L), "Tool: 1 could not be found!");
     }
 
     @Test
@@ -232,6 +232,22 @@ class ToolServiceTest {
 
         assertThrows(NoAccessForUserRoleException.class, () -> toolService.deleteTool(1L),
             "Current user role is not allowed to use: TOOL MANAGEMENT module!");
+    }
+
+    @Test
+    void shouldGetToolsByName() {
+        final String toolName = "hammer";
+        final List<Tool> tools = ToolCreatorHelper.I.createCommonNameToolList().stream()
+            .filter(tool -> tool.getName().toLowerCase().contains(toolName))
+            .collect(Collectors.toList());
+
+        Mockito.when(toolRepositoryMock.findByNameContainingIgnoreCase(toolName)).thenReturn(tools);
+
+        final List<ToolDTO> expectedTools = ToolCreatorHelper.I.createCommonNameToolDTOList();
+        final List<ToolDTO> result = toolService.getToolsByName(toolName);
+
+        assertEquals(2, result.size());
+        assertTools(expectedTools, result);
     }
 
     private void assertTools(final List<ToolDTO> expectedTools, final List<ToolDTO> resultTools) {

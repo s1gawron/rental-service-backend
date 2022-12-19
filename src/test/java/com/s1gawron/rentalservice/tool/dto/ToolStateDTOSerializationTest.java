@@ -18,7 +18,7 @@ class ToolStateDTOSerializationTest {
     @Test
     @SneakyThrows
     void shouldSerialize() {
-        final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New and shiny tool");
+        final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New and shiny tool");
 
         final String toolStateDTOJsonResult = mapper.writeValueAsString(toolStateDTO);
         final String expectedToolStateDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-state-dto.json"));
@@ -35,7 +35,7 @@ class ToolStateDTOSerializationTest {
         final String toolStateJson = Files.readString(Path.of("src/test/resources/tool-state-dto.json"));
         final ToolStateDTO result = mapper.readValue(toolStateJson, ToolStateDTO.class);
 
-        assertEquals(ToolStateType.NEW, result.getStateType());
+        assertEquals(ToolStateType.NEW.getName(), result.getStateType());
         assertEquals("New and shiny tool", result.getDescription());
     }
 

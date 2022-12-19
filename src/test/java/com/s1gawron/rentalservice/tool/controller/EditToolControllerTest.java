@@ -7,8 +7,6 @@ import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolEmptyPropertiesException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
-import com.s1gawron.rentalservice.tool.model.ToolCategory;
-import com.s1gawron.rentalservice.tool.model.ToolStateType;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -95,10 +93,10 @@ public class EditToolControllerTest extends AbstractToolControllerTest {
 
     @Test
     @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolidIsEmptyWhileEditingTool() {
+    void shouldReturnBadRequestResponseWhenToolIdIsEmptyWhileEditingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForName();
-        final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New");
-        final ToolDTO toolDTO = new ToolDTO(null, "Hammer", "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
+        final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
+        final ToolDTO toolDTO = new ToolDTO(null, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
@@ -115,8 +113,8 @@ public class EditToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnBadRequestResponseWhenToolNameIsEmptyWhileEditingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForName();
-        final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New");
-        final ToolDTO toolDTO = new ToolDTO(1L, null, "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
+        final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
+        final ToolDTO toolDTO = new ToolDTO(1L, null, "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
@@ -133,8 +131,8 @@ public class EditToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnBadRequestResponseWhenToolDescriptionIsEmptyWhileEditingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForDescription();
-        final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New");
-        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", null, ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
+        final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
+        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", null, "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
@@ -151,7 +149,7 @@ public class EditToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnBadRequestResponseWhenToolCategoryIsEmptyWhileEditingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForCategory();
-        final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New");
+        final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
         final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "Just a hammer", null, BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
@@ -169,8 +167,8 @@ public class EditToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnBadRequestResponseWhenToolPriceIsEmptyWhileEditingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForPrice();
-        final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New");
-        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "Just a hammer", ToolCategory.LIGHT, null, toolStateDTO);
+        final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
+        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "Just a hammer", "LIGHT", null, toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
@@ -187,7 +185,7 @@ public class EditToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnBadRequestResponseWhenToolStateIsEmptyWhileEditingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolState();
-        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), null);
+        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), null);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
@@ -204,8 +202,8 @@ public class EditToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnBadRequestResponseWhenToolStateTypeIsEmptyWhileEditingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolStateType();
-        final ToolStateDTO toolStateDTO = new ToolStateDTO(null, "New");
-        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
+        final ToolStateDTO toolStateDTO = new ToolStateDTO(null, "New tool");
+        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
@@ -222,8 +220,8 @@ public class EditToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnBadRequestResponseWhenToolStateDescriptionIsEmptyWhileEditingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolStateDescription();
-        final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, null);
-        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "Just a hammer", ToolCategory.LIGHT, BigDecimal.valueOf(5.99), toolStateDTO);
+        final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", null);
+        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);

@@ -3,6 +3,7 @@ package com.s1gawron.rentalservice.tool.model;
 import com.s1gawron.rentalservice.reservationhastool.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.dto.AddToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
+import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -58,17 +59,24 @@ public class Tool {
     }
 
     public static Tool from(final ToolDTO toolDTO, final ToolState toolState) {
-        return new Tool(toolDTO.getName(), toolDTO.getDescription(), toolDTO.getToolCategory(), toolDTO.getPrice(), toolState, LocalDate.now());
+        return new Tool(toolDTO.getName(), toolDTO.getDescription(), ToolCategory.findByValue(toolDTO.getToolCategory()), toolDTO.getPrice(), toolState,
+            LocalDate.now());
     }
 
     public static Tool from(final AddToolDTO addToolDTO, final ToolState toolState) {
-        return new Tool(addToolDTO.getName(), addToolDTO.getDescription(), addToolDTO.getToolCategory(), addToolDTO.getPrice(), toolState, LocalDate.now());
+        return new Tool(addToolDTO.getName(), addToolDTO.getDescription(), ToolCategory.findByValue(addToolDTO.getToolCategory()), addToolDTO.getPrice(),
+            toolState, LocalDate.now());
+    }
+
+    public ToolDTO toToolDTO() {
+        return new ToolDTO(this.toolId, this.name, this.description, this.toolCategory.getName(), this.price,
+            ToolStateDTO.from(this.toolState));
     }
 
     public void edit(final ToolDTO toolDTO) {
         this.name = toolDTO.getName();
         this.description = toolDTO.getDescription();
-        this.toolCategory = toolDTO.getToolCategory();
+        this.toolCategory = ToolCategory.findByValue(toolDTO.getToolCategory());
         this.price = toolDTO.getPrice();
     }
 }

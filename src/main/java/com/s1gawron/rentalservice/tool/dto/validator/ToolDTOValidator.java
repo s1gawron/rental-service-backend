@@ -3,6 +3,8 @@ package com.s1gawron.rentalservice.tool.dto.validator;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTOProperties;
 import com.s1gawron.rentalservice.tool.exception.ToolEmptyPropertiesException;
+import com.s1gawron.rentalservice.tool.model.ToolCategory;
+import com.s1gawron.rentalservice.tool.model.ToolStateType;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -30,6 +32,8 @@ public enum ToolDTOValidator {
             throw ToolEmptyPropertiesException.createForCategory();
         }
 
+        ToolCategory.findByValue(toolDTOProperties.getToolCategory());
+
         if (toolDTOProperties.getPrice() == null) {
             log.error("Tool price" + MESSAGE);
             throw ToolEmptyPropertiesException.createForPrice();
@@ -44,6 +48,8 @@ public enum ToolDTOValidator {
             log.error("Tool state type" + MESSAGE);
             throw ToolEmptyPropertiesException.createForToolStateType();
         }
+
+        ToolStateType.findByValue(toolDTOProperties.getToolState().getStateType());
 
         if (toolDTOProperties.getToolState().getDescription() == null) {
             log.error("Tool state description" + MESSAGE);

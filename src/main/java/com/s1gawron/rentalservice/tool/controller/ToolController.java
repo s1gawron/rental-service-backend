@@ -28,7 +28,12 @@ public class ToolController extends ToolErrorHandlerController {
 
     @GetMapping("get/id/{toolId}")
     public ToolDTO getToolById(@PathVariable final Long toolId) {
-        return toolService.getToolById(toolId);
+        return toolService.getToolDetails(toolId);
+    }
+
+    @PostMapping("get/name")
+    public List<ToolDTO> getToolsByName(@RequestBody final String toolName) {
+        return toolService.getToolsByName(toolName);
     }
 
     @PostMapping("add")

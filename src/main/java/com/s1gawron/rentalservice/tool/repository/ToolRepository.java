@@ -16,4 +16,6 @@ public interface ToolRepository extends JpaRepository<Tool, Long> {
     @Query(value = "SELECT * FROM Tool ORDER BY date_added DESC LIMIT 3", nativeQuery = true)
     List<Tool> findNewTools();
 
+    List<Tool> findByNameContainingIgnoreCase(final String toolName);
+
 }

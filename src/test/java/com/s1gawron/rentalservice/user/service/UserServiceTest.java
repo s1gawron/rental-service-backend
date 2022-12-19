@@ -70,21 +70,7 @@ class UserServiceTest {
     @Test
     void shouldNotFindUser() {
         final Optional<User> result = userService.getUserByEmail(EMAIL);
-
         assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void shouldDeleteUser() {
-        final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", "CUSTOMER", addressDTO);
-        final User user = User.createUser(userRegisterDTO, UserRole.CUSTOMER, "encryptedPassword");
-
-        Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
-
-        userService.deleteUser(EMAIL);
-
-        Mockito.verify(userRepositoryMock, Mockito.times(1)).delete(user);
     }
 
     @Test

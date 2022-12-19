@@ -2,7 +2,6 @@ package com.s1gawron.rentalservice.tool.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +18,7 @@ public class AddToolDTO implements ToolDTOProperties {
 
     private final String description;
 
-    private final ToolCategory toolCategory;
+    private final String toolCategory;
 
     private final BigDecimal price;
 

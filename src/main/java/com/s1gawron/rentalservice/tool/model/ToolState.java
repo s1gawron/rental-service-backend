@@ -32,11 +32,11 @@ public class ToolState {
     }
 
     public static ToolState from(final ToolStateDTO toolState) {
-        return new ToolState(toolState.getStateType(), toolState.getDescription());
+        return new ToolState(ToolStateType.findByValue(toolState.getStateType()), toolState.getDescription());
     }
 
     public void edit(final ToolStateDTO toolState) {
-        this.stateType = toolState.getStateType();
+        this.stateType = ToolStateType.findByValue(toolState.getStateType());
         this.description = toolState.getDescription();
     }
 }

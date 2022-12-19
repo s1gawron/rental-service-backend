@@ -6,7 +6,6 @@ import com.s1gawron.rentalservice.tool.dto.AddToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.validator.ToolDTOValidator;
-import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,10 +38,10 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public ToolListingDTO getToolsByCategory(final String category) {
-        final ToolCategory toolCategory = ToolCategory.findByValue(category).orElseThrow(() -> ToolCategoryDoesNotExistException.create(category));
+        final ToolCategory toolCategory = ToolCategory.findByValue(category);
         final List<ToolDTO> toolDTOSByCategory = toolRepository.findAllByToolCategory(toolCategory)
             .stream()
-            .map(ToolDTO::from)
+            .map(Tool::toToolDTO)
             .collect(Collectors.toList());
 
         return ToolListingDTO.create(toolDTOSByCategory);
@@ -51,14 +51,26 @@ public class ToolService {
     public List<ToolDTO> getNewTools() {
         return toolRepository.findNewTools()
             .stream()
-            .map(ToolDTO::from)
+            .map(Tool::toToolDTO)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public ToolDTO getToolById(final Long toolId) {
-        final Tool tool = toolRepository.findById(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
-        return ToolDTO.from(tool);
+    public ToolDTO getToolDetails(final Long toolId) {
+        final Tool tool = getToolById(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
+        return tool.toToolDTO();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Tool> getToolById(final Long toolId) {
+        return toolRepository.findById(toolId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ToolDTO> getToolsByName(final String toolName) {
+        return toolRepository.findByNameContainingIgnoreCase(toolName).stream()
+            .map(Tool::toToolDTO)
+            .collect(Collectors.toList());
     }
 
     @Transactional
@@ -72,7 +84,7 @@ public class ToolService {
         toolStateRepository.save(toolState);
         toolRepository.save(tool);
 
-        return ToolDTO.from(tool);
+        return tool.toToolDTO();
     }
 
     @Transactional
@@ -80,7 +92,7 @@ public class ToolService {
         canUserPerformActionOnTools();
         ToolDTOValidator.I.validate(toolDTO);
 
-        final Tool tool = toolRepository.findById(toolDTO.getToolId()).orElseThrow(() -> ToolNotFoundException.create(toolDTO.getToolId()));
+        final Tool tool = getToolById(toolDTO.getToolId()).orElseThrow(() -> ToolNotFoundException.create(toolDTO.getToolId()));
         final ToolState toolState = tool.getToolState();
 
         toolState.edit(toolDTO.getToolState());
@@ -88,14 +100,14 @@ public class ToolService {
         tool.edit(toolDTO);
         toolRepository.save(tool);
 
-        return ToolDTO.from(tool);
+        return tool.toToolDTO();
     }
 
     @Transactional
     public boolean deleteTool(final Long toolId) {
         canUserPerformActionOnTools();
 
-        final Tool tool = toolRepository.findById(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
+        final Tool tool = getToolById(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
         final ToolState toolState = tool.getToolState();
 
         toolStateRepository.delete(toolState);

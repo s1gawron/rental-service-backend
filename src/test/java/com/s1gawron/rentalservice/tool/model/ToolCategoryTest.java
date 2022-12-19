@@ -1,8 +1,7 @@
 package com.s1gawron.rentalservice.tool.model;
 
+import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,17 +9,15 @@ class ToolCategoryTest {
 
     @Test
     void shouldFindCategory() {
-        final Optional<ToolCategory> toolCategory = ToolCategory.findByValue("heavy");
+        final ToolCategory toolCategory = ToolCategory.findByValue("heavy");
 
-        assertTrue(toolCategory.isPresent());
-        assertEquals(ToolCategory.HEAVY, toolCategory.get());
+        assertNotNull(toolCategory);
+        assertEquals(ToolCategory.HEAVY, toolCategory);
     }
 
     @Test
     void shouldNotFindCategory() {
-        final Optional<ToolCategory> toolCategory = ToolCategory.findByValue("doesNotExist");
-
-        assertTrue(toolCategory.isEmpty());
+        assertThrows(ToolCategoryDoesNotExistException.class, () -> ToolCategory.findByValue("doesNotExist"), "Category: doesNotExist does not exist!");
     }
 
 }

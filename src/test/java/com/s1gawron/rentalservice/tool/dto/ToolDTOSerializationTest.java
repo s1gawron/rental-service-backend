@@ -23,8 +23,8 @@ class ToolDTOSerializationTest {
     @Test
     @SneakyThrows
     void shouldSerialize() {
-        final ToolStateDTO toolStateDTO = new ToolStateDTO(ToolStateType.NEW, "New and shiny tool");
-        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT, BigDecimal.valueOf(10.99), toolStateDTO);
+        final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New and shiny tool");
+        final ToolDTO toolDTO = new ToolDTO(1L, "Hammer", "It's just a hammer :)", "LIGHT", BigDecimal.valueOf(10.99), toolStateDTO);
 
         final String toolDTOJsonResult = mapper.writeValueAsString(toolDTO);
         final String expectedToolDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-dto.json"));
@@ -56,9 +56,9 @@ class ToolDTOSerializationTest {
 
         assertEquals("Hammer", result.getName());
         assertEquals("It's just a hammer :)", result.getDescription());
-        assertEquals(ToolCategory.LIGHT, result.getToolCategory());
+        assertEquals(ToolCategory.LIGHT.getName(), result.getToolCategory());
         assertEquals(BigDecimal.valueOf(10.99), result.getPrice());
-        assertEquals(ToolStateType.NEW, result.getToolState().getStateType());
+        assertEquals(ToolStateType.NEW.getName(), result.getToolState().getStateType());
         assertEquals("New and shiny tool", result.getToolState().getDescription());
     }
 

@@ -40,7 +40,7 @@ public abstract class AbstractToolControllerTest {
     final ObjectMapper objectMapper = new ObjectMapper();
 
     int getToolListSizeFilteredByCategory(final ToolCategory expected, final List<ToolDTO> tools) {
-        return (int) tools.stream().filter(tool -> tool.getToolCategory().equals(expected)).count();
+        return (int) tools.stream().filter(tool -> tool.getToolCategory().equals(expected.getName())).count();
     }
 
     void assertErrorResponse(final HttpStatus expectedStatus, final String expectedMessage, final String expectedUri,

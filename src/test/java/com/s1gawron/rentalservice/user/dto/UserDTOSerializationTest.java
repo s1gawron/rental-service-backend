@@ -3,7 +3,6 @@ package com.s1gawron.rentalservice.user.dto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,7 @@ class UserDTOSerializationTest {
     @SneakyThrows
     void shouldSerialize() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserDTO userDTO = new UserDTO("John", "Kowalski", "test@test.pl", UserRole.CUSTOMER.getName(), addressDTO);
+        final UserDTO userDTO = new UserDTO("John", "Kowalski", "test@test.pl", "CUSTOMER", addressDTO);
 
         final String userDTOJsonResult = mapper.writeValueAsString(userDTO);
         final String expectedUserDTOJsonResult = Files.readString(Path.of("src/test/resources/user-dto.json"));

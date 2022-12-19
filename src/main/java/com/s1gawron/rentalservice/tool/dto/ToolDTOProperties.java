@@ -1,7 +1,5 @@
 package com.s1gawron.rentalservice.tool.dto;
 
-import com.s1gawron.rentalservice.tool.model.ToolCategory;
-
 import java.math.BigDecimal;
 
 public interface ToolDTOProperties {
@@ -10,7 +8,7 @@ public interface ToolDTOProperties {
 
     String getDescription();
 
-    ToolCategory getToolCategory();
+    String getToolCategory();
 
     BigDecimal getPrice();
 

@@ -6,7 +6,6 @@ import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.dto.validator.UserDTOValidator;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
-import com.s1gawron.rentalservice.user.exception.UserRoleDoesNotExistException;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
@@ -37,8 +36,7 @@ public class UserService {
         }
 
         final String encryptedPassword = new BCryptPasswordEncoder().encode(userRegisterDTO.getPassword());
-        final UserRole userRole = UserRole.findByValue(userRegisterDTO.getUserRole())
-            .orElseThrow(() -> UserRoleDoesNotExistException.create(userRegisterDTO.getUserRole()));
+        final UserRole userRole = UserRole.findByValue(userRegisterDTO.getUserRole());
         final User user = User.createUser(userRegisterDTO, userRole, encryptedPassword);
 
         addressService.validateAndSaveAddress(userRegisterDTO.getAddress(), userRole).ifPresent(user::setCustomerAddress);
@@ -58,11 +56,6 @@ public class UserService {
         final User user = getUserByEmail(authenticatedUserEmail).orElseThrow(() -> UserNotFoundException.create(authenticatedUserEmail));
 
         return user.toUserDTO();
-    }
-
-    @Transactional
-    public void deleteUser(final String email) {
-        getUserByEmail(email).ifPresent(userRepository::delete);
     }
 
 }

@@ -6,8 +6,10 @@ import com.s1gawron.rentalservice.shared.ErrorResponse;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
+import com.s1gawron.rentalservice.user.repository.UserRepository;
 import com.s1gawron.rentalservice.user.service.UserService;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,7 +37,7 @@ public class UserControllerIntegrationTest {
 
     private static final String USER_REGISTER_ENDPOINT = "/api/user/register";
 
-    private static final String NO_USER_IN_DB_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJub3VzZXJpbmRiQHRlc3QucGwiLCJhdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiQ1VTVE9NRVIifV0sImlhdCI6MTY3MTM1NDkzNiwiZXhwIjoxNjcxNDA0NDAwfQ.2sY9w-SsmqGp7WwU7KFmwLoYNtlJzpayd7TFT_o_ERA";
+    private static final String NO_USER_IN_DB_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MkB0ZXN0LnBsIiwiYXV0aG9yaXRpZXMiOlt7ImF1dGhvcml0eSI6IkNVU1RPTUVSIn1dLCJpYXQiOjE2NzE0NjcwODgsImV4cCI6MTY3MTQ5MDgwMH0.m49W6B0f6zyLQhs-79Yj640q_TnJzcQLBGmLbs-jZm4";
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,14 +45,22 @@ public class UserControllerIntegrationTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
-        userService.deleteUser(EMAIL);
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
         final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, PASSWORD, "John", "Kowalski", "CUSTOMER", addressDTO);
         userService.validateAndRegisterUser(userRegisterDTO);
+    }
+
+    @AfterEach
+    @Transactional
+    void cleanUp() {
+        userRepository.deleteAll();
     }
 
     @Test
@@ -269,7 +280,7 @@ public class UserControllerIntegrationTest {
         final ErrorResponse errorResponse = objectMapper.readValue(jsonResult, ErrorResponse.class);
 
         assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
-        assertEquals("User: nouserindb@test.pl could not be found!", errorResponse.getMessage());
+        assertEquals("User: test2@test.pl could not be found!", errorResponse.getMessage());
 
     }
 
