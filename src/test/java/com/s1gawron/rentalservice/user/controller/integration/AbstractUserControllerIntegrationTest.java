@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -50,7 +49,6 @@ abstract class AbstractUserControllerIntegrationTest {
     }
 
     @AfterEach
-    @Transactional
     void cleanUp() {
         userRepository.deleteAll();
     }
