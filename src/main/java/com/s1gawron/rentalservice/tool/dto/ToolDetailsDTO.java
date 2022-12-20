@@ -11,8 +11,10 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Getter
 @Builder
-@JsonDeserialize(builder = AddToolDTO.AddToolDTOBuilder.class)
-public class AddToolDTO implements ToolDTOProperties {
+@JsonDeserialize(builder = ToolDetailsDTO.ToolDetailsDTOBuilder.class)
+public class ToolDetailsDTO implements ToolDTOProperties {
+
+    private final Long toolId;
 
     private final String name;
 
@@ -25,8 +27,7 @@ public class AddToolDTO implements ToolDTOProperties {
     private final ToolStateDTO toolState;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class AddToolDTOBuilder {
+    public static class ToolDetailsDTOBuilder {
 
     }
-
 }

@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.tool.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.s1gawron.rentalservice.tool.dto.ToolDTO;
+import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.validator.ToolDTOValidator;
 import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
@@ -28,7 +28,7 @@ public class GetToolControllerTest extends AbstractToolControllerTest {
     @Test
     @SneakyThrows
     void shouldGetToolsByCategory() {
-        final List<ToolDTO> heavyTools = ToolCreatorHelper.I.createToolDTOList().stream()
+        final List<ToolDetailsDTO> heavyTools = ToolCreatorHelper.I.createToolDTOList().stream()
             .filter(tool -> tool.getToolCategory().equals(ToolCategory.HEAVY.getName()))
             .collect(Collectors.toList());
 
@@ -64,37 +64,37 @@ public class GetToolControllerTest extends AbstractToolControllerTest {
     @Test
     @SneakyThrows
     void shouldGetNewTools() {
-        final List<ToolDTO> tools = ToolCreatorHelper.I.createToolDTOList().stream().limit(3).collect(Collectors.toList());
+        final List<ToolDetailsDTO> tools = ToolCreatorHelper.I.createToolDTOList().stream().limit(3).collect(Collectors.toList());
 
         Mockito.when(toolServiceMock.getNewTools()).thenReturn(tools);
 
         final RequestBuilder request = MockMvcRequestBuilders.get("/api/tool/get/new");
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
-        final List<ToolDTO> toolDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
+        final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
 
         });
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertNotNull(toolDTOListResult);
-        assertEquals(3, toolDTOListResult.size());
-        assertEquals(2, getToolListSizeFilteredByCategory(ToolCategory.HEAVY, toolDTOListResult));
-        assertEquals(1, getToolListSizeFilteredByCategory(ToolCategory.LIGHT, toolDTOListResult));
+        assertNotNull(toolDetailsDTOListResult);
+        assertEquals(3, toolDetailsDTOListResult.size());
+        assertEquals(2, getToolListSizeFilteredByCategory(ToolCategory.HEAVY, toolDetailsDTOListResult));
+        assertEquals(1, getToolListSizeFilteredByCategory(ToolCategory.LIGHT, toolDetailsDTOListResult));
     }
 
     @Test
     @SneakyThrows
     void shouldGetToolById() {
-        Mockito.when(toolServiceMock.getToolDetails(1L)).thenReturn(ToolCreatorHelper.I.createToolDTO());
+        Mockito.when(toolServiceMock.getToolDetails(1L)).thenReturn(ToolCreatorHelper.I.createToolDetailsDTO());
 
         final RequestBuilder request = MockMvcRequestBuilders.get("/api/tool/get/id/1");
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
-        final ToolDTO toolDTOResult = objectMapper.readValue(jsonResult, ToolDTO.class);
+        final ToolDetailsDTO toolDetailsDTOResult = objectMapper.readValue(jsonResult, ToolDetailsDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertTrue(ToolDTOValidator.I.validate(toolDTOResult));
-        assertEquals("Hammer", toolDTOResult.getName());
+        assertTrue(ToolDTOValidator.I.validate(toolDetailsDTOResult));
+        assertEquals("Hammer", toolDetailsDTOResult.getName());
     }
 
     @Test
@@ -115,22 +115,22 @@ public class GetToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldGetToolsByName() {
         final String toolName = "hammer";
-        final List<ToolDTO> toolDTOList = ToolCreatorHelper.I.createCommonNameToolDTOList().stream()
+        final List<ToolDetailsDTO> toolDetailsDTOList = ToolCreatorHelper.I.createCommonNameToolDTOList().stream()
             .filter(tool -> tool.getName().toLowerCase().contains(toolName))
             .collect(Collectors.toList());
 
-        Mockito.when(toolServiceMock.getToolsByName(toolName)).thenReturn(toolDTOList);
+        Mockito.when(toolServiceMock.getToolsByName(toolName)).thenReturn(toolDetailsDTOList);
 
         final RequestBuilder request = MockMvcRequestBuilders.post("/api/tool/get/name").content("hammer").contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
-        final List<ToolDTO> toolDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
+        final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
 
         });
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertNotNull(toolDTOListResult);
-        assertEquals(2, toolDTOListResult.size());
+        assertNotNull(toolDetailsDTOListResult);
+        assertEquals(2, toolDetailsDTOListResult.size());
     }
 
     @Test
@@ -139,13 +139,13 @@ public class GetToolControllerTest extends AbstractToolControllerTest {
         final RequestBuilder request = MockMvcRequestBuilders.post("/api/tool/get/name").content("hammer").contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
-        final List<ToolDTO> toolDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
+        final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
 
         });
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertNotNull(toolDTOListResult);
-        assertEquals(0, toolDTOListResult.size());
+        assertNotNull(toolDetailsDTOListResult);
+        assertEquals(0, toolDetailsDTOListResult.size());
     }
 
 }

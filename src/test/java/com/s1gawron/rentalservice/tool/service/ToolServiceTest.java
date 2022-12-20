@@ -3,8 +3,8 @@ package com.s1gawron.rentalservice.tool.service;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
-import com.s1gawron.rentalservice.tool.dto.AddToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
+import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
@@ -103,8 +103,8 @@ class ToolServiceTest {
 
         Mockito.when(toolRepositoryMock.findNewTools()).thenReturn(tools);
 
-        final List<ToolDTO> expectedTools = ToolCreatorHelper.I.createToolDTOList();
-        final List<ToolDTO> result = toolService.getNewTools();
+        final List<ToolDetailsDTO> expectedTools = ToolCreatorHelper.I.createToolDTOList();
+        final List<ToolDetailsDTO> result = toolService.getNewTools();
 
         assertEquals(3, result.size());
         assertTools(expectedTools, result);
@@ -116,10 +116,10 @@ class ToolServiceTest {
 
         Mockito.when(toolRepositoryMock.findById(1L)).thenReturn(Optional.of(tool));
 
-        final ToolDTO expected = tool.toToolDTO();
-        final ToolDTO result = toolService.getToolDetails(1L);
+        final ToolDetailsDTO expected = tool.toToolDTO();
+        final ToolDetailsDTO result = toolService.getToolDetails(1L);
 
-        assertToolDTO(expected, result);
+        assertToolDetailsDTO(expected, result);
     }
 
     @Test
@@ -130,20 +130,20 @@ class ToolServiceTest {
     @Test
     void shouldValidateAndAddTool() {
         final User user = createUser(UserRole.WORKER);
-        final AddToolDTO expected = ToolCreatorHelper.I.createAddToolDTO();
+        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
 
-        final ToolDTO result = toolService.validateAndAddTool(expected);
+        final ToolDetailsDTO result = toolService.validateAndAddTool(expected);
 
         Mockito.verify(toolStateRepositoryMock, Mockito.times(1)).save(Mockito.any(ToolState.class));
         Mockito.verify(toolRepositoryMock, Mockito.times(1)).save(Mockito.any(Tool.class));
-        assertAddToolDTO(expected, result);
+        assertToolDTO(expected, result);
     }
 
     @Test
     void shouldThrowExceptionWhenUserDoesNotExistWhileAddingTool() {
-        final AddToolDTO expected = ToolCreatorHelper.I.createAddToolDTO();
+        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
 
         assertThrows(UserNotFoundException.class, () -> toolService.validateAndAddTool(expected),
             "User: " + USER_EMAIL + " could not be found!");
@@ -152,7 +152,7 @@ class ToolServiceTest {
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToAddTool() {
         final User user = createUser(UserRole.CUSTOMER);
-        final AddToolDTO expected = ToolCreatorHelper.I.createAddToolDTO();
+        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
 
@@ -164,12 +164,12 @@ class ToolServiceTest {
     void shouldValidateAndEditTool() {
         final User user = createUser(UserRole.WORKER);
         final Tool originalTool = ToolCreatorHelper.I.createTool();
-        final ToolDTO editedTool = ToolCreatorHelper.I.createEditedToolDTO();
+        final ToolDetailsDTO editedTool = ToolCreatorHelper.I.createEditedToolDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
         Mockito.when(toolRepositoryMock.findById(1L)).thenReturn(Optional.of(originalTool));
 
-        final ToolDTO result = toolService.validateAndEditTool(editedTool);
+        final ToolDetailsDTO result = toolService.validateAndEditTool(editedTool);
 
         Mockito.verify(toolStateRepositoryMock, Mockito.times(1)).save(Mockito.any(ToolState.class));
         Mockito.verify(toolRepositoryMock, Mockito.times(1)).save(Mockito.any(Tool.class));
@@ -186,7 +186,7 @@ class ToolServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserDoesNotExistWhileEditingTool() {
-        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
+        final ToolDetailsDTO expected = ToolCreatorHelper.I.createToolDetailsDTO();
 
         assertThrows(UserNotFoundException.class, () -> toolService.validateAndEditTool(expected),
             "User: " + USER_EMAIL + " could not be found!");
@@ -195,7 +195,7 @@ class ToolServiceTest {
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToEditTool() {
         final User user = createUser(UserRole.CUSTOMER);
-        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
+        final ToolDetailsDTO expected = ToolCreatorHelper.I.createToolDetailsDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
 
@@ -243,16 +243,16 @@ class ToolServiceTest {
 
         Mockito.when(toolRepositoryMock.findByNameContainingIgnoreCase(toolName)).thenReturn(tools);
 
-        final List<ToolDTO> expectedTools = ToolCreatorHelper.I.createCommonNameToolDTOList();
-        final List<ToolDTO> result = toolService.getToolsByName(toolName);
+        final List<ToolDetailsDTO> expectedTools = ToolCreatorHelper.I.createCommonNameToolDTOList();
+        final List<ToolDetailsDTO> result = toolService.getToolsByName(toolName);
 
         assertEquals(2, result.size());
         assertTools(expectedTools, result);
     }
 
-    private void assertTools(final List<ToolDTO> expectedTools, final List<ToolDTO> resultTools) {
+    private void assertTools(final List<ToolDetailsDTO> expectedTools, final List<ToolDetailsDTO> resultTools) {
         resultTools.forEach(resultTool -> {
-            final Optional<ToolDTO> expected = expectedTools.stream()
+            final Optional<ToolDetailsDTO> expected = expectedTools.stream()
                 .filter(expectedTool -> expectedTool.getName().equals(resultTool.getName()))
                 .findFirst();
 
@@ -260,11 +260,11 @@ class ToolServiceTest {
                 throw new IllegalStateException("Expected tool cannot be empty!");
             }
 
-            assertToolDTO(expected.get(), resultTool);
+            assertToolDetailsDTO(expected.get(), resultTool);
         });
     }
 
-    private void assertAddToolDTO(final AddToolDTO expected, final ToolDTO resultTool) {
+    private void assertToolDTO(final ToolDTO expected, final ToolDetailsDTO resultTool) {
         assertEquals(expected.getName(), resultTool.getName());
         assertEquals(expected.getDescription(), resultTool.getDescription());
         assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
@@ -272,7 +272,7 @@ class ToolServiceTest {
         assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
     }
 
-    private void assertToolDTO(final ToolDTO expected, final ToolDTO resultTool) {
+    private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool) {
         assertEquals(expected.getName(), resultTool.getName());
         assertEquals(expected.getDescription(), resultTool.getDescription());
         assertEquals(expected.getToolCategory(), resultTool.getToolCategory());

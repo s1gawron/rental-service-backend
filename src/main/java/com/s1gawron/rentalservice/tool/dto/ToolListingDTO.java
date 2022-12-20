@@ -17,15 +17,15 @@ public class ToolListingDTO {
 
     private final int count;
 
-    private final List<ToolDTO> tools;
+    private final List<ToolDetailsDTO> tools;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class ToolListingDTOBuilder {
 
     }
 
-    public static ToolListingDTO create(final List<ToolDTO> toolDTOS) {
-        return new ToolListingDTO(toolDTOS.size(), toolDTOS);
+    public static ToolListingDTO create(final List<ToolDetailsDTO> toolDetailsDTOS) {
+        return new ToolListingDTO(toolDetailsDTOS.size(), toolDetailsDTOS);
     }
 
 }

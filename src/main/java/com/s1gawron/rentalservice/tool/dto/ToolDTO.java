@@ -14,8 +14,6 @@ import java.math.BigDecimal;
 @JsonDeserialize(builder = ToolDTO.ToolDTOBuilder.class)
 public class ToolDTO implements ToolDTOProperties {
 
-    private final Long toolId;
-
     private final String name;
 
     private final String description;
@@ -30,4 +28,5 @@ public class ToolDTO implements ToolDTOProperties {
     public static class ToolDTOBuilder {
 
     }
+
 }

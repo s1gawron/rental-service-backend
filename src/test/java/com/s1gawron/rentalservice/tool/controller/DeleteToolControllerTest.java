@@ -2,7 +2,7 @@ package com.s1gawron.rentalservice.tool.controller;
 
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
-import com.s1gawron.rentalservice.tool.dto.ToolDTO;
+import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import lombok.SneakyThrows;
@@ -36,8 +36,8 @@ public class DeleteToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnNotFoundResponseWhenUserIsNotFoundWhileDeletingTool() {
         final UserNotFoundException expectedException = UserNotFoundException.create("test@test.pl");
-        final ToolDTO toolDTO = ToolCreatorHelper.I.createToolDTO();
-        final String expectedJson = objectMapper.writeValueAsString(toolDTO);
+        final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
+        final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
         Mockito.when(toolServiceMock.deleteTool(1L)).thenThrow(expectedException);
 
@@ -52,8 +52,8 @@ public class DeleteToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnForbiddenResponseWhenUserIsNotAllowedToDeleteTool() {
         final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("TOOL MANAGEMENT");
-        final ToolDTO toolDTO = ToolCreatorHelper.I.createToolDTO();
-        final String expectedJson = objectMapper.writeValueAsString(toolDTO);
+        final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
+        final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
         Mockito.when(toolServiceMock.deleteTool(1L)).thenThrow(expectedException);
 
@@ -69,8 +69,8 @@ public class DeleteToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileDeletingTool() {
         final ToolNotFoundException expectedException = ToolNotFoundException.create(1L);
-        final ToolDTO toolDTO = ToolCreatorHelper.I.createToolDTO();
-        final String expectedJson = objectMapper.writeValueAsString(toolDTO);
+        final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
+        final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
         Mockito.when(toolServiceMock.deleteTool(1L)).thenThrow(expectedException);
 

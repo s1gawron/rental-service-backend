@@ -37,8 +37,6 @@ public class UserControllerIntegrationTest {
 
     private static final String USER_REGISTER_ENDPOINT = "/api/user/register";
 
-    private static final String NO_USER_IN_DB_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MkB0ZXN0LnBsIiwiYXV0aG9yaXRpZXMiOlt7ImF1dGhvcml0eSI6IkNVU1RPTUVSIn1dLCJpYXQiOjE2NzE0NjcwODgsImV4cCI6MTY3MTQ5MDgwMH0.m49W6B0f6zyLQhs-79Yj640q_TnJzcQLBGmLbs-jZm4";
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -268,20 +266,6 @@ public class UserControllerIntegrationTest {
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
-    }
-
-    @Test
-    @SneakyThrows
-    void shouldNotGetUserDetailsAndReturnNotFoundWhenUserIsNotFound() {
-        final RequestBuilder request = MockMvcRequestBuilders.get("/api/user/details").header("Authorization", NO_USER_IN_DB_TOKEN);
-
-        final MvcResult result = mockMvc.perform(request).andReturn();
-        final String jsonResult = result.getResponse().getContentAsString();
-        final ErrorResponse errorResponse = objectMapper.readValue(jsonResult, ErrorResponse.class);
-
-        assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
-        assertEquals("User: test2@test.pl could not be found!", errorResponse.getMessage());
-
     }
 
 }

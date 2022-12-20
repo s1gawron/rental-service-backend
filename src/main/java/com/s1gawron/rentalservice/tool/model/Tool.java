@@ -1,8 +1,8 @@
 package com.s1gawron.rentalservice.tool.model;
 
 import com.s1gawron.rentalservice.reservationhastool.model.ReservationHasTool;
-import com.s1gawron.rentalservice.tool.dto.AddToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
+import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,25 +58,25 @@ public class Tool {
         this.dateAdded = dateAdded;
     }
 
-    public static Tool from(final ToolDTO toolDTO, final ToolState toolState) {
-        return new Tool(toolDTO.getName(), toolDTO.getDescription(), ToolCategory.findByValue(toolDTO.getToolCategory()), toolDTO.getPrice(), toolState,
+    public static Tool from(final ToolDetailsDTO toolDetailsDTO, final ToolState toolState) {
+        return new Tool(toolDetailsDTO.getName(), toolDetailsDTO.getDescription(), ToolCategory.findByValue(toolDetailsDTO.getToolCategory()), toolDetailsDTO.getPrice(), toolState,
             LocalDate.now());
     }
 
-    public static Tool from(final AddToolDTO addToolDTO, final ToolState toolState) {
-        return new Tool(addToolDTO.getName(), addToolDTO.getDescription(), ToolCategory.findByValue(addToolDTO.getToolCategory()), addToolDTO.getPrice(),
+    public static Tool from(final ToolDTO toolDTO, final ToolState toolState) {
+        return new Tool(toolDTO.getName(), toolDTO.getDescription(), ToolCategory.findByValue(toolDTO.getToolCategory()), toolDTO.getPrice(),
             toolState, LocalDate.now());
     }
 
-    public ToolDTO toToolDTO() {
-        return new ToolDTO(this.toolId, this.name, this.description, this.toolCategory.getName(), this.price,
+    public ToolDetailsDTO toToolDTO() {
+        return new ToolDetailsDTO(this.toolId, this.name, this.description, this.toolCategory.getName(), this.price,
             ToolStateDTO.from(this.toolState));
     }
 
-    public void edit(final ToolDTO toolDTO) {
-        this.name = toolDTO.getName();
-        this.description = toolDTO.getDescription();
-        this.toolCategory = ToolCategory.findByValue(toolDTO.getToolCategory());
-        this.price = toolDTO.getPrice();
+    public void edit(final ToolDetailsDTO toolDetailsDTO) {
+        this.name = toolDetailsDTO.getName();
+        this.description = toolDetailsDTO.getDescription();
+        this.toolCategory = ToolCategory.findByValue(toolDetailsDTO.getToolCategory());
+        this.price = toolDetailsDTO.getPrice();
     }
 }

@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.tool.controller;
 
-import com.s1gawron.rentalservice.tool.dto.AddToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
+import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import lombok.AllArgsConstructor;
@@ -22,28 +22,28 @@ public class ToolController extends ToolErrorHandlerController {
     }
 
     @GetMapping("get/new")
-    public List<ToolDTO> getNewTools() {
+    public List<ToolDetailsDTO> getNewTools() {
         return toolService.getNewTools();
     }
 
     @GetMapping("get/id/{toolId}")
-    public ToolDTO getToolById(@PathVariable final Long toolId) {
+    public ToolDetailsDTO getToolById(@PathVariable final Long toolId) {
         return toolService.getToolDetails(toolId);
     }
 
     @PostMapping("get/name")
-    public List<ToolDTO> getToolsByName(@RequestBody final String toolName) {
+    public List<ToolDetailsDTO> getToolsByName(@RequestBody final String toolName) {
         return toolService.getToolsByName(toolName);
     }
 
     @PostMapping("add")
-    public ToolDTO addTool(@RequestBody final AddToolDTO addToolDTO) {
-        return toolService.validateAndAddTool(addToolDTO);
+    public ToolDetailsDTO addTool(@RequestBody final ToolDTO toolDTO) {
+        return toolService.validateAndAddTool(toolDTO);
     }
 
     @PutMapping("edit")
-    public ToolDTO editTool(@RequestBody final ToolDTO toolDTO) {
-        return toolService.validateAndEditTool(toolDTO);
+    public ToolDetailsDTO editTool(@RequestBody final ToolDetailsDTO toolDetailsDTO) {
+        return toolService.validateAndEditTool(toolDetailsDTO);
     }
 
     @DeleteMapping("delete/{toolId}")

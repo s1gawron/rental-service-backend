@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.tool.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.jwt.JwtConfig;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
-import com.s1gawron.rentalservice.tool.dto.ToolDTO;
+import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import lombok.SneakyThrows;
@@ -39,7 +39,7 @@ public abstract class AbstractToolControllerTest {
 
     final ObjectMapper objectMapper = new ObjectMapper();
 
-    int getToolListSizeFilteredByCategory(final ToolCategory expected, final List<ToolDTO> tools) {
+    int getToolListSizeFilteredByCategory(final ToolCategory expected, final List<ToolDetailsDTO> tools) {
         return (int) tools.stream().filter(tool -> tool.getToolCategory().equals(expected.getName())).count();
     }
 

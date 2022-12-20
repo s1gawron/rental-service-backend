@@ -39,28 +39,6 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     @SneakyThrows
-    void shouldReturnNotFoundResponseWhenUserIsNotFoundWhileAddingTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Hammer\",\n"
-            + "  \"description\": \"It's just a hammer :)\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"price\": 10.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"NEW\",\n"
-            + "    \"description\": \"New and shiny tool\"\n"
-            + "  }\n"
-            + "}";
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getUnregisteredUserAuthorizationToken());
-
-        final MvcResult result = mockMvc.perform(request).andReturn();
-
-        assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isEmpty());
-    }
-
-    @Test
-    @SneakyThrows
     void shouldReturnForbiddenResponseWhenUserIsNotAllowedToAddTool() {
         final String json = "{\n"
             + "  \"name\": \"Hammer\",\n"

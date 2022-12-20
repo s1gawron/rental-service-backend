@@ -33,8 +33,6 @@ public abstract class AbstractToolControllerIntegrationTest {
 
     private static final String PASSWORD = "Start00!";
 
-    private static final String NO_USER_IN_DB_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MkB0ZXN0LnBsIiwiYXV0aG9yaXRpZXMiOlt7ImF1dGhvcml0eSI6IkNVU1RPTUVSIn1dLCJpYXQiOjE2NzE0NjcwODgsImV4cCI6MTY3MTQ5MDgwMH0.m49W6B0f6zyLQhs-79Yj640q_TnJzcQLBGmLbs-jZm4";
-
     @Autowired
     protected MockMvc mockMvc;
 
@@ -87,10 +85,6 @@ public abstract class AbstractToolControllerIntegrationTest {
         final MvcResult loginResult = mockMvc.perform(request).andReturn();
 
         return loginResult.getResponse().getHeader("Authorization");
-    }
-
-    protected String getUnregisteredUserAuthorizationToken() {
-        return NO_USER_IN_DB_TOKEN;
     }
 
 }
