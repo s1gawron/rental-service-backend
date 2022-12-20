@@ -3,7 +3,6 @@ package com.s1gawron.rentalservice.tool.controller.integration;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -29,12 +28,6 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
         final Tool tool = ToolCreatorHelper.I.createTool();
         toolRepository.save(tool);
         currentToolId = tool.getToolId();
-    }
-
-    @AfterEach
-    void cleanUp() {
-        super.cleanUp();
-        toolRepository.deleteAll();
     }
 
     @Test

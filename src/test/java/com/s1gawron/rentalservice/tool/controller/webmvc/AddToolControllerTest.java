@@ -23,7 +23,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class AddToolControllerTest extends AbstractToolControllerTest {
+class AddToolControllerTest extends ToolManagementControllerTest {
 
     private static final String TOOL_ADD_ENDPOINT = "/api/tool/add";
 

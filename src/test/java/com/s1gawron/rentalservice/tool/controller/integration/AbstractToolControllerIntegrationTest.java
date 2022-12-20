@@ -27,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("test")
 abstract class AbstractToolControllerIntegrationTest {
 
+    private static final String USER_LOGIN_ENDPOINT = "/api/public/user/login";
+
     private static final String CUSTOMER_EMAIL = "customer@test.pl";
 
     private static final String WORKER_EMAIL = "worker@test.pl";
@@ -71,7 +73,7 @@ abstract class AbstractToolControllerIntegrationTest {
     protected String getCustomerAuthorizationToken() {
         final UserLoginDTO userLoginDTO = new UserLoginDTO(CUSTOMER_EMAIL, PASSWORD);
         final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/user/login").content(userLoginJson);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson);
         final MvcResult loginResult = mockMvc.perform(request).andReturn();
 
         return loginResult.getResponse().getHeader("Authorization");
@@ -81,7 +83,7 @@ abstract class AbstractToolControllerIntegrationTest {
     protected String getWorkerAuthorizationToken() {
         final UserLoginDTO userLoginDTO = new UserLoginDTO(WORKER_EMAIL, PASSWORD);
         final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/user/login").content(userLoginJson);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson);
         final MvcResult loginResult = mockMvc.perform(request).andReturn();
 
         return loginResult.getResponse().getHeader("Authorization");

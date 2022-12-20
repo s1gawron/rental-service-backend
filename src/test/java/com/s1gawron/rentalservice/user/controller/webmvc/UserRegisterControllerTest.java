@@ -1,34 +1,24 @@
-package com.s1gawron.rentalservice.user.controller;
+package com.s1gawron.rentalservice.user.controller.webmvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.address.exception.AddressRegisterEmptyPropertiesException;
 import com.s1gawron.rentalservice.address.exception.PostCodePatternViolationException;
-import com.s1gawron.rentalservice.jwt.JwtConfig;
-import com.s1gawron.rentalservice.shared.ErrorResponse;
-import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.user.controller.UserController;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.*;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import com.s1gawron.rentalservice.user.service.UserService;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -36,37 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @WebMvcTest(UserController.class)
 @ActiveProfiles("test")
 @WithMockUser
-class UserControllerTest {
+class UserRegisterControllerTest extends AbstractUserControllerTest {
 
-    private static final AddressDTO ADDRESS_DTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-
-    private static final UserRegisterDTO USER_REGISTER_DTO = new UserRegisterDTO("test@test.pl", "Start00!", "John", "Kowalski", "CUSTOMER", ADDRESS_DTO);
-
-    private static final String USER_REGISTER_ENDPOINT = "/api/user/register";
-
-    private static final String USER_DETAILS_ENDPOINT = "/api/user/details";
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private DataSource dataSourceMock;
-
-    @MockBean
-    private JwtConfig jwtConfigMock;
-
-    @MockBean
-    private UserService userServiceMock;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private String userRegisterJson;
-
-    @BeforeEach
-    @SneakyThrows
-    void setUp() {
-        userRegisterJson = objectMapper.writeValueAsString(USER_REGISTER_DTO);
-    }
+    private static final String USER_REGISTER_ENDPOINT = "/api/public/user/register";
 
     @Test
     @SneakyThrows
@@ -185,54 +147,6 @@ class UserControllerTest {
 
         assertErrorResponse(HttpStatus.BAD_REQUEST, userRegisterEmptyPropertiesException.getMessage(), USER_REGISTER_ENDPOINT,
             toErrorResponse(result.getResponse().getContentAsString()));
-    }
-
-    @Test
-    @SneakyThrows
-    void shouldGetUserDetails() {
-        final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserDTO userDTO = new UserDTO("John", "Kowalski", "test@test.pl", UserRole.CUSTOMER.getName(), addressDTO);
-
-        Mockito.when(userServiceMock.getUserDetails()).thenReturn(userDTO);
-
-        final RequestBuilder request = MockMvcRequestBuilders.get(USER_DETAILS_ENDPOINT).content(userRegisterJson);
-        final MvcResult result = mockMvc.perform(request).andReturn();
-        final String jsonResult = result.getResponse().getContentAsString();
-        final UserDTO userDTOResult = objectMapper.readValue(jsonResult, UserDTO.class);
-
-        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertNotNull(userDTOResult);
-        assertEquals(userDTO.getEmail(), userDTOResult.getEmail());
-        assertEquals(userDTO.getEmail(), userDTOResult.getEmail());
-        assertEquals(userDTO.getCustomerAddress().getCountry(), userDTOResult.getCustomerAddress().getCountry());
-        assertEquals(userDTO.getCustomerAddress().getPostCode(), userDTOResult.getCustomerAddress().getPostCode());
-    }
-
-    @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenUserIsNotFoundWhileGettingUserDetails() {
-        final UserNotFoundException expectedException = UserNotFoundException.create("test@test.pl");
-
-        Mockito.when(userServiceMock.getUserDetails()).thenThrow(expectedException);
-
-        final RequestBuilder request = MockMvcRequestBuilders.get(USER_DETAILS_ENDPOINT).content(userRegisterJson);
-        final MvcResult result = mockMvc.perform(request).andReturn();
-
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), USER_DETAILS_ENDPOINT,
-            toErrorResponse(result.getResponse().getContentAsString()));
-    }
-
-    private void assertErrorResponse(final HttpStatus expectedStatus, final String expectedMessage, final String expectedUri,
-        final ErrorResponse actualErrorResponse) {
-        assertEquals(expectedStatus.value(), actualErrorResponse.getCode());
-        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.getError());
-        assertEquals(expectedMessage, actualErrorResponse.getMessage());
-        assertEquals(expectedUri, actualErrorResponse.getURI());
-    }
-
-    @SneakyThrows
-    private ErrorResponse toErrorResponse(final String responseMessage) {
-        return objectMapper.readValue(responseMessage, ErrorResponse.class);
     }
 
 }

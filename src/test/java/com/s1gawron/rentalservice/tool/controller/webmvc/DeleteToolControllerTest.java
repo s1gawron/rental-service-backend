@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class DeleteToolControllerTest extends AbstractToolControllerTest {
+class DeleteToolControllerTest extends ToolManagementControllerTest {
 
     private static final String TOOL_DELETE_ENDPOINT = "/api/tool/delete/1";
 

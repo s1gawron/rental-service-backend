@@ -2,7 +2,6 @@ package com.s1gawron.rentalservice.tool.controller.webmvc;
 
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
-import com.s1gawron.rentalservice.tool.controller.webmvc.AbstractToolControllerTest;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
@@ -10,7 +9,6 @@ import com.s1gawron.rentalservice.tool.exception.ToolEmptyPropertiesException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.exception.ToolStateTypeDoesNotExistException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
-import com.s1gawron.rentalservice.tool.model.Tool;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,11 +19,11 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class EditToolControllerTest extends AbstractToolControllerTest {
+class EditToolControllerTest extends ToolManagementControllerTest {
 
     private static final String TOOL_EDIT_ENDPOINT = "/api/tool/edit";
 

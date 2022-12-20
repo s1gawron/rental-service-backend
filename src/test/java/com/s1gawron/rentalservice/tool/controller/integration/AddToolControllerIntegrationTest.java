@@ -1,6 +1,5 @@
 package com.s1gawron.rentalservice.tool.controller.integration;
 
-import com.s1gawron.rentalservice.tool.controller.integration.AbstractToolControllerIntegrationTest;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -35,7 +34,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isPresent());
+        assertEquals(1, toolRepository.findAll().size());
     }
 
     @Test

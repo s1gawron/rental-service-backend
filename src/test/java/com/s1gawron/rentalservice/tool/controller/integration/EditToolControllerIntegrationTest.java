@@ -4,7 +4,6 @@ import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EditToolControllerIntegrationTest extends AbstractToolControllerIntegrationTest {
 
@@ -33,12 +33,6 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
         toolRepository.save(tool);
         currentToolId = tool.getToolId();
         currentToolFirstState = tool.toToolDTO();
-    }
-
-    @AfterEach
-    void cleanUp() {
-        super.cleanUp();
-        toolRepository.deleteAll();
     }
 
     @Test

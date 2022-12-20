@@ -21,9 +21,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class GetToolControllerTest extends AbstractToolControllerTest {
+class GetToolControllerTest extends ToolControllerTest {
+
+    private static final String TOOL_GET_ENDPOINT = "/api/public/tool/get/";
 
     @Test
     @SneakyThrows
@@ -34,7 +35,7 @@ class GetToolControllerTest extends AbstractToolControllerTest {
 
         Mockito.when(toolServiceMock.getToolsByCategory("heavy")).thenReturn(ToolListingDTO.create(heavyTools));
 
-        final RequestBuilder request = MockMvcRequestBuilders.get("/api/tool/get/category/heavy");
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "category/heavy");
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final ToolListingDTO toolListingDTOResult = objectMapper.readValue(jsonResult, ToolListingDTO.class);
@@ -51,7 +52,7 @@ class GetToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExist() {
         final ToolCategoryDoesNotExistException expectedException = ToolCategoryDoesNotExistException.create("medium");
-        final String endpoint = "/api/tool/get/category/medium";
+        final String endpoint = TOOL_GET_ENDPOINT + "category/medium";
 
         Mockito.when(toolServiceMock.getToolsByCategory("medium")).thenThrow(expectedException);
 
@@ -68,7 +69,7 @@ class GetToolControllerTest extends AbstractToolControllerTest {
 
         Mockito.when(toolServiceMock.getNewTools()).thenReturn(tools);
 
-        final RequestBuilder request = MockMvcRequestBuilders.get("/api/tool/get/new");
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "new");
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
@@ -87,7 +88,7 @@ class GetToolControllerTest extends AbstractToolControllerTest {
     void shouldGetToolById() {
         Mockito.when(toolServiceMock.getToolDetails(1L)).thenReturn(ToolCreatorHelper.I.createToolDetailsDTO());
 
-        final RequestBuilder request = MockMvcRequestBuilders.get("/api/tool/get/id/1");
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "id/1");
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final ToolDetailsDTO toolDetailsDTOResult = objectMapper.readValue(jsonResult, ToolDetailsDTO.class);
@@ -101,7 +102,7 @@ class GetToolControllerTest extends AbstractToolControllerTest {
     @SneakyThrows
     void shouldReturnNotFoundResponseWhenToolIsNotFoundById() {
         final ToolNotFoundException expectedException = ToolNotFoundException.create(1L);
-        final String endpoint = "/api/tool/get/id/1";
+        final String endpoint = TOOL_GET_ENDPOINT + "id/1";
 
         Mockito.when(toolServiceMock.getToolDetails(1L)).thenThrow(expectedException);
 
@@ -121,7 +122,7 @@ class GetToolControllerTest extends AbstractToolControllerTest {
 
         Mockito.when(toolServiceMock.getToolsByName(toolName)).thenReturn(toolDetailsDTOList);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/tool/get/name").content("hammer").contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").content("hammer").contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
@@ -136,7 +137,7 @@ class GetToolControllerTest extends AbstractToolControllerTest {
     @Test
     @SneakyThrows
     void shouldReturnEmptyListWhenToolsAreNotFoundByName() {
-        final RequestBuilder request = MockMvcRequestBuilders.post("/api/tool/get/name").content("hammer").contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").content("hammer").contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {

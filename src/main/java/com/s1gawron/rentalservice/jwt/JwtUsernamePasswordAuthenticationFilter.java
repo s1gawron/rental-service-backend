@@ -19,13 +19,15 @@ import java.util.Date;
 
 public class JwtUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+    private static final String USER_LOGIN_ENDPOINT = "/api/public/user/login";
+
     private final AuthenticationManager authenticationManager;
 
     private final JwtConfig jwtConfig;
 
     public JwtUsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager, JwtConfig jwtConfig) {
         this.authenticationManager = authenticationManager;
-        setFilterProcessesUrl("/api/user/login");
+        setFilterProcessesUrl(USER_LOGIN_ENDPOINT);
         this.jwtConfig = jwtConfig;
     }
 

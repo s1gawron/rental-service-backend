@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/user")
+@RequestMapping("api/public/user")
 @AllArgsConstructor
 public class UserController extends UserErrorHandlerController {
 
@@ -22,11 +22,6 @@ public class UserController extends UserErrorHandlerController {
     @PostMapping("register")
     public UserDTO registerUser(@RequestBody final UserRegisterDTO userRegisterDTO) {
         return userService.validateAndRegisterUser(userRegisterDTO);
-    }
-
-    @GetMapping("details")
-    public UserDTO getUserDetails() {
-        return userService.getUserDetails();
     }
 
 }

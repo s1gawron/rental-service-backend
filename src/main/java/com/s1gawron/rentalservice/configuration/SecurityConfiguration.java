@@ -50,10 +50,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager(), jwtConfig))
             .addFilterAfter(new JwtTokenVerifier(jwtConfig), JwtUsernamePasswordAuthenticationFilter.class)
             .authorizeRequests()
-            .antMatchers("/api/customer/**").authenticated()
-            .antMatchers("/api/tool/**").authenticated()
-            .antMatchers("/api/user/details").authenticated()
-            .anyRequest().permitAll();
+            .antMatchers("/api/public/**").permitAll()
+            .anyRequest().authenticated();
     }
 
     @Override

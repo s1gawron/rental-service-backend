@@ -68,9 +68,15 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public List<ToolDetailsDTO> getToolsByName(final String toolName) {
-        return toolRepository.findByNameContainingIgnoreCase(toolName).stream()
+        final List<ToolDetailsDTO> toolDetails = toolRepository.findByNameContainingIgnoreCase(toolName).stream()
             .map(Tool::toToolDTO)
             .collect(Collectors.toList());
+
+        if (toolDetails.isEmpty()) {
+            throw ToolNotFoundException.createForName(toolName);
+        }
+
+        return toolDetails;
     }
 
     @Transactional
