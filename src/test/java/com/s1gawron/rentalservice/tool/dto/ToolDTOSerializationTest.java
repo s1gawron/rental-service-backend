@@ -22,7 +22,7 @@ class ToolDTOSerializationTest {
         final ToolDTO toolDTO = new ToolDTO("Hammer", "It's just a hammer :)", "LIGHT", BigDecimal.valueOf(10.99), toolStateDTO);
 
         final String toolDTOJsonResult = mapper.writeValueAsString(toolDTO);
-        final String expectedToolDTOJsonResult = Files.readString(Path.of("src/test/resources/add-tool-dto.json"));
+        final String expectedToolDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-dto.json"));
 
         final JsonNode expected = mapper.readTree(expectedToolDTOJsonResult);
         final JsonNode result = mapper.readTree(toolDTOJsonResult);

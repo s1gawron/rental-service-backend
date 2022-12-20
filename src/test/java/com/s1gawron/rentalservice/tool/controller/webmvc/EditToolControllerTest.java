@@ -1,12 +1,16 @@
-package com.s1gawron.rentalservice.tool.controller;
+package com.s1gawron.rentalservice.tool.controller.webmvc;
 
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.tool.controller.webmvc.AbstractToolControllerTest;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
+import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolEmptyPropertiesException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
+import com.s1gawron.rentalservice.tool.exception.ToolStateTypeDoesNotExistException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.tool.model.Tool;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,11 +21,11 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class EditToolControllerTest extends AbstractToolControllerTest {
+class EditToolControllerTest extends AbstractToolControllerTest {
 
     private static final String TOOL_EDIT_ENDPOINT = "/api/tool/edit";
 
@@ -165,6 +169,24 @@ public class EditToolControllerTest extends AbstractToolControllerTest {
 
     @Test
     @SneakyThrows
+    void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExistWhileEditingTool() {
+        final ToolCategoryDoesNotExistException expectedException = ToolCategoryDoesNotExistException.create("UNKNOWN");
+        final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, "Hammer", "Just a hammer", "UNKNOWN", BigDecimal.valueOf(5.99), toolStateDTO);
+        final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
+
+        Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
+
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), TOOL_EDIT_ENDPOINT,
+            toErrorResponse(result.getResponse().getContentAsString()));
+    }
+
+    @Test
+    @SneakyThrows
     void shouldReturnBadRequestResponseWhenToolPriceIsEmptyWhileEditingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForPrice();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
@@ -203,6 +225,24 @@ public class EditToolControllerTest extends AbstractToolControllerTest {
     void shouldReturnBadRequestResponseWhenToolStateTypeIsEmptyWhileEditingTool() {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolStateType();
         final ToolStateDTO toolStateDTO = new ToolStateDTO(null, "New tool");
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO);
+        final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
+
+        Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
+
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), TOOL_EDIT_ENDPOINT,
+            toErrorResponse(result.getResponse().getContentAsString()));
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldReturnBadRequestResponseWhenToolStateTypeDoesNotExistWhileEditingTool() {
+        final ToolStateTypeDoesNotExistException expectedException = ToolStateTypeDoesNotExistException.create("UNKNOWN");
+        final ToolStateDTO toolStateDTO = new ToolStateDTO("UNKNOWN", "New tool");
         final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO);
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 

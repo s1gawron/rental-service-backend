@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class UserControllerIntegrationTest {
+class UserControllerIntegrationTest {
 
     private static final String EMAIL = "test@test.pl";
 

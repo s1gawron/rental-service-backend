@@ -1,5 +1,6 @@
-package com.s1gawron.rentalservice.tool.controller;
+package com.s1gawron.rentalservice.tool.controller.integration;
 
+import com.s1gawron.rentalservice.tool.controller.integration.AbstractToolControllerIntegrationTest;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package com.s1gawron.rentalservice.tool.controller;
+package com.s1gawron.rentalservice.tool.controller.webmvc;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GetToolControllerTest extends AbstractToolControllerTest {
+class GetToolControllerTest extends AbstractToolControllerTest {
 
     @Test
     @SneakyThrows

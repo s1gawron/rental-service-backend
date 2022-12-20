@@ -1,4 +1,4 @@
-package com.s1gawron.rentalservice.tool.controller;
+package com.s1gawron.rentalservice.tool.controller.webmvc;
 
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;

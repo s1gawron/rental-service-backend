@@ -1,8 +1,9 @@
-package com.s1gawron.rentalservice.tool.controller;
+package com.s1gawron.rentalservice.tool.controller.webmvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.jwt.JwtConfig;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
+import com.s1gawron.rentalservice.tool.controller.ToolController;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.service.ToolService;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @WebMvcTest(ToolController.class)
 @ActiveProfiles("test")
 @WithMockUser
-public abstract class AbstractToolControllerTest {
+abstract class AbstractToolControllerTest {
 
     @Autowired
     MockMvc mockMvc;

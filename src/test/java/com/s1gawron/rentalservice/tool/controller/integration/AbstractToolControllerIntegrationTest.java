@@ -1,4 +1,4 @@
-package com.s1gawron.rentalservice.tool.controller;
+package com.s1gawron.rentalservice.tool.controller.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public abstract class AbstractToolControllerIntegrationTest {
+abstract class AbstractToolControllerIntegrationTest {
 
     private static final String CUSTOMER_EMAIL = "customer@test.pl";
 
@@ -42,7 +42,7 @@ public abstract class AbstractToolControllerIntegrationTest {
     protected ToolService toolService;
 
     @Autowired
-    private ToolRepository toolRepository;
+    protected ToolRepository toolRepository;
 
     @Autowired
     private UserRepository userRepository;

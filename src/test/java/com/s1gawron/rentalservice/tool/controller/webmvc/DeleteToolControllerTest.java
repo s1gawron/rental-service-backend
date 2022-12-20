@@ -1,4 +1,4 @@
-package com.s1gawron.rentalservice.tool.controller;
+package com.s1gawron.rentalservice.tool.controller.webmvc;
 
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class DeleteToolControllerTest extends AbstractToolControllerTest {
+class DeleteToolControllerTest extends AbstractToolControllerTest {
 
     private static final String TOOL_DELETE_ENDPOINT = "/api/tool/delete/1";
 

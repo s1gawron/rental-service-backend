@@ -27,7 +27,7 @@ class ToolDetailsDTOSerializationTest {
         final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, "Hammer", "It's just a hammer :)", "LIGHT", BigDecimal.valueOf(10.99), toolStateDTO);
 
         final String toolDTOJsonResult = mapper.writeValueAsString(toolDetailsDTO);
-        final String expectedToolDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-dto.json"));
+        final String expectedToolDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-details-dto.json"));
 
         final JsonNode expected = mapper.readTree(expectedToolDTOJsonResult);
         final JsonNode result = mapper.readTree(toolDTOJsonResult);
@@ -40,7 +40,7 @@ class ToolDetailsDTOSerializationTest {
     void shouldSerializeList() {
         final List<ToolDetailsDTO> toolDetailsDTOList = ToolCreatorHelper.I.createToolDTOList();
         final String toolDTOListJsonResult = mapper.writeValueAsString(toolDetailsDTOList);
-        final String expectedToolDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-dto-list.json"));
+        final String expectedToolDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-details-dto-list.json"));
 
         final JsonNode expected = mapper.readTree(expectedToolDTOJsonResult);
         final JsonNode result = mapper.readTree(toolDTOListJsonResult);
@@ -51,7 +51,7 @@ class ToolDetailsDTOSerializationTest {
     @Test
     @SneakyThrows
     void shouldDeserialize() {
-        final String toolJson = Files.readString(Path.of("src/test/resources/tool-dto.json"));
+        final String toolJson = Files.readString(Path.of("src/test/resources/tool-details-dto.json"));
         final ToolDetailsDTO result = mapper.readValue(toolJson, ToolDetailsDTO.class);
 
         assertEquals("Hammer", result.getName());
