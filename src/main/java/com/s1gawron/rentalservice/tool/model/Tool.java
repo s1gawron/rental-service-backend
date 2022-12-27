@@ -1,6 +1,6 @@
 package com.s1gawron.rentalservice.tool.model;
 
-import com.s1gawron.rentalservice.reservationhastool.model.ReservationHasTool;
+import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
@@ -11,6 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,6 +25,9 @@ public class Tool {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tool_id")
     private Long toolId;
+
+    @Column(name = "is_available")
+    private boolean available;
 
     @Column(name = "name")
     private String name;
@@ -46,10 +50,11 @@ public class Tool {
     private LocalDate dateAdded;
 
     @OneToMany(mappedBy = "tool")
-    private List<ReservationHasTool> reservationsHasTools;
+    private List<ReservationHasTool> reservationHasTools;
 
-    private Tool(final String name, final String description, final ToolCategory toolCategory, final BigDecimal price, final ToolState toolState,
-        final LocalDate dateAdded) {
+    private Tool(final boolean available, final String name, final String description, final ToolCategory toolCategory, final BigDecimal price,
+        final ToolState toolState, final LocalDate dateAdded) {
+        this.available = available;
         this.name = name;
         this.description = description;
         this.toolCategory = toolCategory;
@@ -59,16 +64,16 @@ public class Tool {
     }
 
     public static Tool from(final ToolDetailsDTO toolDetailsDTO, final ToolState toolState) {
-        return new Tool(toolDetailsDTO.getName(), toolDetailsDTO.getDescription(), ToolCategory.findByValue(toolDetailsDTO.getToolCategory()), toolDetailsDTO.getPrice(), toolState,
-            LocalDate.now());
+        return new Tool(true, toolDetailsDTO.getName(), toolDetailsDTO.getDescription(), ToolCategory.findByValue(toolDetailsDTO.getToolCategory()),
+            toolDetailsDTO.getPrice(), toolState, LocalDate.now());
     }
 
     public static Tool from(final ToolDTO toolDTO, final ToolState toolState) {
-        return new Tool(toolDTO.getName(), toolDTO.getDescription(), ToolCategory.findByValue(toolDTO.getToolCategory()), toolDTO.getPrice(),
+        return new Tool(true, toolDTO.getName(), toolDTO.getDescription(), ToolCategory.findByValue(toolDTO.getToolCategory()), toolDTO.getPrice(),
             toolState, LocalDate.now());
     }
 
-    public ToolDetailsDTO toToolDTO() {
+    public ToolDetailsDTO toToolDetailsDTO() {
         return new ToolDetailsDTO(this.toolId, this.name, this.description, this.toolCategory.getName(), this.price,
             ToolStateDTO.from(this.toolState));
     }
@@ -78,5 +83,16 @@ public class Tool {
         this.description = toolDetailsDTO.getDescription();
         this.toolCategory = ToolCategory.findByValue(toolDetailsDTO.getToolCategory());
         this.price = toolDetailsDTO.getPrice();
+    }
+
+    public void addReservation(final ReservationHasTool reservationHasTool) {
+        if (this.reservationHasTools == null) {
+            this.reservationHasTools = new ArrayList<>();
+        }
+        this.reservationHasTools.add(reservationHasTool);
+    }
+
+    public void makeToolUnavailable() {
+        this.available = false;
     }
 }

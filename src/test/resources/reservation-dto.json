@@ -1,0 +1,10 @@
+{
+  "dateFrom": "2022-12-04",
+  "dateTo": "2022-12-16",
+  "additionalComment": "Hammer, loader and a crane",
+  "toolIds": [
+    1,
+    2,
+    3
+  ]
+}

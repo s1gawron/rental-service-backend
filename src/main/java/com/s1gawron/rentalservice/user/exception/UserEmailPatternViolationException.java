@@ -8,7 +8,7 @@ public class UserEmailPatternViolationException extends RuntimeException {
 
     public static UserEmailPatternViolationException create(final String email) {
         return new UserEmailPatternViolationException(
-            "Email: " + email + ", does not match validation pattern. If this is proper email please contact me for a fix.");
+            "Email#" + email + ", does not match validation pattern. If this is proper email please contact me for a fix.");
     }
 
 }

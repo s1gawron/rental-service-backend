@@ -7,6 +7,6 @@ public class UserRoleDoesNotExistException extends RuntimeException {
     }
 
     public static UserRoleDoesNotExistException create(final String role) {
-        return new UserRoleDoesNotExistException("Role: " + role + " does not exist!");
+        return new UserRoleDoesNotExistException("Role#" + role + " does not exist!");
     }
 }

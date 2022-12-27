@@ -1,5 +1,6 @@
 package com.s1gawron.rentalservice.shared;
 
+import com.s1gawron.rentalservice.jwt.exception.UntrustedTokenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -23,6 +24,14 @@ public abstract class AbstractErrorHandlerController {
         final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.getReasonPhrase(),
             noAccessForUserRoleException.getMessage(), httpServletRequest.getRequestURI());
+    }
+
+    @ExceptionHandler(UntrustedTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse untrustedTokenExceptionHandler(final UntrustedTokenException untrustedTokenException,
+        final HttpServletRequest httpServletRequest) {
+        return new ErrorResponse(Instant.now().toString(), HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+            untrustedTokenException.getMessage(), httpServletRequest.getRequestURI());
     }
 
 }

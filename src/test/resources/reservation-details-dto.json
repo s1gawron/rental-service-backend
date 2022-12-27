@@ -1,0 +1,42 @@
+{
+  "reservationId": 1,
+  "dateFrom": "2022-12-04",
+  "dateTo": "2022-12-16",
+  "reservationFinalPrice": 10.99,
+  "additionalComment": "Hammer, loader and a crane",
+  "tools": [
+    {
+      "toolId": 1,
+      "name": "Hammer",
+      "description": "It's just a hammer :)",
+      "toolCategory": "LIGHT",
+      "price": 10.99,
+      "toolState": {
+        "stateType": "NEW",
+        "description": "New and shiny tool"
+      }
+    },
+    {
+      "toolId": 2,
+      "name": "Loader",
+      "description": "4 wheeled loader :)",
+      "toolCategory": "HEAVY",
+      "price": 1000.99,
+      "toolState": {
+        "stateType": "MINIMAL_WEAR",
+        "description": "No signs of usage"
+      }
+    },
+    {
+      "toolId": 3,
+      "name": "Crane",
+      "description": "Mechanical giraffe",
+      "toolCategory": "HEAVY",
+      "price": 19999.99,
+      "toolState": {
+        "stateType": "WELL_WORN",
+        "description": "Rusty"
+      }
+    }
+  ]
+}

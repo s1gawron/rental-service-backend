@@ -7,6 +7,6 @@ public class ToolCategoryDoesNotExistException extends RuntimeException {
     }
 
     public static ToolCategoryDoesNotExistException create(final String category) {
-        return new ToolCategoryDoesNotExistException("Category: " + category + " does not exist!");
+        return new ToolCategoryDoesNotExistException("Category#" + category + " does not exist!");
     }
 }

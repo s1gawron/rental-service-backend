@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.tool.service;
 
-import com.s1gawron.rentalservice.address.dto.AddressDTO;
+import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
+import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
@@ -8,15 +9,15 @@ import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
+import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.model.ToolState;
 import com.s1gawron.rentalservice.tool.repository.ToolRepository;
 import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
-import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
+import com.s1gawron.rentalservice.user.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -116,7 +117,7 @@ class ToolServiceTest {
 
         Mockito.when(toolRepositoryMock.findById(1L)).thenReturn(Optional.of(tool));
 
-        final ToolDetailsDTO expected = tool.toToolDTO();
+        final ToolDetailsDTO expected = tool.toToolDetailsDTO();
         final ToolDetailsDTO result = toolService.getToolDetails(1L);
 
         assertToolDetailsDTO(expected, result);
@@ -129,7 +130,7 @@ class ToolServiceTest {
 
     @Test
     void shouldValidateAndAddTool() {
-        final User user = createUser(UserRole.WORKER);
+        final User user = UserCreatorHelper.I.createWorker();
         final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
@@ -151,7 +152,7 @@ class ToolServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToAddTool() {
-        final User user = createUser(UserRole.CUSTOMER);
+        final User user = UserCreatorHelper.I.createCustomer();
         final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
@@ -162,7 +163,7 @@ class ToolServiceTest {
 
     @Test
     void shouldValidateAndEditTool() {
-        final User user = createUser(UserRole.WORKER);
+        final User user = UserCreatorHelper.I.createWorker();
         final Tool originalTool = ToolCreatorHelper.I.createTool();
         final ToolDetailsDTO editedTool = ToolCreatorHelper.I.createEditedToolDTO();
 
@@ -194,7 +195,7 @@ class ToolServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToEditTool() {
-        final User user = createUser(UserRole.CUSTOMER);
+        final User user = UserCreatorHelper.I.createCustomer();
         final ToolDetailsDTO expected = ToolCreatorHelper.I.createToolDetailsDTO();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
@@ -205,7 +206,7 @@ class ToolServiceTest {
 
     @Test
     void shouldDeleteTool() {
-        final User user = createUser(UserRole.WORKER);
+        final User user = UserCreatorHelper.I.createWorker();
         final Tool tool = ToolCreatorHelper.I.createTool();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
@@ -226,7 +227,7 @@ class ToolServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToDeleteTool() {
-        final User user = createUser(UserRole.CUSTOMER);
+        final User user = UserCreatorHelper.I.createCustomer();
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
 
@@ -248,6 +249,61 @@ class ToolServiceTest {
 
         assertEquals(2, result.size());
         assertTools(expectedTools, result);
+    }
+
+    @Test
+    void shouldGetToolDetailsByReservationHasTool() {
+        final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
+        final Tool tool = ToolCreatorHelper.I.createTool();
+        final Reservation reservation = ReservationCreatorHelper.I.createReservation();
+
+        Mockito.when(toolRepositoryMock.findAllByReservationHasToolsIn(reservation.getReservationHasTools())).thenReturn(List.of(tool));
+
+        final List<ToolDetailsDTO> result = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
+
+        assertEquals(1, result.size());
+        assertToolDetailsDTO(toolDetailsDTO, result.get(0));
+    }
+
+    @Test
+    void shouldNotGetToolDetailsByReservationHasTool() {
+        final Reservation reservation = ReservationCreatorHelper.I.createReservation();
+
+        Mockito.when(toolRepositoryMock.findAllByReservationHasToolsIn(reservation.getReservationHasTools())).thenReturn(List.of());
+
+        final List<ToolDetailsDTO> result = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
+
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void shouldNotThrowExceptionWhenToolIsAvailable() {
+        Mockito.when(toolRepositoryMock.isToolAvailable(1L)).thenReturn(Optional.of(true));
+
+        toolService.isToolAvailable(1L);
+    }
+
+    @Test
+    void shouldNotThrowExceptionWhenToolNotFoundWhileCheckingAvailability() {
+        Mockito.when(toolRepositoryMock.isToolAvailable(1L)).thenThrow(ToolNotFoundException.create(1L));
+
+        assertThrows(ToolNotFoundException.class, () -> toolService.isToolAvailable(1L), "Tool#1 could not be found!");
+    }
+
+    @Test
+    void shouldNotThrowExceptionWhenToolIsNotAvailable() {
+        Mockito.when(toolRepositoryMock.isToolAvailable(1L)).thenReturn(Optional.of(false));
+
+        assertThrows(ToolUnavailableException.class, () -> toolService.isToolAvailable(1L), "Tool#1 is unavailable!");
+    }
+
+    @Test
+    void shouldSaveToolWithReservation() {
+        final Tool tool = ToolCreatorHelper.I.createTool();
+
+        toolService.saveToolWithReservation(tool);
+
+        assertFalse(tool.isAvailable());
     }
 
     private void assertTools(final List<ToolDetailsDTO> expectedTools, final List<ToolDetailsDTO> resultTools) {
@@ -278,12 +334,6 @@ class ToolServiceTest {
         assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
         assertEquals(expected.getPrice(), resultTool.getPrice());
         assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
-    }
-
-    private User createUser(final UserRole userRole) {
-        final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(USER_EMAIL, "Start00!", "John", "Kowalski", userRole.getName(), addressDTO);
-        return User.createUser(userRegisterDTO, userRole, "encryptedPassword");
     }
 
 }

@@ -7,6 +7,7 @@ import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
+import com.s1gawron.rentalservice.user.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
@@ -49,12 +50,9 @@ class UserServiceTest {
 
     @Test
     void shouldFindUserByEmail() {
-        final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", "CUSTOMER", addressDTO);
-        final User user = User.createUser(userRegisterDTO, UserRole.CUSTOMER, "encryptedPassword");
+        final User customer = UserCreatorHelper.I.createCustomer();
 
-        user.setCustomerAddress(Address.from(addressDTO));
-        Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+        Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(customer));
 
         final Optional<User> result = userService.getUserByEmail(EMAIL);
 
@@ -104,12 +102,9 @@ class UserServiceTest {
 
     @Test
     void shouldGetUserDetails() {
-        final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", "CUSTOMER", addressDTO);
-        final User user = User.createUser(userRegisterDTO, UserRole.CUSTOMER, "encryptedPassword");
+        final User customer = UserCreatorHelper.I.createCustomer();
 
-        user.setCustomerAddress(Address.from(addressDTO));
-        Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+        Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(customer));
 
         final UserDTO result = userService.getUserDetails();
 

@@ -7,7 +7,7 @@ public class NoAccessForUserRoleException extends RuntimeException {
     }
 
     public static NoAccessForUserRoleException create(final String element) {
-        return new NoAccessForUserRoleException("Current user role is not allowed to use: " + element + " module!");
+        return new NoAccessForUserRoleException("Current user role is not allowed to use module#" + element + "!");
     }
 
 }

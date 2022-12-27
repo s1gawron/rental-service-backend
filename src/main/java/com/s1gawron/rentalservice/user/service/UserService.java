@@ -58,4 +58,8 @@ public class UserService {
         return user.toUserDTO();
     }
 
+    @Transactional
+    public void saveCustomerWithReservation(final User customer) {
+        userRepository.save(customer);
+    }
 }

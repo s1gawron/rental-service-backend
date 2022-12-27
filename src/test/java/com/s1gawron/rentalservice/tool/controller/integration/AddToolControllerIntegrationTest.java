@@ -56,7 +56,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isEmpty());
+        assertTrue(toolRepository.findById(1L).isEmpty());
     }
 
     @Test
@@ -77,7 +77,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isEmpty());
+        assertTrue(toolRepository.findById(1L).isEmpty());
     }
 
     @Test
@@ -98,7 +98,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isEmpty());
+        assertTrue(toolRepository.findById(1L).isEmpty());
     }
 
     @Test
@@ -119,7 +119,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isEmpty());
+        assertTrue(toolRepository.findById(1L).isEmpty());
     }
 
     @Test
@@ -141,7 +141,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isEmpty());
+        assertTrue(toolRepository.findById(1L).isEmpty());
     }
 
     @Test
@@ -162,7 +162,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isEmpty());
+        assertTrue(toolRepository.findById(1L).isEmpty());
     }
 
     @Test
@@ -180,7 +180,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isEmpty());
+        assertTrue(toolRepository.findById(1L).isEmpty());
     }
 
     @Test
@@ -201,7 +201,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isEmpty());
+        assertTrue(toolRepository.findById(1L).isEmpty());
     }
 
     @Test
@@ -223,7 +223,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isEmpty());
+        assertTrue(toolRepository.findById(1L).isEmpty());
     }
 
     @Test
@@ -244,7 +244,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(1L).isEmpty());
+        assertTrue(toolRepository.findById(1L).isEmpty());
     }
 
 }

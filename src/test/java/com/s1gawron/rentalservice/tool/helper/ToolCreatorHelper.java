@@ -123,4 +123,12 @@ public enum ToolCreatorHelper {
             .collect(Collectors.toList());
     }
 
+    public Tool createChainsaw() {
+        final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.getName(), "New and shiny tool");
+        final ToolDTO chainsawDTO = new ToolDTO("Chainsaw", "Do you want to cut a big tree?", ToolCategory.LIGHT.getName(), BigDecimal.valueOf(100.99),
+            newState);
+
+        return Tool.from(chainsawDTO, ToolState.from(newState));
+    }
+
 }

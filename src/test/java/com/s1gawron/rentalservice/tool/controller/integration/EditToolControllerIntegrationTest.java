@@ -32,7 +32,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
         final Tool tool = ToolCreatorHelper.I.createTool();
         toolRepository.save(tool);
         currentToolId = tool.getToolId();
-        currentToolFirstState = tool.toToolDTO();
+        currentToolFirstState = tool.toToolDetailsDTO();
     }
 
     @Test
@@ -58,7 +58,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
         final ToolDetailsDTO resultObject = objectMapper.readValue(resultJson, ToolDetailsDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(currentToolId).isPresent());
+        assertTrue(toolRepository.findById(currentToolId).isPresent());
         assertToolDetailsDTO(expectedObject, resultObject);
     }
 
@@ -88,7 +88,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     @Test
     @SneakyThrows
     void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileEditingTool() {
-        final Optional<Tool> noToolInDb = toolService.getToolById(99L);
+        final Optional<Tool> noToolInDb = toolRepository.findById(99L);
 
         if (noToolInDb.isPresent()) {
             throw new IllegalStateException("Tool cannot be in database, because it was not added!");
@@ -111,7 +111,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
-        assertTrue(toolService.getToolById(99L).isEmpty());
+        assertTrue(toolRepository.findById(99L).isEmpty());
     }
 
     @Test
@@ -333,8 +333,8 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     private void assertThatToolHasNotBeenEdited() {
-        final Optional<Tool> toolById = toolService.getToolById(currentToolId);
+        final Optional<Tool> toolById = toolRepository.findById(currentToolId);
         assertTrue(toolById.isPresent());
-        assertToolDetailsDTO(currentToolFirstState, toolById.get().toToolDTO());
+        assertToolDetailsDTO(currentToolFirstState, toolById.get().toToolDetailsDTO());
     }
 }

@@ -6,18 +6,22 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 @AllArgsConstructor
 @Getter
 @Builder
-@JsonDeserialize(builder = ReservationDTO.ReservationDTOBuilder.class)
-public class ReservationDTO {
+@JsonDeserialize(builder = ReservationDetailsDTO.ReservationDetailsDTOBuilder.class)
+public class ReservationDetailsDTO {
+
+    private final Long reservationId;
 
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -29,12 +33,14 @@ public class ReservationDTO {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private final LocalDate dateTo;
 
+    private final BigDecimal reservationFinalPrice;
+
     private final String additionalComment;
 
-    private final List<Long> toolIds;
+    private final List<ToolDetailsDTO> tools;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class ReservationDTOBuilder {
+    public static class ReservationDetailsDTOBuilder {
 
     }
 

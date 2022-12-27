@@ -7,6 +7,6 @@ public class ToolStateTypeDoesNotExistException extends RuntimeException {
     }
 
     public static ToolStateTypeDoesNotExistException create(final String toolStateType) {
-        return new ToolStateTypeDoesNotExistException("Tool state type: " + toolStateType + " does not exist!");
+        return new ToolStateTypeDoesNotExistException("Tool state type#" + toolStateType + " does not exist!");
     }
 }

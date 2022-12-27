@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.user.model;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.address.model.Address;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
-import com.s1gawron.rentalservice.reservationhastool.model.ReservationHasTool;
+import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import lombok.Getter;
@@ -74,8 +74,24 @@ public class User {
         return new UserDTO(this.firstName, this.lastName, this.email, this.userRole.getName(), null);
     }
 
-    public boolean isNotCustomer() {
+    public boolean isWorker() {
         return this.userRole == UserRole.WORKER;
+    }
+
+    public boolean isCustomer() {
+        return this.userRole == UserRole.CUSTOMER;
+    }
+
+    public void setCustomerAddress(final Address customerAddress) {
+        this.customerAddress = customerAddress;
+    }
+
+    public void addReservation(final Reservation reservation) {
+        if (this.customerReservations == null) {
+            this.customerReservations = new ArrayList<>();
+        }
+
+        this.customerReservations.add(reservation);
     }
 
     public List<ReservationHasTool> getReservationHasTool() {
@@ -83,9 +99,5 @@ public class User {
         this.customerReservations.forEach(customerReservation -> allCustomerReservationHasTools.addAll(customerReservation.getReservationHasTools()));
 
         return allCustomerReservationHasTools;
-    }
-
-    public void setCustomerAddress(final Address customerAddress) {
-        this.customerAddress = customerAddress;
     }
 }
