@@ -24,7 +24,7 @@ public class ReservationHasTool {
     private Tool tool;
 
     @ManyToOne
-    @JoinColumn(name = "reservation_id", nullable = false)
+    @JoinColumn(name = "reservation_id") //TODO - rethink about nullable
     private Reservation reservation;
 
     public ReservationHasTool(final Tool tool, final Reservation reservation) {

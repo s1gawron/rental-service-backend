@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.shared;
 
 import com.s1gawron.rentalservice.jwt.exception.UntrustedTokenException;
+import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,6 +33,14 @@ public abstract class AbstractErrorHandlerController {
         final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase(),
             untrustedTokenException.getMessage(), httpServletRequest.getRequestURI());
+    }
+
+    @ExceptionHandler(ToolNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse toolNotFoundExceptionHandler(final ToolNotFoundException toolNotFoundException,
+        final HttpServletRequest httpServletRequest) {
+        return new ErrorResponse(Instant.now().toString(), HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase(),
+            toolNotFoundException.getMessage(), httpServletRequest.getRequestURI());
     }
 
 }

@@ -38,6 +38,11 @@ public enum ReservationDTOValidator {
             throw DateMismatchException.createForDateTo();
         }
 
+        if (reservationDTO.getDateFrom().isAfter(reservationDTO.getDateTo())) {
+            log.error("Date from cannot be after due date!");
+            throw DateMismatchException.createForDateFromIsAfterDueDate();
+        }
+
         if (reservationDTO.getToolIds() == null || reservationDTO.getToolIds().isEmpty()) {
             log.error("Tools for reservation list" + MESSAGE);
             throw ReservationEmptyPropertiesException.createForToolsList();

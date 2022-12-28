@@ -46,7 +46,7 @@ public class ReservationService {
 
         return reservationRepository.findAllByCustomer(customer).stream()
             .map(reservation -> {
-                final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(customer.getReservationHasTool());
+                final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
                 return reservation.toReservationDetailsDTO(toolDetails);
             })
             .collect(Collectors.toList());
@@ -65,7 +65,7 @@ public class ReservationService {
 
         final Reservation reservationById = reservationRepository.findByReservationId(reservationId)
             .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
-        final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(customer.getReservationHasTool());
+        final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservationById.getReservationHasTools());
 
         return reservationById.toReservationDetailsDTO(toolDetails);
     }

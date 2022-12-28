@@ -1,5 +1,7 @@
 package com.s1gawron.rentalservice.reservation.controller;
 
+import com.s1gawron.rentalservice.reservation.exception.DateMismatchException;
+import com.s1gawron.rentalservice.reservation.exception.ReservationEmptyPropertiesException;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.shared.AbstractErrorHandlerController;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
@@ -26,6 +28,21 @@ public abstract class ReservationErrorHandlerController extends AbstractErrorHan
         final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase(),
             reservationNotFoundException.getMessage(), httpServletRequest.getRequestURI());
+    }
+
+    @ExceptionHandler(ReservationEmptyPropertiesException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse reservationEmptyPropertiesExceptionHandler(final ReservationEmptyPropertiesException reservationEmptyPropertiesException,
+        final HttpServletRequest httpServletRequest) {
+        return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
+            reservationEmptyPropertiesException.getMessage(), httpServletRequest.getRequestURI());
+    }
+
+    @ExceptionHandler(DateMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse dateMismatchExceptionHandler(final DateMismatchException dateMismatchException, final HttpServletRequest httpServletRequest) {
+        return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
+            dateMismatchException.getMessage(), httpServletRequest.getRequestURI());
     }
 
 }

@@ -48,6 +48,13 @@ class ReservationDTOValidatorTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenDateFromIsAfterDueDate() {
+        final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now().plusDays(1L), LocalDate.now(), "Comment", List.of(1L, 2L, 3L));
+
+        assertThrows(DateMismatchException.class, () -> ReservationDTOValidator.I.validate(reservationDTO), "Date from cannot be after due date!");
+    }
+
+    @Test
     void shouldThrowExceptionWhenToolIdListIsNull() {
         final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(2L), "Comment", null);
 

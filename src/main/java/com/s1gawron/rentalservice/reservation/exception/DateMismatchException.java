@@ -13,4 +13,8 @@ public class DateMismatchException extends RuntimeException {
     public static DateMismatchException createForDateTo() {
         return new DateMismatchException("Due date cannot be before current date!");
     }
+
+    public static DateMismatchException createForDateFromIsAfterDueDate() {
+        return new DateMismatchException("Date from cannot be after due date!");
+    }
 }

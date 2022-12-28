@@ -131,4 +131,11 @@ public enum ToolCreatorHelper {
         return Tool.from(chainsawDTO, ToolState.from(newState));
     }
 
+    public Tool createLoader() {
+        final ToolStateDTO usedState = new ToolStateDTO(ToolStateType.MINIMAL_WEAR.getName(), "No signs of usage");
+        final ToolDTO usedToolDetailsDTO = new ToolDTO("Loader", "4 wheeled loader :)", ToolCategory.HEAVY.getName(),
+            BigDecimal.valueOf(1000.99), usedState);
+
+        return Tool.from(usedToolDetailsDTO, ToolState.from(usedState));
+    }
 }

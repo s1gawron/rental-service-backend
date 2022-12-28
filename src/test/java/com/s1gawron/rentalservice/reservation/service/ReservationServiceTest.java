@@ -76,8 +76,11 @@ class ReservationServiceTest {
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(customer));
         Mockito.when(reservationRepositoryMock.findAllByCustomer(customer)).thenReturn(reservations);
-        Mockito.when(toolServiceMock.getToolDetailsByReservationHasTools(customer.getReservationHasTool()))
-            .thenReturn(List.of(toolDetails.get(0)), List.of(toolDetails.get(1)), List.of(toolDetails.get(2)));
+
+        for (int i = 0; i < toolDetails.size(); i++) {
+            Mockito.when(toolServiceMock.getToolDetailsByReservationHasTools(reservations.get(i).getReservationHasTools()))
+                .thenReturn(List.of(toolDetails.get(i)));
+        }
 
         final List<ReservationDetailsDTO> result = reservationService.getUserReservations();
 
@@ -109,7 +112,7 @@ class ReservationServiceTest {
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(customer));
         Mockito.when(reservationRepositoryMock.findByReservationId(1L)).thenReturn(Optional.of(reservation));
-        Mockito.when(toolServiceMock.getToolDetailsByReservationHasTools(customer.getReservationHasTool())).thenReturn(List.of(toolDetailsDTO));
+        Mockito.when(toolServiceMock.getToolDetailsByReservationHasTools(reservation.getReservationHasTools())).thenReturn(List.of(toolDetailsDTO));
 
         final ReservationDetailsDTO result = reservationService.getReservationDetails(1L);
 
@@ -131,19 +134,17 @@ class ReservationServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUserIsCustomerButReservationDoesNotBelongToHimWhileGettingReservationDetails() {
+    void shouldThrowExceptionWhenReservationDoesNotBelongToUserWhileGettingReservationDetails() {
         final User customer = UserCreatorHelper.I.createCustomer();
         final User differentCustomer = UserCreatorHelper.I.createDifferentCustomer();
         final Reservation reservation = ReservationCreatorHelper.I.createReservation();
         final Reservation differentReservation = ReservationCreatorHelper.I.createDifferentReservation();
-        final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
 
         customer.addReservation(reservation);
         differentCustomer.addReservation(differentReservation);
 
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(customer));
         Mockito.when(reservationRepositoryMock.findByReservationId(1L)).thenReturn(Optional.of(reservation));
-        Mockito.when(toolServiceMock.getToolDetailsByReservationHasTools(customer.getReservationHasTool())).thenReturn(List.of(toolDetailsDTO));
 
         assertThrows(ReservationNotFoundException.class, () -> reservationService.getReservationDetails(2L),
             "Reservation#2 was not found!");
