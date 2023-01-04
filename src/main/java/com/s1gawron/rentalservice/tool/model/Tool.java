@@ -73,6 +73,11 @@ public class Tool {
             toolState, LocalDate.now());
     }
 
+    public static Tool from(final ToolDetailsDTO toolDetailsDTO, final ToolState toolState, final LocalDate dateAdded) {
+        return new Tool(true, toolDetailsDTO.getName(), toolDetailsDTO.getDescription(), ToolCategory.findByValue(toolDetailsDTO.getToolCategory()),
+            toolDetailsDTO.getPrice(), toolState, dateAdded);
+    }
+
     public ToolDetailsDTO toToolDetailsDTO() {
         return new ToolDetailsDTO(this.toolId, this.available, this.name, this.description, this.toolCategory.getName(), this.price,
             ToolStateDTO.from(this.toolState));

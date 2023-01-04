@@ -1,0 +1,50 @@
+POST {{host}}/api/public/user/register
+Content-Type: application/json
+
+{
+  "email": "test@test.pl",
+  "password": "Start00!",
+  "firstName": "John",
+  "lastName": "Kowalski",
+  "userRole": "CUSTOMER",
+  "address": {
+    "country": "Poland",
+    "city": "Warsaw",
+    "street": "Test",
+    "postCode": "01-000"
+  }
+}
+
+###
+
+POST {{host}}/api/public/user/register
+Content-Type: application/json
+
+{
+  "email": "worker@test.pl",
+  "password": "Start00!",
+  "firstName": "John",
+  "lastName": "Koslak",
+  "userRole": "WORKER"
+}
+
+###
+
+POST {{host}}/api/public/user/login
+Content-Type: application/json
+
+{
+  "email": "worker@test.pl",
+  "password": "Start00!"
+}
+
+###
+
+GET {{host}}/api/user/details
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QucGwiLCJhdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiQ1VTVE9NRVIifV0sImlhdCI6MTY3Mjg0NDc1NywiZXhwIjoxNjcyODc2ODAwfQ.WSvh19ukR8Q3rLqr59YHpxQEpXuchc-jtai--epsTK4
+
+{
+  "email": "worker@test.pl",
+  "password": "Start00!"
+}

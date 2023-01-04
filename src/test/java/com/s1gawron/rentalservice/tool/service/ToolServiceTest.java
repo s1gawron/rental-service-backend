@@ -8,6 +8,7 @@ import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
+import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
@@ -238,15 +239,15 @@ class ToolServiceTest {
 
     @Test
     void shouldGetToolsByName() {
-        final String toolName = "hammer";
+        final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
         final List<Tool> tools = ToolCreatorHelper.I.createCommonNameToolList().stream()
-            .filter(tool -> tool.getName().toLowerCase().contains(toolName))
+            .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.getToolName()))
             .collect(Collectors.toList());
 
-        Mockito.when(toolRepositoryMock.findByNameContainingIgnoreCase(toolName)).thenReturn(tools);
+        Mockito.when(toolRepositoryMock.findByNameContainingIgnoreCase(toolSearchDTO.getToolName())).thenReturn(tools);
 
         final List<ToolDetailsDTO> expectedTools = ToolCreatorHelper.I.createCommonNameToolDTOList();
-        final List<ToolDetailsDTO> result = toolService.getToolsByName(toolName);
+        final List<ToolDetailsDTO> result = toolService.getToolsByName(toolSearchDTO);
 
         assertEquals(2, result.size());
         assertTools(expectedTools, result);

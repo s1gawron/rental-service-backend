@@ -1,0 +1,18 @@
+GET {{host}}/api/public/tool/get/category/heavy
+
+###
+
+GET {{host}}/api/public/tool/get/new
+
+###
+
+GET {{host}}/api/public/tool/get/id/1
+
+###
+
+POST {{host}}/api/public/tool/get/name
+Content-Type: application/json
+
+{
+  "toolName": "chain"
+}

@@ -56,8 +56,8 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
     @Test
     @SneakyThrows
     void shouldGetNewTools() {
-        toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
-        toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
+        toolRepository.saveAll(ToolCreatorHelper.I.createHeavyToolsWithDate());
+        toolRepository.saveAll(ToolCreatorHelper.I.createLightToolsWithDate());
 
         final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "new");
 
@@ -69,6 +69,15 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertEquals(3, resultList.size());
+
+        final long areProperToolsInResultListCount = resultList.stream().filter(tool -> {
+                final String toolName = tool.getName();
+
+                return toolName.equals("Loader") || toolName.equals("Crane") || toolName.equals("Big hammer");
+            })
+            .count();
+
+        assertEquals(3, areProperToolsInResultListCount);
     }
 
     @Test
@@ -115,7 +124,11 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList());
         toolRepository.save(ToolCreatorHelper.I.createChainsaw());
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").content("hammer");
+        final String json = "{\n"
+            + "  \"toolName\": \"hammer\"\n"
+            + "}";
+
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json);
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
@@ -136,7 +149,11 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
     void shouldReturnNotFoundResponseWhenToolsAreNotFoundByName() {
         toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList());
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").content("chainsaw").contentType(MediaType.APPLICATION_JSON);
+        final String json = "{\n"
+            + "  \"toolName\": \"chainsaw\"\n"
+            + "}";
+
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json);
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());

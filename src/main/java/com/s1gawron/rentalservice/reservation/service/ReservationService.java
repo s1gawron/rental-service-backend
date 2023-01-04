@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.reservation.service;
 
 import com.s1gawron.rentalservice.reservation.dto.ReservationDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
+import com.s1gawron.rentalservice.reservation.dto.ReservationListingDTO;
 import com.s1gawron.rentalservice.reservation.dto.validator.ReservationDTOValidator;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
@@ -44,15 +45,16 @@ public class ReservationService {
     private final ToolService toolService;
 
     @Transactional(readOnly = true)
-    public List<ReservationDetailsDTO> getUserReservations() {
+    public ReservationListingDTO getUserReservations() {
         final User customer = getAndCheckIfUserIsCustomer();
-
-        return reservationRepository.findAllByCustomer(customer).stream()
+        final List<ReservationDetailsDTO> userReservations = reservationRepository.findAllByCustomer(customer).stream()
             .map(reservation -> {
                 final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
                 return reservation.toReservationDetailsDTO(toolDetails);
             })
             .collect(Collectors.toList());
+
+        return ReservationListingDTO.create(userReservations);
     }
 
     @Transactional(readOnly = true)

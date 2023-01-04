@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.reservation.service;
 
 import com.s1gawron.rentalservice.reservation.dto.ReservationDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
+import com.s1gawron.rentalservice.reservation.dto.ReservationListingDTO;
 import com.s1gawron.rentalservice.reservation.exception.DateMismatchException;
 import com.s1gawron.rentalservice.reservation.exception.ReservationEmptyPropertiesException;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
@@ -28,7 +29,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -83,12 +83,12 @@ class ReservationServiceTest {
                 .thenReturn(List.of(toolDetails.get(i)));
         }
 
-        final List<ReservationDetailsDTO> result = reservationService.getUserReservations();
+        final ReservationListingDTO result = reservationService.getUserReservations();
 
         assertNotNull(result);
-        assertEquals(3, result.size());
+        assertEquals(3, result.getCount());
 
-        for (ReservationDetailsDTO reservationDetailsDTO : result) {
+        for (ReservationDetailsDTO reservationDetailsDTO : result.getReservations()) {
             assertEquals(1, reservationDetailsDTO.getTools().size());
         }
     }

@@ -1,0 +1,74 @@
+{
+  "count": 3,
+  "reservations": [
+    {
+      "reservationId": 1,
+      "expired": false,
+      "canceled": false,
+      "dateFrom": "2022-12-04",
+      "dateTo": "2022-12-16",
+      "reservationFinalPrice": 10.99,
+      "additionalComment": "Hammer",
+      "tools": [
+        {
+          "toolId": 1,
+          "available": true,
+          "name": "Hammer",
+          "description": "It's just a hammer :)",
+          "toolCategory": "LIGHT",
+          "price": 10.99,
+          "toolState": {
+            "stateType": "NEW",
+            "description": "New and shiny tool"
+          }
+        }
+      ]
+    },
+    {
+      "reservationId": 2,
+      "expired": false,
+      "canceled": false,
+      "dateFrom": "2023-02-04",
+      "dateTo": "2023-03-16",
+      "reservationFinalPrice": 1000.99,
+      "additionalComment": "Loader",
+      "tools": [
+        {
+          "toolId": 2,
+          "available": true,
+          "name": "Loader",
+          "description": "4 wheeled loader :)",
+          "toolCategory": "HEAVY",
+          "price": 1000.99,
+          "toolState": {
+            "stateType": "MINIMAL_WEAR",
+            "description": "No signs of usage"
+          }
+        }
+      ]
+    },
+    {
+      "reservationId": 3,
+      "expired": false,
+      "canceled": false,
+      "dateFrom": "2023-01-01",
+      "dateTo": "2023-01-15",
+      "reservationFinalPrice": 19999.99,
+      "additionalComment": "Crane",
+      "tools": [
+        {
+          "toolId": 3,
+          "available": true,
+          "name": "Crane",
+          "description": "Mechanical giraffe",
+          "toolCategory": "HEAVY",
+          "price": 19999.99,
+          "toolState": {
+            "stateType": "WELL_WORN",
+            "description": "Rusty"
+          }
+        }
+      ]
+    }
+  ]
+}

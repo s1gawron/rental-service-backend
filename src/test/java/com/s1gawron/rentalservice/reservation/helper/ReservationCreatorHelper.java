@@ -97,4 +97,16 @@ public enum ReservationCreatorHelper {
         return firstReservation;
     }
 
+    public List<ReservationDetailsDTO> createReservationDetailsListWithFixedDate() {
+        final List<ToolDetailsDTO> toolDetails = ToolCreatorHelper.I.createToolDTOList();
+        final ReservationDetailsDTO firstReservationDetailsDTO = new ReservationDetailsDTO(1L, false, false, LocalDate.parse("2022-12-04"),
+            LocalDate.parse("2022-12-16"), BigDecimal.valueOf(10.99), "Hammer", List.of(toolDetails.get(0)));
+        final ReservationDetailsDTO secondReservationDetailsDTO = new ReservationDetailsDTO(2L, false, false, LocalDate.parse("2023-02-04"),
+            LocalDate.parse("2023-03-16"), BigDecimal.valueOf(1000.99), "Loader", List.of(toolDetails.get(1)));
+        final ReservationDetailsDTO thirdReservationDetailsDTO = new ReservationDetailsDTO(3L, false, false, LocalDate.parse("2023-01-01"),
+            LocalDate.parse("2023-01-15"), BigDecimal.valueOf(19999.99), "Crane", List.of(toolDetails.get(2)));
+
+        return List.of(firstReservationDetailsDTO, secondReservationDetailsDTO, thirdReservationDetailsDTO);
+    }
+
 }

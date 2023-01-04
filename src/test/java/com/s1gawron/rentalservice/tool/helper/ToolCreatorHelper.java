@@ -9,6 +9,7 @@ import com.s1gawron.rentalservice.tool.model.ToolState;
 import com.s1gawron.rentalservice.tool.model.ToolStateType;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -144,5 +145,43 @@ public enum ToolCreatorHelper {
         final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, false, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.getName(),
             BigDecimal.valueOf(10.99), newState);
         return Tool.from(newToolDetailsDTO, ToolState.from(newState));
+    }
+
+    public List<Tool> createHeavyToolsWithDate() {
+        final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.getName(), "New and shiny tool");
+        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.getName(),
+            BigDecimal.valueOf(10.99), newState);
+        final Tool newTool = Tool.from(newToolDetailsDTO, ToolState.from(newState), LocalDate.parse("2023-01-01"));
+
+        final ToolStateDTO usedState = new ToolStateDTO(ToolStateType.MINIMAL_WEAR.getName(), "No signs of usage");
+        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, "Loader", "4 wheeled loader :)", ToolCategory.HEAVY.getName(),
+            BigDecimal.valueOf(1000.99), usedState);
+        final Tool usedTool = Tool.from(usedToolDetailsDTO, ToolState.from(usedState), LocalDate.parse("2023-01-02"));
+
+        final ToolStateDTO wornState = new ToolStateDTO(ToolStateType.WELL_WORN.getName(), "Rusty");
+        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, "Crane", "Mechanical giraffe", ToolCategory.HEAVY.getName(),
+            BigDecimal.valueOf(19999.99), wornState);
+        final Tool wornTool = Tool.from(wornToolDetailsDTO, ToolState.from(wornState), LocalDate.parse("2023-01-03"));
+
+        return List.of(newTool, usedTool, wornTool);
+    }
+
+    public List<Tool> createLightToolsWithDate() {
+        final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.getName(), "New and shiny tool");
+        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT.getName(),
+            BigDecimal.valueOf(10.99), newState);
+        final Tool newTool = Tool.from(newToolDetailsDTO, ToolState.from(newState), LocalDate.parse("2023-01-01"));
+
+        final ToolStateDTO usedState = new ToolStateDTO(ToolStateType.MINIMAL_WEAR.getName(), "No signs of usage");
+        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, "Screwdriver", "U know for screws :)", ToolCategory.LIGHT.getName(),
+            BigDecimal.valueOf(5.99), usedState);
+        final Tool usedTool = Tool.from(usedToolDetailsDTO, ToolState.from(usedState), LocalDate.parse("2023-01-01"));
+
+        final ToolStateDTO wornState = new ToolStateDTO(ToolStateType.WELL_WORN.getName(), "Rusty");
+        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, "Big hammer", "Just a bigger hammer", ToolCategory.LIGHT.getName(),
+            BigDecimal.valueOf(15.99), wornState);
+        final Tool wornTool = Tool.from(wornToolDetailsDTO, ToolState.from(wornState), LocalDate.parse("2023-01-04"));
+
+        return List.of(newTool, usedTool, wornTool);
     }
 }

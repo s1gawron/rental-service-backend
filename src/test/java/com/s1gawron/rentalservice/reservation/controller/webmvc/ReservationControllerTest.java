@@ -1,11 +1,11 @@
 package com.s1gawron.rentalservice.reservation.controller.webmvc;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.jwt.JwtConfig;
 import com.s1gawron.rentalservice.reservation.controller.ReservationController;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
+import com.s1gawron.rentalservice.reservation.dto.ReservationListingDTO;
 import com.s1gawron.rentalservice.reservation.exception.DateMismatchException;
 import com.s1gawron.rentalservice.reservation.exception.ReservationEmptyPropertiesException;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
@@ -62,19 +62,18 @@ class ReservationControllerTest {
     @SneakyThrows
     void shouldGetUserReservations() {
         final List<ReservationDetailsDTO> reservationDetailsList = ReservationCreatorHelper.I.createReservationDetailsList();
+        final ReservationListingDTO reservationListingDTO = ReservationListingDTO.create(reservationDetailsList);
 
-        Mockito.when(reservationServiceMock.getUserReservations()).thenReturn(reservationDetailsList);
+        Mockito.when(reservationServiceMock.getUserReservations()).thenReturn(reservationListingDTO);
 
         final RequestBuilder request = MockMvcRequestBuilders.get(RESERVATION_ENDPOINT + "get/all");
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
-        final List<ReservationDetailsDTO> reservationDetailsListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
-
-        });
+        final ReservationListingDTO reservationDetailsListResult = objectMapper.readValue(jsonResult, ReservationListingDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(reservationDetailsListResult);
-        assertEquals(3, reservationDetailsListResult.size());
+        assertEquals(3, reservationDetailsListResult.getCount());
     }
 
     @Test

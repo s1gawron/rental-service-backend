@@ -3,6 +3,7 @@ package com.s1gawron.rentalservice.tool.controller.webmvc;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
+import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
 import com.s1gawron.rentalservice.tool.dto.validator.ToolDTOValidator;
 import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
@@ -115,14 +116,15 @@ class GetToolControllerTest extends ToolControllerTest {
     @Test
     @SneakyThrows
     void shouldGetToolsByName() {
-        final String toolName = "hammer";
+        final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
         final List<ToolDetailsDTO> toolDetailsDTOList = ToolCreatorHelper.I.createCommonNameToolDTOList().stream()
-            .filter(tool -> tool.getName().toLowerCase().contains(toolName))
+            .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.getToolName()))
             .collect(Collectors.toList());
 
-        Mockito.when(toolServiceMock.getToolsByName(toolName)).thenReturn(toolDetailsDTOList);
+        Mockito.when(toolServiceMock.getToolsByName(Mockito.any(ToolSearchDTO.class))).thenReturn(toolDetailsDTOList);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").content("hammer").contentType(MediaType.APPLICATION_JSON);
+        final String json = objectMapper.writeValueAsString(toolSearchDTO);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").content(json).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
@@ -137,7 +139,9 @@ class GetToolControllerTest extends ToolControllerTest {
     @Test
     @SneakyThrows
     void shouldReturnEmptyListWhenToolsAreNotFoundByName() {
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").content("hammer").contentType(MediaType.APPLICATION_JSON);
+        final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
+        final String json = objectMapper.writeValueAsString(toolSearchDTO);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").content(json).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {

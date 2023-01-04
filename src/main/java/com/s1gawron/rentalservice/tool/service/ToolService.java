@@ -6,6 +6,7 @@ import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
+import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
 import com.s1gawron.rentalservice.tool.dto.validator.ToolDTOValidator;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
@@ -66,13 +67,13 @@ public class ToolService {
     }
 
     @Transactional(readOnly = true)
-    public List<ToolDetailsDTO> getToolsByName(final String toolName) {
-        final List<ToolDetailsDTO> toolDetails = toolRepository.findByNameContainingIgnoreCase(toolName).stream()
+    public List<ToolDetailsDTO> getToolsByName(final ToolSearchDTO toolSearchDTO) {
+        final List<ToolDetailsDTO> toolDetails = toolRepository.findByNameContainingIgnoreCase(toolSearchDTO.getToolName()).stream()
             .map(Tool::toToolDetailsDTO)
             .collect(Collectors.toList());
 
         if (toolDetails.isEmpty()) {
-            throw ToolNotFoundException.createForName(toolName);
+            throw ToolNotFoundException.createForName(toolSearchDTO.getToolName());
         }
 
         return toolDetails;

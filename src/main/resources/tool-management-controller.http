@@ -1,0 +1,38 @@
+POST {{host}}/api/tool/add
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b3JrZXJAdGVzdC5wbCIsImF1dGhvcml0aWVzIjpbeyJhdXRob3JpdHkiOiJXT1JLRVIifV0sImlhdCI6MTY3Mjg0NTczMywiZXhwIjoxNjcyODczMjAwfQ.4NwAjZV-zglGoJyGxKI7t5Innos9VGzs0gYxoKxOLtk
+
+{
+  "name": "Chainsaw",
+  "description": "Giraffe",
+  "toolCategory": "LIGHT",
+  "price": 150.99,
+  "toolState": {
+    "stateType": "WELL_WORN",
+    "description": "Heavy used"
+  }
+}
+
+###
+
+PUT {{host}}/api/tool/edit
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b3JrZXJAdGVzdC5wbCIsImF1dGhvcml0aWVzIjpbeyJhdXRob3JpdHkiOiJXT1JLRVIifV0sImlhdCI6MTY3Mjg0NTczMywiZXhwIjoxNjcyODczMjAwfQ.4NwAjZV-zglGoJyGxKI7t5Innos9VGzs0gYxoKxOLtk
+
+{
+  "toolId": 1,
+  "available": true,
+  "name": "Hammer Zeiss",
+  "description": "It's just a hammer :)",
+  "toolCategory": "LIGHT",
+  "price": 10.99,
+  "toolState": {
+    "stateType": "NEW",
+    "description": "New and shiny tool"
+  }
+}
+
+###
+
+DELETE {{host}}/api/tool/delete/4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3b3JrZXJAdGVzdC5wbCIsImF1dGhvcml0aWVzIjpbeyJhdXRob3JpdHkiOiJXT1JLRVIifV0sImlhdCI6MTY3Mjg0NTczMywiZXhwIjoxNjcyODczMjAwfQ.4NwAjZV-zglGoJyGxKI7t5Innos9VGzs0gYxoKxOLtk

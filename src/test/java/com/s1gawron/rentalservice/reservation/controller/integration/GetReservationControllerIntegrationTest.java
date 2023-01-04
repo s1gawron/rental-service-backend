@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.reservation.controller.integration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
+import com.s1gawron.rentalservice.reservation.dto.ReservationListingDTO;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -26,14 +27,12 @@ class GetReservationControllerIntegrationTest extends AbstractReservationControl
             .header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
-        final List<ReservationDetailsDTO> resultObject = objectMapper.readValue(resultJson, new TypeReference<>() {
-
-        });
+        final ReservationListingDTO resultObject = objectMapper.readValue(resultJson, ReservationListingDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(2, resultObject.size());
+        assertEquals(2, resultObject.getCount());
 
-        for (final ReservationDetailsDTO reservationDetailsDTO : resultObject) {
+        for (final ReservationDetailsDTO reservationDetailsDTO : resultObject.getReservations()) {
             assertEquals(1, reservationDetailsDTO.getTools().size());
         }
     }

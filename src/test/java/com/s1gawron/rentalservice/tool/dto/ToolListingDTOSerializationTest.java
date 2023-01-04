@@ -19,7 +19,7 @@ class ToolListingDTOSerializationTest {
     @SneakyThrows
     void shouldSerialize() {
         final List<ToolDetailsDTO> toolDetailsDTOList = ToolCreatorHelper.I.createToolDTOList();
-        ToolListingDTO toolListingDTO = ToolListingDTO.create(toolDetailsDTOList);
+        final ToolListingDTO toolListingDTO = ToolListingDTO.create(toolDetailsDTOList);
 
         final String toolListingDTOJsonResult = mapper.writeValueAsString(toolListingDTO);
         final String expectedToolListingDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-listing-dto.json"));
