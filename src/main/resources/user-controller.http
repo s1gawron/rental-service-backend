@@ -2,7 +2,7 @@ POST {{host}}/api/public/user/register
 Content-Type: application/json
 
 {
-  "email": "test@test.pl",
+  "email": "customer@test.pl",
   "password": "Start00!",
   "firstName": "John",
   "lastName": "Kowalski",
@@ -34,7 +34,7 @@ POST {{host}}/api/public/user/login
 Content-Type: application/json
 
 {
-  "email": "worker@test.pl",
+  "email": "customer@test.pl",
   "password": "Start00!"
 }
 
@@ -42,7 +42,7 @@ Content-Type: application/json
 
 GET {{host}}/api/user/details
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QucGwiLCJhdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiQ1VTVE9NRVIifV0sImlhdCI6MTY3Mjg0NDc1NywiZXhwIjoxNjcyODc2ODAwfQ.WSvh19ukR8Q3rLqr59YHpxQEpXuchc-jtai--epsTK4
+Authorization: Bearer
 
 {
   "email": "worker@test.pl",

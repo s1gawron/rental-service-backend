@@ -1,16 +1,16 @@
 GET {{host}}/api/customer/reservation/get/all
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QucGwiLCJhdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiQ1VTVE9NRVIifV0sImlhdCI6MTY3Mjg0NjMyMSwiZXhwIjoxNjcyODczMjAwfQ.dm3r7svJbpnixCA4MzPPbswYuPr0w2VOXdAGW5-gcXA
+Authorization: Bearer
 
 ###
 
 GET {{host}}/api/customer/reservation/get/id/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QucGwiLCJhdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiQ1VTVE9NRVIifV0sImlhdCI6MTY3Mjg0NjMyMSwiZXhwIjoxNjcyODczMjAwfQ.dm3r7svJbpnixCA4MzPPbswYuPr0w2VOXdAGW5-gcXA
+Authorization: Bearer
 
 ###
 
 POST {{host}}/api/customer/reservation/make
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QucGwiLCJhdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiQ1VTVE9NRVIifV0sImlhdCI6MTY3Mjg0NjMyMSwiZXhwIjoxNjcyODczMjAwfQ.dm3r7svJbpnixCA4MzPPbswYuPr0w2VOXdAGW5-gcXA
+Authorization: Bearer
 
 {
   "dateFrom": "2023-01-04",
@@ -26,4 +26,4 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QucGwiLCJhdXRob
 ###
 
 POST {{host}}/api/customer/reservation/cancel/1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QHRlc3QucGwiLCJhdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiQ1VTVE9NRVIifV0sImlhdCI6MTY3Mjg0NjMyMSwiZXhwIjoxNjcyODczMjAwfQ.dm3r7svJbpnixCA4MzPPbswYuPr0w2VOXdAGW5-gcXA
+Authorization: Bearer

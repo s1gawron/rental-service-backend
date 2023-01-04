@@ -17,7 +17,8 @@
       "toolState": {
         "stateType": "NEW",
         "description": "New and shiny tool"
-      }
+      },
+      "imageUrl": "www.image.com/hammer"
     },
     {
       "toolId": 2,
@@ -29,7 +30,8 @@
       "toolState": {
         "stateType": "MINIMAL_WEAR",
         "description": "No signs of usage"
-      }
+      },
+      "imageUrl": "www.image.com/loader"
     },
     {
       "toolId": 3,
@@ -41,7 +43,8 @@
       "toolState": {
         "stateType": "WELL_WORN",
         "description": "Rusty"
-      }
+      },
+      "imageUrl": "www.image.com/crane"
     }
   ]
 }

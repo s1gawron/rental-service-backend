@@ -24,7 +24,8 @@ class ToolDetailsDTOSerializationTest {
     @SneakyThrows
     void shouldSerialize() {
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New and shiny tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", "LIGHT", BigDecimal.valueOf(10.99), toolStateDTO);
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", "LIGHT", BigDecimal.valueOf(10.99), toolStateDTO,
+            "www.image.com/hammer");
 
         final String toolDTOJsonResult = mapper.writeValueAsString(toolDetailsDTO);
         final String expectedToolDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-details-dto.json"));
@@ -60,6 +61,7 @@ class ToolDetailsDTOSerializationTest {
         assertEquals(BigDecimal.valueOf(10.99), result.getPrice());
         assertEquals(ToolStateType.NEW.getName(), result.getToolState().getStateType());
         assertEquals("New and shiny tool", result.getToolState().getDescription());
+        assertEquals("www.image.com/hammer", result.getImageUrl());
     }
 
 }

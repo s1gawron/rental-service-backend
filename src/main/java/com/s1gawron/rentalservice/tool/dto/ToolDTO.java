@@ -24,6 +24,8 @@ public class ToolDTO implements ToolDTOProperties {
 
     private final ToolStateDTO toolState;
 
+    private final String imageUrl;
+
     @JsonPOJOBuilder(withPrefix = "")
     public static class ToolDTOBuilder {
 

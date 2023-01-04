@@ -8,5 +8,6 @@
   "toolState": {
     "stateType": "NEW",
     "description": "New and shiny tool"
-  }
+  },
+  "imageUrl": "www.image.com/hammer"
 }
