@@ -16,6 +16,8 @@ public class ToolDetailsDTO implements ToolDTOProperties {
 
     private final Long toolId;
 
+    private final Boolean available;
+
     private final String name;
 
     private final String description;

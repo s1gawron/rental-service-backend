@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,11 +63,6 @@ public class ToolService {
     @Transactional(readOnly = true)
     public Tool getToolById(final Long toolId) {
         return toolRepository.findById(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<Tool> getToolOptionalById(final Long toolId) {
-        return toolRepository.findById(toolId);
     }
 
     @Transactional(readOnly = true)
@@ -146,8 +140,19 @@ public class ToolService {
     }
 
     @Transactional
-    public void saveToolWithReservation(final Tool tool) {
+    public void makeToolUnavailableAndSave(final Tool tool) {
         tool.makeToolUnavailable();
+        toolRepository.save(tool);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Tool> getToolsByReservationHasTools(final List<ReservationHasTool> reservationHasTools) {
+        return toolRepository.findAllByReservationHasToolsIn(reservationHasTools);
+    }
+
+    @Transactional
+    public void makeToolAvailableAndSave(final Tool tool) {
+        tool.makeToolAvailable();
         toolRepository.save(tool);
     }
 

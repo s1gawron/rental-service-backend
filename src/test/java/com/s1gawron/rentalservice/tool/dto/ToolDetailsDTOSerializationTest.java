@@ -24,7 +24,7 @@ class ToolDetailsDTOSerializationTest {
     @SneakyThrows
     void shouldSerialize() {
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New and shiny tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, "Hammer", "It's just a hammer :)", "LIGHT", BigDecimal.valueOf(10.99), toolStateDTO);
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", "LIGHT", BigDecimal.valueOf(10.99), toolStateDTO);
 
         final String toolDTOJsonResult = mapper.writeValueAsString(toolDetailsDTO);
         final String expectedToolDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-details-dto.json"));

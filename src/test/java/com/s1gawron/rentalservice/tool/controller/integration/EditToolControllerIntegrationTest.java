@@ -14,8 +14,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class EditToolControllerIntegrationTest extends AbstractToolControllerIntegrationTest {
 
@@ -40,6 +39,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     void shouldValidateAndEditTool() {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
+            + "  \"available\": \"false\",\n"
             + "  \"name\": \"Big hammer\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
@@ -96,6 +96,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
 
         final String json = "{\n"
             + "  \"toolId\": " + 99 + ",\n"
+            + "  \"available\": \"true\",\n"
             + "  \"name\": \"Big hammer\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
@@ -326,6 +327,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
 
     private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool) {
         assertEquals(expected.getName(), resultTool.getName());
+        assertEquals(expected.getAvailable(), resultTool.getAvailable());
         assertEquals(expected.getDescription(), resultTool.getDescription());
         assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
         assertEquals(expected.getPrice(), resultTool.getPrice());

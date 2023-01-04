@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.tool.service;
 
 import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
+import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
@@ -298,12 +299,38 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldSaveToolWithReservation() {
+    void shouldMakeToolUnavailableAndSave() {
         final Tool tool = ToolCreatorHelper.I.createTool();
 
-        toolService.saveToolWithReservation(tool);
+        toolService.makeToolUnavailableAndSave(tool);
 
         assertFalse(tool.isAvailable());
+    }
+
+    @Test
+    void shouldGetToolsByReservationHasTools() {
+        final List<Tool> tools = ToolCreatorHelper.I.createToolList();
+        final Reservation reservation = ReservationCreatorHelper.I.createReservation();
+        final List<ReservationHasTool> reservationHasTools = List.of(new ReservationHasTool(tools.get(0), reservation),
+            new ReservationHasTool(tools.get(1), reservation), new ReservationHasTool(tools.get(2), reservation));
+
+        Mockito.when(toolRepositoryMock.findAllByReservationHasToolsIn(reservationHasTools)).thenReturn(tools);
+
+        final List<Tool> result = toolService.getToolsByReservationHasTools(reservationHasTools);
+
+        assertEquals(3, result.size());
+        assertEquals("Hammer", result.get(0).getName());
+        assertEquals("Loader", result.get(1).getName());
+        assertEquals("Crane", result.get(2).getName());
+    }
+
+    @Test
+    void shouldMakeToolAvailableAndSave() {
+        final Tool unavailableTool = ToolCreatorHelper.I.createUnavailableTool();
+
+        toolService.makeToolAvailableAndSave(unavailableTool);
+
+        assertTrue(unavailableTool.isAvailable());
     }
 
     private void assertTools(final List<ToolDetailsDTO> expectedTools, final List<ToolDetailsDTO> resultTools) {
@@ -330,6 +357,7 @@ class ToolServiceTest {
 
     private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool) {
         assertEquals(expected.getName(), resultTool.getName());
+        assertEquals(expected.getAvailable(), resultTool.getAvailable());
         assertEquals(expected.getDescription(), resultTool.getDescription());
         assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
         assertEquals(expected.getPrice(), resultTool.getPrice());

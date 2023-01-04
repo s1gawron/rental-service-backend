@@ -64,8 +64,8 @@ public class Tool {
     }
 
     public static Tool from(final ToolDetailsDTO toolDetailsDTO, final ToolState toolState) {
-        return new Tool(true, toolDetailsDTO.getName(), toolDetailsDTO.getDescription(), ToolCategory.findByValue(toolDetailsDTO.getToolCategory()),
-            toolDetailsDTO.getPrice(), toolState, LocalDate.now());
+        return new Tool(toolDetailsDTO.getAvailable(), toolDetailsDTO.getName(), toolDetailsDTO.getDescription(),
+            ToolCategory.findByValue(toolDetailsDTO.getToolCategory()), toolDetailsDTO.getPrice(), toolState, LocalDate.now());
     }
 
     public static Tool from(final ToolDTO toolDTO, final ToolState toolState) {
@@ -74,12 +74,13 @@ public class Tool {
     }
 
     public ToolDetailsDTO toToolDetailsDTO() {
-        return new ToolDetailsDTO(this.toolId, this.name, this.description, this.toolCategory.getName(), this.price,
+        return new ToolDetailsDTO(this.toolId, this.available, this.name, this.description, this.toolCategory.getName(), this.price,
             ToolStateDTO.from(this.toolState));
     }
 
     public void edit(final ToolDetailsDTO toolDetailsDTO) {
         this.name = toolDetailsDTO.getName();
+        this.available = toolDetailsDTO.getAvailable();
         this.description = toolDetailsDTO.getDescription();
         this.toolCategory = ToolCategory.findByValue(toolDetailsDTO.getToolCategory());
         this.price = toolDetailsDTO.getPrice();
@@ -94,5 +95,9 @@ public class Tool {
 
     public void makeToolUnavailable() {
         this.available = false;
+    }
+
+    public void makeToolAvailable() {
+        this.available = true;
     }
 }

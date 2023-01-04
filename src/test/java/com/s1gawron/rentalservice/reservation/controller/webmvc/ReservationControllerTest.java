@@ -35,8 +35,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @WebMvcTest(ReservationController.class)
 @ActiveProfiles("test")
@@ -238,6 +237,54 @@ class ReservationControllerTest {
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldCancelReservation() {
+        final ReservationDetailsDTO canceledReservation = ReservationCreatorHelper.I.createCanceledReservationDetailsDTO();
+
+        Mockito.when(reservationServiceMock.cancelReservation(1L)).thenReturn(canceledReservation);
+
+        final RequestBuilder request = MockMvcRequestBuilders.post(RESERVATION_ENDPOINT + "cancel/1");
+        final MvcResult result = mockMvc.perform(request).andReturn();
+        final String jsonResult = result.getResponse().getContentAsString();
+        final ReservationDetailsDTO reservationDetailsDTOResult = objectMapper.readValue(jsonResult, ReservationDetailsDTO.class);
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        assertNotNull(reservationDetailsDTOResult);
+        assertEquals("Hammer", reservationDetailsDTOResult.getAdditionalComment());
+        assertTrue(reservationDetailsDTOResult.isCanceled());
+        assertEquals("Hammer", reservationDetailsDTOResult.getTools().get(0).getName());
+        assertTrue(reservationDetailsDTOResult.getTools().get(0).getAvailable());
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToCancelReservation() {
+        final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
+
+        Mockito.when(reservationServiceMock.cancelReservation(1L)).thenThrow(expectedException);
+
+        final String endpoint = RESERVATION_ENDPOINT + "cancel/1";
+        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint);
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertErrorResponse(HttpStatus.FORBIDDEN, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldReturnNotFoundResponseWhenReservationWasNotFoundWhileCancelingReservation() {
+        final ReservationNotFoundException expectedException = ReservationNotFoundException.create(1L);
+
+        Mockito.when(reservationServiceMock.cancelReservation(1L)).thenThrow(expectedException);
+
+        final String endpoint = RESERVATION_ENDPOINT + "cancel/1";
+        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint);
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
     }
 
     void assertErrorResponse(final HttpStatus expectedStatus, final String expectedMessage, final String expectedUri,

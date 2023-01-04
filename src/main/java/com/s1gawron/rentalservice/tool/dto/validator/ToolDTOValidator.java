@@ -68,6 +68,11 @@ public enum ToolDTOValidator {
             log.error("Tool id" + MESSAGE);
             throw ToolEmptyPropertiesException.createForId();
         }
+
+        if (((ToolDetailsDTO) toolDTOProperties).getAvailable() == null) {
+            log.error("Tool availability" + MESSAGE);
+            throw ToolEmptyPropertiesException.createForToolAvailability();
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package com.s1gawron.rentalservice.tool.controller.integration;
 
+import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,6 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AddToolControllerIntegrationTest extends AbstractToolControllerIntegrationTest {
 
@@ -28,13 +28,17 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
             + "    \"description\": \"New and shiny tool\"\n"
             + "  }\n"
             + "}";
+        final ToolDetailsDTO expectedObject = objectMapper.readValue(json, ToolDetailsDTO.class);
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
         final MvcResult result = mockMvc.perform(request).andReturn();
+        final String resultJson = result.getResponse().getContentAsString();
+        final ToolDetailsDTO resultObject = objectMapper.readValue(resultJson, ToolDetailsDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertEquals(1, toolRepository.findAll().size());
+        assertToolDetailsDTO(expectedObject, resultObject, true);
     }
 
     @Test
@@ -56,7 +60,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(1L).isEmpty());
+        assertEquals(0, toolRepository.findAll().size());
     }
 
     @Test
@@ -77,7 +81,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(1L).isEmpty());
+        assertEquals(0, toolRepository.findAll().size());
     }
 
     @Test
@@ -98,7 +102,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(1L).isEmpty());
+        assertEquals(0, toolRepository.findAll().size());
     }
 
     @Test
@@ -119,7 +123,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(1L).isEmpty());
+        assertEquals(0, toolRepository.findAll().size());
     }
 
     @Test
@@ -141,7 +145,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(1L).isEmpty());
+        assertEquals(0, toolRepository.findAll().size());
     }
 
     @Test
@@ -162,7 +166,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(1L).isEmpty());
+        assertEquals(0, toolRepository.findAll().size());
     }
 
     @Test
@@ -180,7 +184,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(1L).isEmpty());
+        assertEquals(0, toolRepository.findAll().size());
     }
 
     @Test
@@ -201,7 +205,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(1L).isEmpty());
+        assertEquals(0, toolRepository.findAll().size());
     }
 
     @Test
@@ -223,7 +227,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(1L).isEmpty());
+        assertEquals(0, toolRepository.findAll().size());
     }
 
     @Test
@@ -244,7 +248,16 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(1L).isEmpty());
+        assertEquals(0, toolRepository.findAll().size());
+    }
+
+    private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool, final boolean isAvailable) {
+        assertEquals(expected.getName(), resultTool.getName());
+        assertEquals(isAvailable, resultTool.getAvailable());
+        assertEquals(expected.getDescription(), resultTool.getDescription());
+        assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
+        assertEquals(expected.getPrice(), resultTool.getPrice());
+        assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
     }
 
 }

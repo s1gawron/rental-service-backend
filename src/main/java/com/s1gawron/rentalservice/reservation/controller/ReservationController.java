@@ -30,4 +30,9 @@ public class ReservationController extends ReservationErrorHandlerController {
         return reservationService.makeReservation(reservationDTO);
     }
 
+    @PostMapping("cancel/{reservationId}")
+    public ReservationDetailsDTO cancelReservation(@PathVariable final Long reservationId) {
+        return reservationService.cancelReservation(reservationId);
+    }
+
 }

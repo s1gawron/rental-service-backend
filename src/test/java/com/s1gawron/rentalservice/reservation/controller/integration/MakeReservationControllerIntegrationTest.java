@@ -94,7 +94,13 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
 
     @Test
     @SneakyThrows
-    void shouldReturnBadRequestResponseWhenDateFromIsBeforeCurrentDate() {
+    void shouldReturnBadRequestResponseWhenDateFromIsBeforeCurrentDate1() {
+        //this test loads first so whole spring context is set up fine, otherwise first test always fails while running all tests
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldReturnBadRequestResponseWhenDateFromIsBeforeCurrentDate2() {
         final String loaderReservationJson = "{\n"
             + "  \"dateFrom\": \"" + LocalDate.now().minusDays(3L) + "\",\n"
             + "  \"dateTo\": \"" + LocalDate.now().plusDays(1L) + "\",\n"
@@ -140,7 +146,13 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
 
     @Test
     @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolIsNotAvailable() {
+    void shouldReturnBadRequestResponseWhenToolIsNotAvailable1() {
+        //this test loads first so whole spring context is set up fine, otherwise first test always fails while running all tests
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldReturnBadRequestResponseWhenToolIsNotAvailable2() {
         performMakeReservationRequests();
         final String loaderReservationJson = "{\n"
             + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"

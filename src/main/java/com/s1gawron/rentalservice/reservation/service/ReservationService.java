@@ -55,13 +55,7 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public ReservationDetailsDTO getReservationDetails(final Long reservationId) {
         final User customer = getAndCheckIfUserIsCustomer();
-        final long doesReservationBelongToUser = customer.getCustomerReservations().stream()
-            .filter(reservation -> reservation.getReservationId().equals(reservationId))
-            .count();
-
-        if (doesReservationBelongToUser == 0) {
-            throw ReservationNotFoundException.create(reservationId);
-        }
+        customer.doesReservationBelongToUser(reservationId);
 
         final Reservation reservationById = reservationRepository.findByReservationId(reservationId)
             .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
@@ -89,7 +83,7 @@ public class ReservationService {
             final ReservationHasTool savedReservationHasTool = reservationHasToolRepository.save(reservationHasTool);
 
             tool.addReservation(savedReservationHasTool);
-            toolService.saveToolWithReservation(tool);
+            toolService.makeToolUnavailableAndSave(tool);
 
             toolDetails.add(tool.toToolDetailsDTO());
             reservationFinalPrice.getAndUpdate(currentValue -> currentValue.add(tool.getPrice()));
@@ -103,6 +97,26 @@ public class ReservationService {
         userService.saveCustomerWithReservation(customer);
 
         return savedReservation.toReservationDetailsDTO(toolDetails);
+    }
+
+    @Transactional
+    public ReservationDetailsDTO cancelReservation(final Long reservationId) {
+        final User customer = getAndCheckIfUserIsCustomer();
+        customer.doesReservationBelongToUser(reservationId);
+
+        final Reservation reservationById = reservationRepository.findByReservationId(reservationId)
+            .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
+        final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservationById.getReservationHasTools());
+        final List<ToolDetailsDTO> toolDetails = new ArrayList<>();
+
+        toolsFromReservation.forEach(tool -> {
+            toolService.makeToolAvailableAndSave(tool);
+            toolDetails.add(tool.toToolDetailsDTO());
+        });
+        reservationById.cancelReservation();
+        reservationRepository.save(reservationById);
+
+        return reservationById.toReservationDetailsDTO(toolDetails);
     }
 
     private User getAndCheckIfUserIsCustomer() {

@@ -3,6 +3,8 @@ package com.s1gawron.rentalservice.reservation.controller.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
+import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
+import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
 import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
@@ -31,6 +33,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
@@ -93,6 +96,7 @@ abstract class AbstractReservationControllerIntegrationTest {
 
     @BeforeEach
     @SneakyThrows
+    @Transactional
     void setUp() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
         final UserRegisterDTO customerRegisterDTO = new UserRegisterDTO(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER.getName(), addressDTO);
@@ -118,6 +122,7 @@ abstract class AbstractReservationControllerIntegrationTest {
     }
 
     @AfterEach
+    @Transactional
     void cleanUp() {
         reservationHasToolRepository.deleteAll();
         reservationRepository.deleteAll();
@@ -187,6 +192,11 @@ abstract class AbstractReservationControllerIntegrationTest {
     @SneakyThrows
     protected ErrorResponse toErrorResponse(final String responseMessage) {
         return objectMapper.readValue(responseMessage, ErrorResponse.class);
+    }
+
+    @Transactional(readOnly = true)
+    protected Reservation getReservationDetails(final long reservationId) {
+        return reservationRepository.findByReservationId(reservationId).orElseThrow(() -> ReservationNotFoundException.create(reservationId));
     }
 
 }

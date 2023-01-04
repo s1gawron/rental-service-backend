@@ -1,5 +1,6 @@
 {
   "reservationId": 1,
+  "canceled": false,
   "dateFrom": "2022-12-04",
   "dateTo": "2022-12-16",
   "reservationFinalPrice": 10.99,
@@ -7,6 +8,7 @@
   "tools": [
     {
       "toolId": 1,
+      "available": true,
       "name": "Hammer",
       "description": "It's just a hammer :)",
       "toolCategory": "LIGHT",
@@ -18,6 +20,7 @@
     },
     {
       "toolId": 2,
+      "available": true,
       "name": "Loader",
       "description": "4 wheeled loader :)",
       "toolCategory": "HEAVY",
@@ -29,6 +32,7 @@
     },
     {
       "toolId": 3,
+      "available": true,
       "name": "Crane",
       "description": "Mechanical giraffe",
       "toolCategory": "HEAVY",

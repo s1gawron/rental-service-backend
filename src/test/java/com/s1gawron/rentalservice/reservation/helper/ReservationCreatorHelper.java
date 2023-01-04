@@ -1,6 +1,5 @@
 package com.s1gawron.rentalservice.reservation.helper;
 
-import com.s1gawron.rentalservice.reservation.dto.ReservationDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
@@ -19,17 +18,19 @@ public enum ReservationCreatorHelper {
         final List<Tool> tools = ToolCreatorHelper.I.createToolList();
         final List<ToolDetailsDTO> toolDetails = ToolCreatorHelper.I.createToolDTOList();
 
-        final ReservationDetailsDTO firstReservationDetailsDTO = new ReservationDetailsDTO(1L, LocalDate.now(), LocalDate.now().plusDays(3L),
+        final ReservationDetailsDTO firstReservationDetailsDTO = new ReservationDetailsDTO(1L, false, LocalDate.now(), LocalDate.now().plusDays(3L),
             BigDecimal.valueOf(10.99), "Hammer", List.of(toolDetails.get(0)));
         final Reservation firstReservation = Reservation.from(firstReservationDetailsDTO);
         firstReservation.addTool(tools.get(0));
 
-        final ReservationDetailsDTO secondReservationDetailsDTO = new ReservationDetailsDTO(2L, LocalDate.now().plusDays(1L), LocalDate.now().plusDays(2L),
+        final ReservationDetailsDTO secondReservationDetailsDTO = new ReservationDetailsDTO(2L, false, LocalDate.now().plusDays(1L),
+            LocalDate.now().plusDays(2L),
             BigDecimal.valueOf(1000.99), "Loader", List.of(toolDetails.get(1)));
         final Reservation secondReservation = Reservation.from(secondReservationDetailsDTO);
         secondReservation.addTool(tools.get(1));
 
-        final ReservationDetailsDTO thirdReservationDetailsDTO = new ReservationDetailsDTO(3L, LocalDate.now().plusDays(2L), LocalDate.now().plusDays(4L),
+        final ReservationDetailsDTO thirdReservationDetailsDTO = new ReservationDetailsDTO(3L, false, LocalDate.now().plusDays(2L),
+            LocalDate.now().plusDays(4L),
             BigDecimal.valueOf(19999.99), "Crane", List.of(toolDetails.get(2)));
         final Reservation thirdReservation = Reservation.from(thirdReservationDetailsDTO);
         thirdReservation.addTool(tools.get(2));
@@ -39,7 +40,7 @@ public enum ReservationCreatorHelper {
 
     public Reservation createReservation() {
         final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
-        final ReservationDetailsDTO firstReservationDetailsDTO = new ReservationDetailsDTO(1L, LocalDate.now(), LocalDate.now().plusDays(3L),
+        final ReservationDetailsDTO firstReservationDetailsDTO = new ReservationDetailsDTO(1L, false, LocalDate.now(), LocalDate.now().plusDays(3L),
             BigDecimal.valueOf(10.99), "Hammer", List.of(toolDetailsDTO));
         final Reservation firstReservation = Reservation.from(firstReservationDetailsDTO);
 
@@ -51,7 +52,7 @@ public enum ReservationCreatorHelper {
     public Reservation createDifferentReservation() {
         final List<ToolDetailsDTO> toolDetailsDTOs = ToolCreatorHelper.I.createToolDTOList();
         final List<Tool> tools = ToolCreatorHelper.I.createToolList();
-        final ReservationDetailsDTO firstReservationDetailsDTO = new ReservationDetailsDTO(1L, LocalDate.now(), LocalDate.now().plusDays(1L),
+        final ReservationDetailsDTO firstReservationDetailsDTO = new ReservationDetailsDTO(1L, false, LocalDate.now(), LocalDate.now().plusDays(1L),
             BigDecimal.valueOf(1011.98), "Hammer and loader", List.of(toolDetailsDTOs.get(0), toolDetailsDTOs.get(1)));
         final Reservation firstReservation = Reservation.from(firstReservationDetailsDTO);
 
@@ -63,27 +64,26 @@ public enum ReservationCreatorHelper {
 
     public List<ReservationDetailsDTO> createReservationDetailsList() {
         final List<ToolDetailsDTO> toolDetails = ToolCreatorHelper.I.createToolDTOList();
-        final ReservationDetailsDTO firstReservationDetailsDTO = new ReservationDetailsDTO(1L, LocalDate.now(), LocalDate.now().plusDays(3L),
+        final ReservationDetailsDTO firstReservationDetailsDTO = new ReservationDetailsDTO(1L, false, LocalDate.now(), LocalDate.now().plusDays(3L),
             BigDecimal.valueOf(10.99), "Hammer", List.of(toolDetails.get(0)));
-        final ReservationDetailsDTO secondReservationDetailsDTO = new ReservationDetailsDTO(2L, LocalDate.now().plusDays(1L), LocalDate.now().plusDays(2L),
+        final ReservationDetailsDTO secondReservationDetailsDTO = new ReservationDetailsDTO(2L, false, LocalDate.now().plusDays(1L),
+            LocalDate.now().plusDays(2L),
             BigDecimal.valueOf(1000.99), "Loader", List.of(toolDetails.get(1)));
-        final ReservationDetailsDTO thirdReservationDetailsDTO = new ReservationDetailsDTO(3L, LocalDate.now().plusDays(2L), LocalDate.now().plusDays(4L),
+        final ReservationDetailsDTO thirdReservationDetailsDTO = new ReservationDetailsDTO(3L, false, LocalDate.now().plusDays(2L),
+            LocalDate.now().plusDays(4L),
             BigDecimal.valueOf(19999.99), "Crane", List.of(toolDetails.get(2)));
 
         return List.of(firstReservationDetailsDTO, secondReservationDetailsDTO, thirdReservationDetailsDTO);
     }
 
     public ReservationDetailsDTO createReservationDetailsDTO() {
-        return new ReservationDetailsDTO(1L, LocalDate.now(), LocalDate.now().plusDays(3L),
+        return new ReservationDetailsDTO(1L, false, LocalDate.now(), LocalDate.now().plusDays(3L),
             BigDecimal.valueOf(10.99), "Hammer", List.of(ToolCreatorHelper.I.createToolDetailsDTO()));
     }
 
-    public ReservationDTO createReservationDTOForHammer(final long hammerToolId) {
-        return new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(1L), "Hammer", List.of(hammerToolId));
-    }
-
-    public ReservationDTO createReservationDTOForLoader(final long loaderToolId) {
-        return new ReservationDTO(LocalDate.now().plusDays(1L), LocalDate.now().plusDays(3L), "Loader", List.of(loaderToolId));
+    public ReservationDetailsDTO createCanceledReservationDetailsDTO() {
+        return new ReservationDetailsDTO(1L, true, LocalDate.now(), LocalDate.now().plusDays(3L),
+            BigDecimal.valueOf(10.99), "Hammer", List.of(ToolCreatorHelper.I.createToolDetailsDTO()));
     }
 
 }

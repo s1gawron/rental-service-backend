@@ -172,12 +172,14 @@ class ReservationServiceTest {
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(customer));
         Mockito.when(toolServiceMock.getToolById(1L)).thenReturn(tools.get(0));
         Mockito.when(toolServiceMock.getToolById(2L)).thenReturn(tools.get(1));
+        makeToolUnavailable(tools.get(0));
+        makeToolUnavailable(tools.get(1));
         Mockito.when(reservationRepositoryMock.save(Mockito.any(Reservation.class))).thenReturn(ReservationCreatorHelper.I.createDifferentReservation());
 
         final ReservationDetailsDTO result = reservationService.makeReservation(reservationDTO);
 
         Mockito.verify(reservationHasToolRepositoryMock, Mockito.times(2)).save(Mockito.any(ReservationHasTool.class));
-        Mockito.verify(toolServiceMock, Mockito.times(2)).saveToolWithReservation(Mockito.any(Tool.class));
+        Mockito.verify(toolServiceMock, Mockito.times(2)).makeToolUnavailableAndSave(Mockito.any(Tool.class));
         Mockito.verify(reservationRepositoryMock, Mockito.times(1)).save(Mockito.any(Reservation.class));
         Mockito.verify(userServiceMock, Mockito.times(1)).saveCustomerWithReservation(Mockito.any(User.class));
         assertEquals(LocalDate.now(), result.getDateFrom());
@@ -186,6 +188,13 @@ class ReservationServiceTest {
         assertEquals("Hammer and loader", result.getAdditionalComment());
         assertToolDetailsDTO(tools.get(0).toToolDetailsDTO(), result.getTools().get(0));
         assertToolDetailsDTO(tools.get(1).toToolDetailsDTO(), result.getTools().get(1));
+    }
+
+    private void makeToolUnavailable(final Tool tool) {
+        Mockito.doAnswer(invocation -> {
+            tool.makeToolUnavailable();
+            return null;
+        }).when(toolServiceMock).makeToolUnavailableAndSave(tool);
     }
 
     @Test
@@ -235,8 +244,75 @@ class ReservationServiceTest {
         assertThrows(ToolUnavailableException.class, () -> reservationService.makeReservation(reservationDTO), "Tool#1 is unavailable!");
     }
 
+    @Test
+    void shouldCancelReservation() {
+        final User customer = UserCreatorHelper.I.createCustomer();
+        final Reservation reservation = ReservationCreatorHelper.I.createReservation();
+        final Tool unavailableTool = ToolCreatorHelper.I.createUnavailableTool();
+
+        customer.addReservation(reservation);
+
+        Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(customer));
+        Mockito.when(reservationRepositoryMock.findByReservationId(1L)).thenReturn(Optional.of(reservation));
+        Mockito.when(toolServiceMock.getToolsByReservationHasTools(reservation.getReservationHasTools())).thenReturn(List.of(unavailableTool));
+        Mockito.doAnswer(invocation -> {
+            unavailableTool.makeToolAvailable();
+            return null;
+        }).when(toolServiceMock).makeToolAvailableAndSave(unavailableTool);
+
+        final ReservationDetailsDTO result = reservationService.cancelReservation(1L);
+
+        assertEquals(LocalDate.now(), result.getDateFrom());
+        assertEquals(LocalDate.now().plusDays(3L), result.getDateTo());
+        assertTrue(result.isCanceled());
+        assertEquals("Hammer", result.getAdditionalComment());
+        assertEquals(1, result.getTools().size());
+        assertTrue(result.getTools().get(0).getAvailable());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserIsWorkerWhileCancelingReservation() {
+        final User worker = UserCreatorHelper.I.createWorker();
+
+        Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(worker));
+
+        assertThrows(NoAccessForUserRoleException.class, () -> reservationService.cancelReservation(1L),
+            "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenReservationDoesNotBelongToUserWhileCancelingReservation() {
+        final User customer = UserCreatorHelper.I.createCustomer();
+        final User differentCustomer = UserCreatorHelper.I.createDifferentCustomer();
+        final Reservation reservation = ReservationCreatorHelper.I.createReservation();
+        final Reservation differentReservation = ReservationCreatorHelper.I.createDifferentReservation();
+
+        customer.addReservation(reservation);
+        differentCustomer.addReservation(differentReservation);
+
+        Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(customer));
+        Mockito.when(reservationRepositoryMock.findByReservationId(1L)).thenReturn(Optional.of(reservation));
+
+        assertThrows(ReservationNotFoundException.class, () -> reservationService.cancelReservation(2L),
+            "Reservation#2 was not found!");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenReservationIsNotFoundWhileCancelingReservation() {
+        final User customer = UserCreatorHelper.I.createCustomer();
+        final Reservation reservation = ReservationCreatorHelper.I.createReservation();
+
+        customer.addReservation(reservation);
+
+        Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(customer));
+        Mockito.when(reservationRepositoryMock.findByReservationId(1L)).thenThrow(ReservationNotFoundException.create(1L));
+
+        assertThrows(ReservationNotFoundException.class, () -> reservationService.cancelReservation(1L), "Reservation#1 was not found!");
+    }
+
     private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool) {
         assertEquals(expected.getName(), resultTool.getName());
+        assertEquals(expected.getAvailable(), resultTool.getAvailable());
         assertEquals(expected.getDescription(), resultTool.getDescription());
         assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
         assertEquals(expected.getPrice(), resultTool.getPrice());

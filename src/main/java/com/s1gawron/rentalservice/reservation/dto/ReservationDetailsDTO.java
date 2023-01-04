@@ -23,6 +23,8 @@ public class ReservationDetailsDTO {
 
     private final Long reservationId;
 
+    private final boolean canceled;
+
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd")

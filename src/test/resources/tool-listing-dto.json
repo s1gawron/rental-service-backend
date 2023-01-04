@@ -3,6 +3,7 @@
   "tools": [
     {
       "toolId": 1,
+      "available": true,
       "name": "Hammer",
       "description": "It's just a hammer :)",
       "toolCategory": "LIGHT",
@@ -14,6 +15,7 @@
     },
     {
       "toolId": 2,
+      "available": true,
       "name": "Loader",
       "description": "4 wheeled loader :)",
       "toolCategory": "HEAVY",
@@ -25,6 +27,7 @@
     },
     {
       "toolId": 3,
+      "available": true,
       "name": "Crane",
       "description": "Mechanical giraffe",
       "toolCategory": "HEAVY",

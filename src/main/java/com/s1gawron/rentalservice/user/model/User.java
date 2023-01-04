@@ -2,7 +2,9 @@ package com.s1gawron.rentalservice.user.model;
 
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.address.model.Address;
+import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
+import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import lombok.Getter;
@@ -91,5 +93,19 @@ public class User {
         }
 
         this.customerReservations.add(reservation);
+    }
+
+    public void doesReservationBelongToUser(final Long reservationId) {
+        if (isWorker()) {
+            throw NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
+        }
+
+        final long doesReservationBelongToUser = this.customerReservations.stream()
+            .filter(reservation -> reservation.getReservationId().equals(reservationId))
+            .count();
+
+        if (doesReservationBelongToUser == 0) {
+            throw ReservationNotFoundException.create(reservationId);
+        }
     }
 }

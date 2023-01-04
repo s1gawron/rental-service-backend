@@ -27,6 +27,9 @@ public class Reservation {
     @Column(name = "reservation_id")
     private Long reservationId;
 
+    @Column(name = "is_canceled")
+    private boolean canceled;
+
     @Column(name = "date_from")
     private LocalDate dateFrom;
 
@@ -52,9 +55,11 @@ public class Reservation {
         this.additionalComment = additionalComment;
     }
 
-    private Reservation(final Long reservationId, final LocalDate dateFrom, final LocalDate dateTo, final BigDecimal reservationFinalPrice,
+    private Reservation(final Long reservationId, final boolean canceled, final LocalDate dateFrom, final LocalDate dateTo,
+        final BigDecimal reservationFinalPrice,
         final String additionalComment) {
         this.reservationId = reservationId;
+        this.canceled = canceled;
         this.dateFrom = dateFrom;
         this.dateTo = dateTo;
         this.reservationFinalPrice = reservationFinalPrice;
@@ -66,8 +71,8 @@ public class Reservation {
     }
 
     public static Reservation from(final ReservationDetailsDTO reservationDetailsDTO) {
-        return new Reservation(reservationDetailsDTO.getReservationId(), reservationDetailsDTO.getDateFrom(), reservationDetailsDTO.getDateTo(),
-            reservationDetailsDTO.getReservationFinalPrice(), reservationDetailsDTO.getAdditionalComment());
+        return new Reservation(reservationDetailsDTO.getReservationId(), reservationDetailsDTO.isCanceled(), reservationDetailsDTO.getDateFrom(),
+            reservationDetailsDTO.getDateTo(), reservationDetailsDTO.getReservationFinalPrice(), reservationDetailsDTO.getAdditionalComment());
     }
 
     public ReservationHasTool addTool(final Tool tool) {
@@ -91,6 +96,11 @@ public class Reservation {
     }
 
     public ReservationDetailsDTO toReservationDetailsDTO(final List<ToolDetailsDTO> toolDetails) {
-        return new ReservationDetailsDTO(this.reservationId, this.dateFrom, this.dateTo, this.reservationFinalPrice, this.additionalComment, toolDetails);
+        return new ReservationDetailsDTO(this.reservationId, this.canceled, this.dateFrom, this.dateTo, this.reservationFinalPrice, this.additionalComment,
+            toolDetails);
+    }
+
+    public void cancelReservation() {
+        this.canceled = true;
     }
 }
