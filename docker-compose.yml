@@ -1,0 +1,21 @@
+version: '3'
+services:
+  rentalservice:
+    container_name: rental-service
+    image: rental-service:1.0
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+  database:
+    container_name: mysql-rental
+    image: mysql:8.0.26
+    environment:
+      MYSQL_DATABASE: rental_service
+      MYSQL_USER: rentalServiceUser
+      MYSQL_PASSWORD: changeit
+      MYSQL_ROOT_PASSWORD: changeit
+    ports:
+      - "3306:3306"
