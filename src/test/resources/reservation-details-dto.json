@@ -1,5 +1,6 @@
 {
   "reservationId": 1,
+  "expired": true,
   "canceled": false,
   "dateFrom": "2022-12-04",
   "dateTo": "2022-12-16",

@@ -16,11 +16,13 @@ import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.service.UserService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ReservationService {
 
     private static final String ELEMENT_NAME = "CUSTOMER RESERVATIONS";
@@ -117,6 +120,31 @@ public class ReservationService {
         reservationRepository.save(reservationById);
 
         return reservationById.toReservationDetailsDTO(toolDetails);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> getReservationIds() {
+        return reservationRepository.getAllIds();
+    }
+
+    @Transactional
+    public void checkReservationsExpiryStatus(final List<Long> reservationIds) {
+        final List<Reservation> reservationsById = reservationRepository.findAllById(reservationIds);
+
+        reservationsById.forEach(reservation -> {
+            final LocalDate today = LocalDate.now();
+
+            if (today.isAfter(reservation.getDateTo())) {
+                log.info("Reservation#{} expired, performing clean job", reservation.getReservationId());
+
+                final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservation.getReservationHasTools());
+                toolsFromReservation.forEach(toolService::makeToolAvailableAndSave);
+                reservation.expireReservation();
+                reservationRepository.save(reservation);
+
+                log.info("Clean job for reservation#{} finished successfully", reservation.getReservationId());
+            }
+        });
     }
 
     private User getAndCheckIfUserIsCustomer() {

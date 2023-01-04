@@ -23,6 +23,8 @@ public class ReservationDetailsDTO {
 
     private final Long reservationId;
 
+    private final boolean expired;
+
     private final boolean canceled;
 
     @JsonSerialize(using = LocalDateSerializer.class)

@@ -20,8 +20,8 @@ class ReservationDetailsDTOSerializationTest {
     @Test
     @SneakyThrows
     void shouldSerialize() {
-        final ReservationDetailsDTO reservationDetailsDTO = new ReservationDetailsDTO(1L, false, LocalDate.parse("2022-12-04"), LocalDate.parse("2022-12-16"),
-            BigDecimal.valueOf(10.99), "Hammer, loader and a crane", ToolCreatorHelper.I.createToolDTOList());
+        final ReservationDetailsDTO reservationDetailsDTO = new ReservationDetailsDTO(1L, true, false, LocalDate.parse("2022-12-04"),
+            LocalDate.parse("2022-12-16"), BigDecimal.valueOf(10.99), "Hammer, loader and a crane", ToolCreatorHelper.I.createToolDTOList());
 
         final String toolDTOJsonResult = mapper.writeValueAsString(reservationDetailsDTO);
         final String expectedReservationDetailsDTOJsonResult = Files.readString(Path.of("src/test/resources/reservation-details-dto.json"));

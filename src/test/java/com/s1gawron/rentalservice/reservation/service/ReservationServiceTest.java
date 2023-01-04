@@ -28,6 +28,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -255,10 +256,7 @@ class ReservationServiceTest {
         Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(customer));
         Mockito.when(reservationRepositoryMock.findByReservationId(1L)).thenReturn(Optional.of(reservation));
         Mockito.when(toolServiceMock.getToolsByReservationHasTools(reservation.getReservationHasTools())).thenReturn(List.of(unavailableTool));
-        Mockito.doAnswer(invocation -> {
-            unavailableTool.makeToolAvailable();
-            return null;
-        }).when(toolServiceMock).makeToolAvailableAndSave(unavailableTool);
+        makeToolAvailable(unavailableTool);
 
         final ReservationDetailsDTO result = reservationService.cancelReservation(1L);
 
@@ -268,6 +266,13 @@ class ReservationServiceTest {
         assertEquals("Hammer", result.getAdditionalComment());
         assertEquals(1, result.getTools().size());
         assertTrue(result.getTools().get(0).getAvailable());
+    }
+
+    private void makeToolAvailable(final Tool unavailableTool) {
+        Mockito.doAnswer(invocation -> {
+            unavailableTool.makeToolAvailable();
+            return null;
+        }).when(toolServiceMock).makeToolAvailableAndSave(unavailableTool);
     }
 
     @Test
@@ -308,6 +313,32 @@ class ReservationServiceTest {
         Mockito.when(reservationRepositoryMock.findByReservationId(1L)).thenThrow(ReservationNotFoundException.create(1L));
 
         assertThrows(ReservationNotFoundException.class, () -> reservationService.cancelReservation(1L), "Reservation#1 was not found!");
+    }
+
+    @Test
+    void shouldGetReservationsIds() {
+        final List<Long> reservationIds = List.of(1L, 2L, 3L);
+
+        Mockito.when(reservationRepositoryMock.getAllIds()).thenReturn(reservationIds);
+
+        final List<Long> result = reservationService.getReservationIds();
+
+        assertEquals(3, result.size());
+    }
+
+    @Test
+    void shouldCheckReservationExpiryStatus() {
+        final Reservation reservation = ReservationCreatorHelper.I.createReservationForExpiry();
+        final Tool tool = ToolCreatorHelper.I.createUnavailableTool();
+
+        Mockito.when(reservationRepositoryMock.findAllById(List.of(1L))).thenReturn(List.of(reservation));
+        Mockito.when(toolServiceMock.getToolsByReservationHasTools(reservation.getReservationHasTools())).thenReturn(List.of(tool));
+        makeToolAvailable(tool);
+
+        reservationService.checkReservationsExpiryStatus(List.of(1L));
+
+        assertTrue(tool.isAvailable());
+        assertTrue(reservation.isExpired());
     }
 
     private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool) {
