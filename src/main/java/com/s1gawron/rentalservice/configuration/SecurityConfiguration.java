@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -25,6 +26,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String USER_AUTH_QUERY = "SELECT email, password, active from user WHERE email=?";
 
     private static final String USER_AUTHORITY_QUERY = "SELECT email, user_role from user WHERE email=?";
+
+    private static final String[] AUTH_WHITELIST = {
+        "/swagger-resources/**",
+        "/swagger-ui.html",
+        "/v2/api-docs",
+        "/webjars/**"
+    };
 
     private final DataSource dataSource;
 
@@ -51,6 +59,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .addFilterAfter(new JwtTokenVerifier(jwtConfig), JwtUsernamePasswordAuthenticationFilter.class)
             .authorizeRequests()
             .antMatchers("/api/public/**").permitAll()
+            .antMatchers("/swagger-ui/**").permitAll()
             .anyRequest().authenticated();
     }
 
@@ -62,6 +71,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .usersByUsernameQuery(USER_AUTH_QUERY)
             .authoritiesByUsernameQuery(USER_AUTHORITY_QUERY)
             .passwordEncoder(new BCryptPasswordEncoder());
+    }
+
+    @Override public void configure(final WebSecurity web) {
+        web.ignoring().antMatchers(AUTH_WHITELIST);
     }
 
     private CorsConfiguration getCorsConfiguration() {
