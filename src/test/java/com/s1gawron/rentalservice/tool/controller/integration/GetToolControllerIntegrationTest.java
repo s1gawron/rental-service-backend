@@ -5,7 +5,6 @@ import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,8 +23,7 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
     private static final String TOOL_GET_ENDPOINT = "/api/public/tool/get/";
 
     @Test
-    @SneakyThrows
-    void shouldGetToolsByCategory() {
+    void shouldGetToolsByCategory() throws Exception {
         toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
         toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
 
@@ -36,13 +34,12 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final ToolListingDTO resultObject = objectMapper.readValue(resultJson, ToolListingDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(3, resultObject.getCount());
-        assertEquals(3, resultObject.getTools().size());
+        assertEquals(3, resultObject.count());
+        assertEquals(3, resultObject.tools().size());
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExist() {
+    void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExist() throws Exception {
         toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
         toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
 
@@ -54,8 +51,7 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldGetNewTools() {
+    void shouldGetNewTools() throws Exception {
         toolRepository.saveAll(ToolCreatorHelper.I.createHeavyToolsWithDate());
         toolRepository.saveAll(ToolCreatorHelper.I.createLightToolsWithDate());
 
@@ -71,7 +67,7 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         assertEquals(3, resultList.size());
 
         final long areProperToolsInResultListCount = resultList.stream().filter(tool -> {
-                final String toolName = tool.getName();
+                final String toolName = tool.name();
 
                 return toolName.equals("Loader") || toolName.equals("Crane") || toolName.equals("Big hammer");
             })
@@ -81,8 +77,7 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldGetToolById() {
+    void shouldGetToolById() throws Exception {
         toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
         toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
         final Tool chainsaw = ToolCreatorHelper.I.createChainsaw();
@@ -95,13 +90,12 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final ToolDetailsDTO resultObject = objectMapper.readValue(resultJson, ToolDetailsDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(chainsaw.getToolId(), resultObject.getToolId());
-        assertEquals(chainsaw.getName(), resultObject.getName());
+        assertEquals(chainsaw.getToolId(), resultObject.toolId());
+        assertEquals(chainsaw.getName(), resultObject.name());
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenToolIsNotFoundById() {
+    void shouldReturnNotFoundResponseWhenToolIsNotFoundById() throws Exception {
         toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
         toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
 
@@ -119,14 +113,14 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldGetToolsByName() {
+    void shouldGetToolsByName() throws Exception {
         toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList());
         toolRepository.save(ToolCreatorHelper.I.createChainsaw());
 
-        final String json = "{\n"
-            + "  \"toolName\": \"hammer\"\n"
-            + "}";
+        final String json = """
+            {
+              "toolName": "hammer"
+            }""";
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json);
 
@@ -140,18 +134,18 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         assertEquals(2, resultList.size());
 
         for (final ToolDetailsDTO details : resultList) {
-            assertTrue(details.getName().toLowerCase().contains("hammer"));
+            assertTrue(details.name().toLowerCase().contains("hammer"));
         }
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenToolsAreNotFoundByName() {
+    void shouldReturnNotFoundResponseWhenToolsAreNotFoundByName() throws Exception {
         toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList());
 
-        final String json = "{\n"
-            + "  \"toolName\": \"chainsaw\"\n"
-            + "}";
+        final String json = """
+            {
+              "toolName": "chainsaw"
+            }""";
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json);
         final MvcResult result = mockMvc.perform(request).andReturn();

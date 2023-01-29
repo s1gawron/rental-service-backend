@@ -1,5 +1,6 @@
 package com.s1gawron.rentalservice.reservation.controller.integration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
@@ -10,6 +11,7 @@ import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
+import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.repository.ToolRepository;
@@ -19,7 +21,6 @@ import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import com.s1gawron.rentalservice.user.service.UserService;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,7 @@ abstract class AbstractReservationControllerIntegrationTest {
     @Autowired
     protected MockMvc mockMvc;
 
-    protected final ObjectMapper objectMapper = new ObjectMapper();
+    protected final ObjectMapper objectMapper = ObjectMapperCreator.I.getMapper();
 
     @Autowired
     protected UserRepository userRepository;
@@ -95,14 +96,13 @@ abstract class AbstractReservationControllerIntegrationTest {
     protected long loaderToolId;
 
     @BeforeEach
-    @SneakyThrows
     @Transactional
     void setUp() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO customerRegisterDTO = new UserRegisterDTO(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER.getName(), addressDTO);
+        final UserRegisterDTO customerRegisterDTO = new UserRegisterDTO(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER.name(), addressDTO);
         final UserRegisterDTO differentCustomerRegisterDTO = new UserRegisterDTO(DIFFERENT_CUSTOMER_EMAIL, PASSWORD, "Tony", "Hawk",
-            UserRole.CUSTOMER.getName(), addressDTO);
-        final UserRegisterDTO workerRegisterDTO = new UserRegisterDTO(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER.getName(), null);
+            UserRole.CUSTOMER.name(), addressDTO);
+        final UserRegisterDTO workerRegisterDTO = new UserRegisterDTO(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER.name(), null);
 
         userService.validateAndRegisterUser(customerRegisterDTO);
         userService.validateAndRegisterUser(differentCustomerRegisterDTO);
@@ -130,7 +130,7 @@ abstract class AbstractReservationControllerIntegrationTest {
         userRepository.deleteAll();
     }
 
-    protected void performMakeReservationRequests() {
+    protected void performMakeReservationRequests() throws Exception {
         final String hammerReservationJson = "{\n"
             + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
             + "  \"dateTo\": \"" + LocalDate.now().plusDays(2L) + "\",\n"
@@ -154,8 +154,7 @@ abstract class AbstractReservationControllerIntegrationTest {
         performRequestAndCheckState(chainsawReservationJson, getAuthorizationToken(CUSTOMER_EMAIL));
     }
 
-    @SneakyThrows
-    protected long performRequestAndCheckState(final String objectJson, final String authorizationToken) {
+    protected long performRequestAndCheckState(final String objectJson, final String authorizationToken) throws Exception {
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(objectJson).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", authorizationToken);
 
@@ -168,11 +167,10 @@ abstract class AbstractReservationControllerIntegrationTest {
 
         final ReservationDetailsDTO reservationDetailsDTO = objectMapper.readValue(result.getContentAsString(), ReservationDetailsDTO.class);
 
-        return reservationDetailsDTO.getReservationId();
+        return reservationDetailsDTO.reservationId();
     }
 
-    @SneakyThrows
-    protected String getAuthorizationToken(final String email) {
+    protected String getAuthorizationToken(final String email) throws Exception {
         final UserLoginDTO userLoginDTO = new UserLoginDTO(email, PASSWORD);
         final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson);
@@ -183,14 +181,13 @@ abstract class AbstractReservationControllerIntegrationTest {
 
     protected void assertErrorResponse(final HttpStatus expectedStatus, final String expectedMessage, final String expectedUri,
         final ErrorResponse actualErrorResponse) {
-        assertEquals(expectedStatus.value(), actualErrorResponse.getCode());
-        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.getError());
-        assertEquals(expectedMessage, actualErrorResponse.getMessage());
-        assertEquals(expectedUri, actualErrorResponse.getURI());
+        assertEquals(expectedStatus.value(), actualErrorResponse.code());
+        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.error());
+        assertEquals(expectedMessage, actualErrorResponse.message());
+        assertEquals(expectedUri, actualErrorResponse.URI());
     }
 
-    @SneakyThrows
-    protected ErrorResponse toErrorResponse(final String responseMessage) {
+    protected ErrorResponse toErrorResponse(final String responseMessage) throws JsonProcessingException {
         return objectMapper.readValue(responseMessage, ErrorResponse.class);
     }
 

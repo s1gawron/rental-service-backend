@@ -4,14 +4,14 @@ import java.math.BigDecimal;
 
 public interface ToolDTOProperties {
 
-    String getName();
+    String name();
 
-    String getDescription();
+    String description();
 
-    String getToolCategory();
+    String toolCategory();
 
-    BigDecimal getPrice();
+    BigDecimal price();
 
-    ToolStateDTO getToolState();
+    ToolStateDTO toolState();
 
 }

@@ -4,7 +4,6 @@ import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.reservation.exception.DateMismatchException;
 import com.s1gawron.rentalservice.reservation.exception.ReservationEmptyPropertiesException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,8 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class MakeReservationControllerIntegrationTest extends AbstractReservationControllerIntegrationTest {
 
     @Test
-    @SneakyThrows
-    void shouldMakeReservation() {
+    void shouldMakeReservation() throws Exception {
         final String loaderReservationJson = "{\n"
             + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
             + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
@@ -39,16 +37,15 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
         final ReservationDetailsDTO resultObject = objectMapper.readValue(resultJson, ReservationDetailsDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(1, resultObject.getTools().size());
-        assertEquals(loaderToolId, resultObject.getTools().get(0).getToolId());
-        assertEquals("Loader", resultObject.getTools().get(0).getName());
-        assertEquals(BigDecimal.valueOf(1000.99), resultObject.getReservationFinalPrice());
+        assertEquals(1, resultObject.tools().size());
+        assertEquals(loaderToolId, resultObject.tools().get(0).toolId());
+        assertEquals("Loader", resultObject.tools().get(0).name());
+        assertEquals(BigDecimal.valueOf(1000.99), resultObject.reservationFinalPrice());
         assertFalse(toolService.getToolById(loaderToolId).isAvailable());
     }
 
     @Test
-    @SneakyThrows
-    void shouldMakeReservationWithMultipleTools() {
+    void shouldMakeReservationWithMultipleTools() throws Exception {
         final String loaderReservationJson = "{\n"
             + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
             + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
@@ -67,16 +64,15 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
         final ReservationDetailsDTO resultObject = objectMapper.readValue(resultJson, ReservationDetailsDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(3, resultObject.getTools().size());
-        assertEquals(BigDecimal.valueOf(1112.97), resultObject.getReservationFinalPrice());
+        assertEquals(3, resultObject.tools().size());
+        assertEquals(BigDecimal.valueOf(1112.97), resultObject.reservationFinalPrice());
         assertFalse(toolService.getToolById(loaderToolId).isAvailable());
         assertFalse(toolService.getToolById(currentToolId).isAvailable());
         assertFalse(toolService.getToolById(nextToolId).isAvailable());
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenReservationHasEmptyProperties() {
+    void shouldReturnBadRequestResponseWhenReservationHasEmptyProperties() throws Exception {
         final String loaderReservationJson = "{\n"
             + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
             + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
@@ -93,14 +89,12 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
     }
 
     @Test
-    @SneakyThrows
     void shouldReturnBadRequestResponseWhenDateFromIsBeforeCurrentDate1() {
         //this test loads first so whole spring context is set up fine, otherwise first test always fails while running all tests
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenDateFromIsBeforeCurrentDate2() {
+    void shouldReturnBadRequestResponseWhenDateFromIsBeforeCurrentDate2() throws Exception {
         final String loaderReservationJson = "{\n"
             + "  \"dateFrom\": \"" + LocalDate.now().minusDays(3L) + "\",\n"
             + "  \"dateTo\": \"" + LocalDate.now().plusDays(1L) + "\",\n"
@@ -122,8 +116,7 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenDateFromIsAfterDueDate() {
+    void shouldReturnBadRequestResponseWhenDateFromIsAfterDueDate() throws Exception {
         final String loaderReservationJson = "{\n"
             + "  \"dateFrom\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
             + "  \"dateTo\": \"" + LocalDate.now() + "\",\n"
@@ -145,14 +138,12 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
     }
 
     @Test
-    @SneakyThrows
     void shouldReturnBadRequestResponseWhenToolIsNotAvailable1() {
         //this test loads first so whole spring context is set up fine, otherwise first test always fails while running all tests
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolIsNotAvailable2() {
+    void shouldReturnBadRequestResponseWhenToolIsNotAvailable2() throws Exception {
         performMakeReservationRequests();
         final String loaderReservationJson = "{\n"
             + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"

@@ -2,7 +2,6 @@ package com.s1gawron.rentalservice.user.controller.integration;
 
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
@@ -17,8 +16,7 @@ class GetUserControllerIntegrationTest extends AbstractUserControllerIntegration
     private static final String USER_DETAILS_ENDPOINT = "/api/user/details";
 
     @Test
-    @SneakyThrows
-    void shouldGetUserDetails() {
+    void shouldGetUserDetails() throws Exception {
         final UserDTO expectedUserDto = userService.getUserByEmail(EMAIL)
             .orElseThrow(() -> new IllegalStateException("Expected user dto cannot be null!"))
             .toUserDTO();
@@ -33,17 +31,16 @@ class GetUserControllerIntegrationTest extends AbstractUserControllerIntegration
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(userDTOResult);
-        assertEquals(expectedUserDto.getEmail(), userDTOResult.getEmail());
-        assertEquals(expectedUserDto.getFirstName(), userDTOResult.getFirstName());
-        assertEquals(expectedUserDto.getLastName(), userDTOResult.getLastName());
-        assertEquals(expectedUserDto.getUserRole(), userDTOResult.getUserRole());
-        assertEquals(expectedUserDto.getCustomerAddress().getCountry(), userDTOResult.getCustomerAddress().getCountry());
-        assertEquals(expectedUserDto.getCustomerAddress().getPostCode(), userDTOResult.getCustomerAddress().getPostCode());
+        assertEquals(expectedUserDto.email(), userDTOResult.email());
+        assertEquals(expectedUserDto.firstName(), userDTOResult.firstName());
+        assertEquals(expectedUserDto.lastName(), userDTOResult.lastName());
+        assertEquals(expectedUserDto.userRole(), userDTOResult.userRole());
+        assertEquals(expectedUserDto.customerAddress().country(), userDTOResult.customerAddress().country());
+        assertEquals(expectedUserDto.customerAddress().postCode(), userDTOResult.customerAddress().postCode());
     }
 
     @Test
-    @SneakyThrows
-    void shouldNotGetUserDetailsAndReturnForbiddenWhenUserIsNotLoggedIn() {
+    void shouldNotGetUserDetailsAndReturnForbiddenWhenUserIsNotLoggedIn() throws Exception {
         final RequestBuilder request = MockMvcRequestBuilders.get(USER_DETAILS_ENDPOINT);
         final MvcResult result = mockMvc.perform(request).andReturn();
 

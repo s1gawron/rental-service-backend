@@ -3,23 +3,23 @@ package com.s1gawron.rentalservice.reservation.dto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
-import lombok.SneakyThrows;
+import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 class ReservationListingDTOSerializationTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = ObjectMapperCreator.I.getMapper();
 
     @Test
-    @SneakyThrows
-    void shouldSerialize() {
+    void shouldSerialize() throws IOException {
         final List<ReservationDetailsDTO> reservationDetailsList = ReservationCreatorHelper.I.createReservationDetailsListWithFixedDate();
-        final ReservationListingDTO reservationListingDTO = ReservationListingDTO.create(reservationDetailsList);
+        final ReservationListingDTO reservationListingDTO = new ReservationListingDTO(reservationDetailsList.size(), reservationDetailsList);
 
         final String reservationListingDTOJsonResult = mapper.writeValueAsString(reservationListingDTO);
         final String expectedReservationListingDTOJsonResult = Files.readString(Path.of("src/test/resources/reservation-listing-dto.json"));

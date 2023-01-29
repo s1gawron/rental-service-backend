@@ -86,10 +86,10 @@ class ReservationServiceTest {
         final ReservationListingDTO result = reservationService.getUserReservations();
 
         assertNotNull(result);
-        assertEquals(3, result.getCount());
+        assertEquals(3, result.count());
 
-        for (ReservationDetailsDTO reservationDetailsDTO : result.getReservations()) {
-            assertEquals(1, reservationDetailsDTO.getTools().size());
+        for (ReservationDetailsDTO reservationDetailsDTO : result.reservations()) {
+            assertEquals(1, reservationDetailsDTO.tools().size());
         }
     }
 
@@ -117,11 +117,11 @@ class ReservationServiceTest {
 
         final ReservationDetailsDTO result = reservationService.getReservationDetails(1L);
 
-        assertEquals(LocalDate.now(), result.getDateFrom());
-        assertEquals(LocalDate.now().plusDays(3L), result.getDateTo());
-        assertEquals("Hammer", result.getAdditionalComment());
-        assertEquals(1, result.getTools().size());
-        assertToolDetailsDTO(toolDetailsDTO, result.getTools().get(0));
+        assertEquals(LocalDate.now(), result.dateFrom());
+        assertEquals(LocalDate.now().plusDays(3L), result.dateTo());
+        assertEquals("Hammer", result.additionalComment());
+        assertEquals(1, result.tools().size());
+        assertToolDetailsDTO(toolDetailsDTO, result.tools().get(0));
     }
 
     @Test
@@ -183,12 +183,12 @@ class ReservationServiceTest {
         Mockito.verify(toolServiceMock, Mockito.times(2)).makeToolUnavailableAndSave(Mockito.any(Tool.class));
         Mockito.verify(reservationRepositoryMock, Mockito.times(1)).save(Mockito.any(Reservation.class));
         Mockito.verify(userServiceMock, Mockito.times(1)).saveCustomerWithReservation(Mockito.any(User.class));
-        assertEquals(LocalDate.now(), result.getDateFrom());
-        assertEquals(LocalDate.now().plusDays(1L), result.getDateTo());
-        assertEquals(BigDecimal.valueOf(1011.98), result.getReservationFinalPrice());
-        assertEquals("Hammer and loader", result.getAdditionalComment());
-        assertToolDetailsDTO(tools.get(0).toToolDetailsDTO(), result.getTools().get(0));
-        assertToolDetailsDTO(tools.get(1).toToolDetailsDTO(), result.getTools().get(1));
+        assertEquals(LocalDate.now(), result.dateFrom());
+        assertEquals(LocalDate.now().plusDays(1L), result.dateTo());
+        assertEquals(BigDecimal.valueOf(1011.98), result.reservationFinalPrice());
+        assertEquals("Hammer and loader", result.additionalComment());
+        assertToolDetailsDTO(tools.get(0).toToolDetailsDTO(), result.tools().get(0));
+        assertToolDetailsDTO(tools.get(1).toToolDetailsDTO(), result.tools().get(1));
     }
 
     private void makeToolUnavailable(final Tool tool) {
@@ -260,12 +260,12 @@ class ReservationServiceTest {
 
         final ReservationDetailsDTO result = reservationService.cancelReservation(1L);
 
-        assertEquals(LocalDate.now(), result.getDateFrom());
-        assertEquals(LocalDate.now().plusDays(3L), result.getDateTo());
-        assertTrue(result.isCanceled());
-        assertEquals("Hammer", result.getAdditionalComment());
-        assertEquals(1, result.getTools().size());
-        assertTrue(result.getTools().get(0).getAvailable());
+        assertEquals(LocalDate.now(), result.dateFrom());
+        assertEquals(LocalDate.now().plusDays(3L), result.dateTo());
+        assertTrue(result.canceled());
+        assertEquals("Hammer", result.additionalComment());
+        assertEquals(1, result.tools().size());
+        assertTrue(result.tools().get(0).available());
     }
 
     private void makeToolAvailable(final Tool unavailableTool) {
@@ -342,12 +342,12 @@ class ReservationServiceTest {
     }
 
     private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool) {
-        assertEquals(expected.getName(), resultTool.getName());
-        assertEquals(expected.getAvailable(), resultTool.getAvailable());
-        assertEquals(expected.getDescription(), resultTool.getDescription());
-        assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
-        assertEquals(expected.getPrice(), resultTool.getPrice());
-        assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
+        assertEquals(expected.name(), resultTool.name());
+        assertEquals(expected.available(), resultTool.available());
+        assertEquals(expected.description(), resultTool.description());
+        assertEquals(expected.toolCategory(), resultTool.toolCategory());
+        assertEquals(expected.price(), resultTool.price());
+        assertEquals(expected.toolState().stateType(), resultTool.toolState().stateType());
     }
 
 }

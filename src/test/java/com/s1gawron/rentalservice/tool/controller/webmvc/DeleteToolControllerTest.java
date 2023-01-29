@@ -5,7 +5,6 @@ import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -21,8 +20,7 @@ class DeleteToolControllerTest extends ToolManagementControllerTest {
     private static final String TOOL_DELETE_ENDPOINT = "/api/tool/delete/1";
 
     @Test
-    @SneakyThrows
-    void shouldDeleteTool() {
+    void shouldDeleteTool() throws Exception {
         Mockito.when(toolServiceMock.deleteTool(1L)).thenReturn(true);
 
         final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT);
@@ -33,8 +31,7 @@ class DeleteToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenUserIsNotFoundWhileDeletingTool() {
+    void shouldReturnNotFoundResponseWhenUserIsNotFoundWhileDeletingTool() throws Exception {
         final UserNotFoundException expectedException = UserNotFoundException.create("test@test.pl");
         final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
@@ -49,8 +46,7 @@ class DeleteToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToDeleteTool() {
+    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToDeleteTool() throws Exception {
         final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("TOOL MANAGEMENT");
         final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
@@ -66,8 +62,7 @@ class DeleteToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileDeletingTool() {
+    void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileDeletingTool() throws Exception {
         final ToolNotFoundException expectedException = ToolNotFoundException.create(1L);
         final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);

@@ -6,17 +6,19 @@ import com.s1gawron.rentalservice.address.exception.AddressRegisterEmptyProperti
 import com.s1gawron.rentalservice.address.model.Address;
 import com.s1gawron.rentalservice.address.repository.AddressRepository;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 public class AddressService {
 
     private final AddressRepository addressRepository;
+
+    public AddressService(final AddressRepository addressRepository) {
+        this.addressRepository = addressRepository;
+    }
 
     @Transactional
     public Optional<Address> validateAndSaveAddress(final AddressDTO addressDTO, final UserRole userRole) {

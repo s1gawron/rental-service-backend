@@ -1,8 +1,6 @@
 package com.s1gawron.rentalservice.reservation.model;
 
 import com.s1gawron.rentalservice.tool.model.Tool;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -10,8 +8,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "reservation_has_tool")
 @DynamicUpdate
-@NoArgsConstructor
-@Getter
 public class ReservationHasTool {
 
     @Id
@@ -26,6 +22,9 @@ public class ReservationHasTool {
     @ManyToOne
     @JoinColumn(name = "reservation_id") //TODO - rethink about nullable
     private Reservation reservation;
+
+    public ReservationHasTool() {
+    }
 
     public ReservationHasTool(final Tool tool, final Reservation reservation) {
         this.tool = tool;

@@ -5,7 +5,6 @@ import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.user.controller.UserManagementController;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -26,10 +25,9 @@ class GetUserControllerTest extends AbstractUserControllerTest {
     private static final String USER_DETAILS_ENDPOINT = "/api/user/";
 
     @Test
-    @SneakyThrows
-    void shouldGetUserDetails() {
+    void shouldGetUserDetails() throws Exception {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserDTO userDTO = new UserDTO("John", "Kowalski", "test@test.pl", UserRole.CUSTOMER.getName(), addressDTO);
+        final UserDTO userDTO = new UserDTO("John", "Kowalski", "test@test.pl", UserRole.CUSTOMER.name(), addressDTO);
 
         Mockito.when(userServiceMock.getUserDetails()).thenReturn(userDTO);
 
@@ -40,15 +38,14 @@ class GetUserControllerTest extends AbstractUserControllerTest {
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(userDTOResult);
-        assertEquals(userDTO.getEmail(), userDTOResult.getEmail());
-        assertEquals(userDTO.getEmail(), userDTOResult.getEmail());
-        assertEquals(userDTO.getCustomerAddress().getCountry(), userDTOResult.getCustomerAddress().getCountry());
-        assertEquals(userDTO.getCustomerAddress().getPostCode(), userDTOResult.getCustomerAddress().getPostCode());
+        assertEquals(userDTO.email(), userDTOResult.email());
+        assertEquals(userDTO.email(), userDTOResult.email());
+        assertEquals(userDTO.customerAddress().country(), userDTOResult.customerAddress().country());
+        assertEquals(userDTO.customerAddress().postCode(), userDTOResult.customerAddress().postCode());
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenUserIsNotFoundWhileGettingUserDetails() {
+    void shouldReturnNotFoundResponseWhenUserIsNotFoundWhileGettingUserDetails() throws Exception {
         final UserNotFoundException expectedException = UserNotFoundException.create("test@test.pl");
         final String endpoint = USER_DETAILS_ENDPOINT + "details";
 

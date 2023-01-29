@@ -1,12 +1,13 @@
 package com.s1gawron.rentalservice.tool.controller.webmvc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.jwt.JwtConfig;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
+import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.service.ToolService;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
@@ -31,22 +32,21 @@ abstract class AbstractToolControllerTest {
     @MockBean
     ToolService toolServiceMock;
 
-    final ObjectMapper objectMapper = new ObjectMapper();
+    final ObjectMapper objectMapper = ObjectMapperCreator.I.getMapper();
 
     int getToolListSizeFilteredByCategory(final ToolCategory expected, final List<ToolDetailsDTO> tools) {
-        return (int) tools.stream().filter(tool -> tool.getToolCategory().equals(expected.getName())).count();
+        return (int) tools.stream().filter(tool -> tool.toolCategory().equals(expected.name())).count();
     }
 
     void assertErrorResponse(final HttpStatus expectedStatus, final String expectedMessage, final String expectedUri,
         final ErrorResponse actualErrorResponse) {
-        assertEquals(expectedStatus.value(), actualErrorResponse.getCode());
-        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.getError());
-        assertEquals(expectedMessage, actualErrorResponse.getMessage());
-        assertEquals(expectedUri, actualErrorResponse.getURI());
+        assertEquals(expectedStatus.value(), actualErrorResponse.code());
+        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.error());
+        assertEquals(expectedMessage, actualErrorResponse.message());
+        assertEquals(expectedUri, actualErrorResponse.URI());
     }
 
-    @SneakyThrows
-    ErrorResponse toErrorResponse(final String responseMessage) {
+    ErrorResponse toErrorResponse(final String responseMessage) throws JsonProcessingException {
         return objectMapper.readValue(responseMessage, ErrorResponse.class);
     }
 

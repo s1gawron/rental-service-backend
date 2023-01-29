@@ -2,11 +2,11 @@ package com.s1gawron.rentalservice.user.controller.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
+import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import com.s1gawron.rentalservice.user.service.UserService;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ abstract class AbstractUserControllerIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
-    protected final ObjectMapper objectMapper = new ObjectMapper();
+    protected final ObjectMapper objectMapper = ObjectMapperCreator.I.getMapper();
 
     @BeforeEach
     void setUp() {
@@ -53,8 +53,7 @@ abstract class AbstractUserControllerIntegrationTest {
         userRepository.deleteAll();
     }
 
-    @SneakyThrows
-    protected MvcResult performLoginAction(final UserLoginDTO userLoginDTO) {
+    protected MvcResult performLoginAction(final UserLoginDTO userLoginDTO) throws Exception {
         final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson).contentType(MediaType.APPLICATION_JSON);
 

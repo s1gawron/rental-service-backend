@@ -16,8 +16,8 @@ import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.service.UserService;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,9 +30,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
-@Slf4j
 public class ReservationService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReservationService.class);
 
     private static final String ELEMENT_NAME = "CUSTOMER RESERVATIONS";
 
@@ -44,6 +44,15 @@ public class ReservationService {
 
     private final ToolService toolService;
 
+    public ReservationService(final ReservationRepository reservationRepository, final ReservationHasToolRepository reservationHasToolRepository,
+        final UserService userService,
+        final ToolService toolService) {
+        this.reservationRepository = reservationRepository;
+        this.reservationHasToolRepository = reservationHasToolRepository;
+        this.userService = userService;
+        this.toolService = toolService;
+    }
+
     @Transactional(readOnly = true)
     public ReservationListingDTO getUserReservations() {
         final User customer = getAndCheckIfUserIsCustomer();
@@ -54,7 +63,7 @@ public class ReservationService {
             })
             .collect(Collectors.toList());
 
-        return ReservationListingDTO.create(userReservations);
+        return new ReservationListingDTO(userReservations.size(), userReservations);
     }
 
     @Transactional(readOnly = true)
@@ -74,7 +83,7 @@ public class ReservationService {
         ReservationDTOValidator.I.validate(reservationDTO);
 
         final User customer = getAndCheckIfUserIsCustomer();
-        reservationDTO.getToolIds().forEach(toolService::isToolAvailable);
+        reservationDTO.toolIds().forEach(toolService::isToolAvailable);
 
         final Reservation reservation = Reservation.from(reservationDTO);
         reservation.addCustomer(customer);
@@ -82,7 +91,7 @@ public class ReservationService {
         final AtomicReference<BigDecimal> reservationFinalPrice = new AtomicReference<>(BigDecimal.valueOf(0.00));
         final List<ToolDetailsDTO> toolDetails = new ArrayList<>();
 
-        reservationDTO.getToolIds().forEach(toolId -> {
+        reservationDTO.toolIds().forEach(toolId -> {
             final Tool tool = toolService.getToolById(toolId);
             final ReservationHasTool reservationHasTool = reservation.addTool(tool);
             final ReservationHasTool savedReservationHasTool = reservationHasToolRepository.save(reservationHasTool);

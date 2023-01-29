@@ -14,7 +14,7 @@ public enum UserCreatorHelper {
 
     public User createCustomer() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER.getName(), addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER.name(), addressDTO);
         final User user = User.createUser(userRegisterDTO, UserRole.CUSTOMER, "encryptedPassword");
 
         user.setCustomerAddress(Address.from(addressDTO));
@@ -24,7 +24,7 @@ public enum UserCreatorHelper {
 
     public User createWorker() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.WORKER.getName(), addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.WORKER.name(), addressDTO);
         final User user = User.createUser(userRegisterDTO, UserRole.WORKER, "encryptedPassword");
 
         user.setCustomerAddress(Address.from(addressDTO));
@@ -34,7 +34,7 @@ public enum UserCreatorHelper {
 
     public User createDifferentCustomer() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Przedmiescia", "01-100");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO("test2@test.pl", "Start00!", "George", "Happs", UserRole.CUSTOMER.getName(), addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO("test2@test.pl", "Start00!", "George", "Happs", UserRole.CUSTOMER.name(), addressDTO);
         final User user = User.createUser(userRegisterDTO, UserRole.CUSTOMER, "encryptedPassword");
 
         user.setCustomerAddress(Address.from(addressDTO));

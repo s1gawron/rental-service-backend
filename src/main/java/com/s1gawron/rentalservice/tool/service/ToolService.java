@@ -17,7 +17,6 @@ import com.s1gawron.rentalservice.tool.repository.ToolRepository;
 import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.service.UserService;
-import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
 public class ToolService {
 
     private static final String ELEMENT_NAME = "TOOL MANAGEMENT";
@@ -37,6 +35,12 @@ public class ToolService {
 
     private final UserService userService;
 
+    public ToolService(final ToolRepository toolRepository, final ToolStateRepository toolStateRepository, final UserService userService) {
+        this.toolRepository = toolRepository;
+        this.toolStateRepository = toolStateRepository;
+        this.userService = userService;
+    }
+
     @Transactional(readOnly = true)
     public ToolListingDTO getToolsByCategory(final String category) {
         final ToolCategory toolCategory = ToolCategory.findByValue(category);
@@ -45,7 +49,7 @@ public class ToolService {
             .map(Tool::toToolDetailsDTO)
             .collect(Collectors.toList());
 
-        return ToolListingDTO.create(toolDetailsDTOSByCategory);
+        return new ToolListingDTO(toolDetailsDTOSByCategory.size(), toolDetailsDTOSByCategory);
     }
 
     @Transactional(readOnly = true)
@@ -68,12 +72,12 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public List<ToolDetailsDTO> getToolsByName(final ToolSearchDTO toolSearchDTO) {
-        final List<ToolDetailsDTO> toolDetails = toolRepository.findByNameContainingIgnoreCase(toolSearchDTO.getToolName()).stream()
+        final List<ToolDetailsDTO> toolDetails = toolRepository.findByNameContainingIgnoreCase(toolSearchDTO.toolName()).stream()
             .map(Tool::toToolDetailsDTO)
             .collect(Collectors.toList());
 
         if (toolDetails.isEmpty()) {
-            throw ToolNotFoundException.createForName(toolSearchDTO.getToolName());
+            throw ToolNotFoundException.createForName(toolSearchDTO.toolName());
         }
 
         return toolDetails;
@@ -84,7 +88,7 @@ public class ToolService {
         canUserPerformActionOnTools();
         ToolDTOValidator.I.validate(toolDTO);
 
-        final ToolState toolState = ToolState.from(toolDTO.getToolState());
+        final ToolState toolState = ToolState.from(toolDTO.toolState());
         final Tool tool = Tool.from(toolDTO, toolState);
 
         toolStateRepository.save(toolState);
@@ -98,10 +102,10 @@ public class ToolService {
         canUserPerformActionOnTools();
         ToolDTOValidator.I.validate(toolDetailsDTO);
 
-        final Tool tool = getToolById(toolDetailsDTO.getToolId());
+        final Tool tool = getToolById(toolDetailsDTO.toolId());
         final ToolState toolState = tool.getToolState();
 
-        toolState.edit(toolDetailsDTO.getToolState());
+        toolState.edit(toolDetailsDTO.toolState());
         toolStateRepository.save(toolState);
         tool.edit(toolDetailsDTO);
         toolRepository.save(tool);

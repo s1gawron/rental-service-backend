@@ -9,7 +9,6 @@ import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistExcepti
 import com.s1gawron.rentalservice.tool.exception.ToolEmptyPropertiesException;
 import com.s1gawron.rentalservice.tool.exception.ToolStateTypeDoesNotExistException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -28,8 +27,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     private static final String TOOL_ADD_ENDPOINT = "/api/tool/add";
 
     @Test
-    @SneakyThrows
-    void shouldValidateAndAddTool() {
+    void shouldValidateAndAddTool() throws Exception {
         final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
         final ToolDTO toolDTO = ToolCreatorHelper.I.createToolDTO();
         final String toolDTOJson = objectMapper.writeValueAsString(toolDTO);
@@ -48,8 +46,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenUserIsNotFoundWhileAddingTool() {
+    void shouldReturnNotFoundResponseWhenUserIsNotFoundWhileAddingTool() throws Exception {
         final UserNotFoundException expectedException = UserNotFoundException.create("test@test.pl");
         final ToolDTO toolDTO = ToolCreatorHelper.I.createToolDTO();
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
@@ -64,8 +61,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToAddTool() {
+    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToAddTool() throws Exception {
         final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("TOOL MANAGEMENT");
         final ToolDTO toolDTO = ToolCreatorHelper.I.createToolDTO();
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
@@ -80,8 +76,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolNameIsEmptyWhileAddingTool() {
+    void shouldReturnBadRequestResponseWhenToolNameIsEmptyWhileAddingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForName();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
         final ToolDTO toolDTO = new ToolDTO(null, "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO, "www.image.com/hammer");
@@ -97,8 +92,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolDescriptionIsEmptyWhileAddingTool() {
+    void shouldReturnBadRequestResponseWhenToolDescriptionIsEmptyWhileAddingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForDescription();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
         final ToolDTO toolDTO = new ToolDTO("Hammer", null, "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO, "www.image.com/hammer");
@@ -114,8 +108,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolCategoryIsEmptyWhileAddingTool() {
+    void shouldReturnBadRequestResponseWhenToolCategoryIsEmptyWhileAddingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForCategory();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
         final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", null, BigDecimal.valueOf(5.99), toolStateDTO, "www.image.com/hammer");
@@ -131,8 +124,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExistWhileAddingTool() {
+    void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExistWhileAddingTool() throws Exception {
         final ToolCategoryDoesNotExistException expectedException = ToolCategoryDoesNotExistException.create("UNKNOWN");
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
         final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", "UNKNOWN", BigDecimal.valueOf(5.99), toolStateDTO, "www.image.com/hammer");
@@ -148,8 +140,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolPriceIsEmptyWhileAddingTool() {
+    void shouldReturnBadRequestResponseWhenToolPriceIsEmptyWhileAddingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForPrice();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
         final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", "LIGHT", null, toolStateDTO, "www.image.com/hammer");
@@ -165,8 +156,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateIsEmptyWhileAddingTool() {
+    void shouldReturnBadRequestResponseWhenToolStateIsEmptyWhileAddingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolState();
         final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), null, "www.image.com/hammer");
         final String expectedJson = objectMapper.writeValueAsString(toolDTO);
@@ -181,8 +171,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateTypeIsEmptyWhileAddingTool() {
+    void shouldReturnBadRequestResponseWhenToolStateTypeIsEmptyWhileAddingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolStateType();
         final ToolStateDTO toolStateDTO = new ToolStateDTO(null, "New tool");
         final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO, "www.image.com/hammer");
@@ -198,8 +187,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateTypeDoesNotExistWhileAddingTool() {
+    void shouldReturnBadRequestResponseWhenToolStateTypeDoesNotExistWhileAddingTool() throws Exception {
         final ToolStateTypeDoesNotExistException expectedException = ToolStateTypeDoesNotExistException.create("UNKNOWN");
         final ToolStateDTO toolStateDTO = new ToolStateDTO("UNKNOWN", "New tool");
         final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO, "www.image.com/hammer");
@@ -215,8 +203,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateDescriptionIsEmptyWhileAddingTool() {
+    void shouldReturnBadRequestResponseWhenToolStateDescriptionIsEmptyWhileAddingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolStateDescription();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", null);
         final ToolDTO toolDTO = new ToolDTO("Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO, "www.image.com/hammer");

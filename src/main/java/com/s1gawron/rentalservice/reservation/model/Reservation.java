@@ -5,8 +5,6 @@ import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.user.model.User;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -18,8 +16,6 @@ import java.util.List;
 @Entity
 @Table(name = "reservation")
 @DynamicUpdate
-@NoArgsConstructor
-@Getter
 public class Reservation {
 
     @Id
@@ -52,6 +48,9 @@ public class Reservation {
     @OneToMany(mappedBy = "reservation")
     private List<ReservationHasTool> reservationHasTools;
 
+    public Reservation() {
+    }
+
     private Reservation(final LocalDate dateFrom, final LocalDate dateTo, final String additionalComment) {
         this.dateFrom = dateFrom;
         this.dateTo = dateTo;
@@ -71,13 +70,13 @@ public class Reservation {
     }
 
     public static Reservation from(final ReservationDTO reservationDTO) {
-        return new Reservation(reservationDTO.getDateFrom(), reservationDTO.getDateTo(), reservationDTO.getAdditionalComment());
+        return new Reservation(reservationDTO.dateFrom(), reservationDTO.dateTo(), reservationDTO.additionalComment());
     }
 
     public static Reservation from(final ReservationDetailsDTO reservationDetailsDTO) {
-        return new Reservation(reservationDetailsDTO.getReservationId(), reservationDetailsDTO.isExpired(), reservationDetailsDTO.isCanceled(),
-            reservationDetailsDTO.getDateFrom(), reservationDetailsDTO.getDateTo(), reservationDetailsDTO.getReservationFinalPrice(),
-            reservationDetailsDTO.getAdditionalComment());
+        return new Reservation(reservationDetailsDTO.reservationId(), reservationDetailsDTO.expired(), reservationDetailsDTO.canceled(),
+            reservationDetailsDTO.dateFrom(), reservationDetailsDTO.dateTo(), reservationDetailsDTO.reservationFinalPrice(),
+            reservationDetailsDTO.additionalComment());
     }
 
     public ReservationHasTool addTool(final Tool tool) {
@@ -111,5 +110,37 @@ public class Reservation {
 
     public void expireReservation() {
         this.expired = true;
+    }
+
+    public Long getReservationId() {
+        return reservationId;
+    }
+
+    public boolean isExpired() {
+        return expired;
+    }
+
+    public boolean isCanceled() {
+        return canceled;
+    }
+
+    public LocalDate getDateFrom() {
+        return dateFrom;
+    }
+
+    public LocalDate getDateTo() {
+        return dateTo;
+    }
+
+    public String getAdditionalComment() {
+        return additionalComment;
+    }
+
+    public User getCustomer() {
+        return customer;
+    }
+
+    public List<ReservationHasTool> getReservationHasTools() {
+        return reservationHasTools;
     }
 }

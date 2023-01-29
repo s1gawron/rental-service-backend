@@ -4,17 +4,19 @@ import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
-import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("api/public/tool")
-@AllArgsConstructor
 public class ToolController extends ToolErrorHandlerController {
 
     private final ToolService toolService;
+
+    public ToolController(final ToolService toolService) {
+        this.toolService = toolService;
+    }
 
     @GetMapping("get/category/{category}")
     public ToolListingDTO getToolsByCategory(@PathVariable String category) {

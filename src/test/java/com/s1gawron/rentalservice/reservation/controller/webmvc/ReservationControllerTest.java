@@ -1,5 +1,6 @@
 package com.s1gawron.rentalservice.reservation.controller.webmvc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.jwt.JwtConfig;
 import com.s1gawron.rentalservice.reservation.controller.ReservationController;
@@ -13,9 +14,9 @@ import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
+import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,13 +57,12 @@ class ReservationControllerTest {
     @MockBean
     private ReservationService reservationServiceMock;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = ObjectMapperCreator.I.getMapper();
 
     @Test
-    @SneakyThrows
-    void shouldGetUserReservations() {
+    void shouldGetUserReservations() throws Exception {
         final List<ReservationDetailsDTO> reservationDetailsList = ReservationCreatorHelper.I.createReservationDetailsList();
-        final ReservationListingDTO reservationListingDTO = ReservationListingDTO.create(reservationDetailsList);
+        final ReservationListingDTO reservationListingDTO = new ReservationListingDTO(reservationDetailsList.size(), reservationDetailsList);
 
         Mockito.when(reservationServiceMock.getUserReservations()).thenReturn(reservationListingDTO);
 
@@ -73,12 +73,11 @@ class ReservationControllerTest {
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(reservationDetailsListResult);
-        assertEquals(3, reservationDetailsListResult.getCount());
+        assertEquals(3, reservationDetailsListResult.count());
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToGetUserReservations() {
+    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToGetUserReservations() throws Exception {
         final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
 
         Mockito.when(reservationServiceMock.getUserReservations()).thenThrow(expectedException);
@@ -91,8 +90,7 @@ class ReservationControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldGetReservationById() {
+    void shouldGetReservationById() throws Exception {
         final ReservationDetailsDTO reservationDetailsDTO = ReservationCreatorHelper.I.createReservationDetailsDTO();
 
         Mockito.when(reservationServiceMock.getReservationDetails(1L)).thenReturn(reservationDetailsDTO);
@@ -104,13 +102,12 @@ class ReservationControllerTest {
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(reservationDetailsDTOResult);
-        assertEquals("Hammer", reservationDetailsDTOResult.getAdditionalComment());
-        assertEquals("Hammer", reservationDetailsDTOResult.getTools().get(0).getName());
+        assertEquals("Hammer", reservationDetailsDTOResult.additionalComment());
+        assertEquals("Hammer", reservationDetailsDTOResult.tools().get(0).name());
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToGetReservationDetails() {
+    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToGetReservationDetails() throws Exception {
         final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
 
         Mockito.when(reservationServiceMock.getReservationDetails(1L)).thenThrow(expectedException);
@@ -123,8 +120,7 @@ class ReservationControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenReservationWasNotFoundWhileGettingReservationDetails() {
+    void shouldReturnNotFoundResponseWhenReservationWasNotFoundWhileGettingReservationDetails() throws Exception {
         final ReservationNotFoundException expectedException = ReservationNotFoundException.create(1L);
 
         Mockito.when(reservationServiceMock.getReservationDetails(1L)).thenThrow(expectedException);
@@ -137,8 +133,7 @@ class ReservationControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldMakeReservation() {
+    void shouldMakeReservation() throws Exception {
         final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(3L), "Hammer", List.of(1L));
         final ReservationDetailsDTO reservationDetailsDTO = ReservationCreatorHelper.I.createReservationDetailsDTO();
         final String reservationDTOJson = objectMapper.writeValueAsString(reservationDTO);
@@ -153,14 +148,13 @@ class ReservationControllerTest {
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(reservationDetailsDTOResult);
-        assertEquals(1, reservationDetailsDTOResult.getReservationId());
-        assertEquals(BigDecimal.valueOf(10.99), reservationDetailsDTOResult.getReservationFinalPrice());
-        assertEquals("Hammer", reservationDetailsDTOResult.getAdditionalComment());
+        assertEquals(1, reservationDetailsDTOResult.reservationId());
+        assertEquals(BigDecimal.valueOf(10.99), reservationDetailsDTOResult.reservationFinalPrice());
+        assertEquals("Hammer", reservationDetailsDTOResult.additionalComment());
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenReservationHasEmptyProperties() {
+    void shouldReturnBadRequestResponseWhenReservationHasEmptyProperties() throws Exception {
         final ReservationEmptyPropertiesException expectedException = ReservationEmptyPropertiesException.createForDateFrom();
         final ReservationDTO reservationDTO = new ReservationDTO(null, LocalDate.now().plusDays(3L), "Hammer", List.of(1L));
         final String reservationDTOJson = objectMapper.writeValueAsString(reservationDTO);
@@ -175,8 +169,7 @@ class ReservationControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenReservationDueDateIsBeforeCurrentDate() {
+    void shouldReturnBadRequestResponseWhenReservationDueDateIsBeforeCurrentDate() throws Exception {
         final DateMismatchException expectedException = DateMismatchException.createForDateTo();
         final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().minusDays(3L), "Hammer", List.of(1L));
         final String reservationDTOJson = objectMapper.writeValueAsString(reservationDTO);
@@ -191,8 +184,7 @@ class ReservationControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToMakeReservation() {
+    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToMakeReservation() throws Exception {
         final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
         final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(3L), "Hammer", List.of(1L));
         final String reservationDTOJson = objectMapper.writeValueAsString(reservationDTO);
@@ -207,8 +199,7 @@ class ReservationControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileMakingReservation() {
+    void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileMakingReservation() throws Exception {
         final ToolNotFoundException expectedException = ToolNotFoundException.create(1L);
         final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(3L), "Hammer", List.of(1L));
         final String reservationDTOJson = objectMapper.writeValueAsString(reservationDTO);
@@ -223,8 +214,7 @@ class ReservationControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolIsNotAvailableWhileMakingReservation() {
+    void shouldReturnBadRequestResponseWhenToolIsNotAvailableWhileMakingReservation() throws Exception {
         final ToolUnavailableException expectedException = ToolUnavailableException.create(1L);
         final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(3L), "Hammer", List.of(1L));
         final String reservationDTOJson = objectMapper.writeValueAsString(reservationDTO);
@@ -239,8 +229,7 @@ class ReservationControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldCancelReservation() {
+    void shouldCancelReservation() throws Exception {
         final ReservationDetailsDTO canceledReservation = ReservationCreatorHelper.I.createCanceledReservationDetailsDTO();
 
         Mockito.when(reservationServiceMock.cancelReservation(1L)).thenReturn(canceledReservation);
@@ -252,15 +241,14 @@ class ReservationControllerTest {
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(reservationDetailsDTOResult);
-        assertEquals("Hammer", reservationDetailsDTOResult.getAdditionalComment());
-        assertTrue(reservationDetailsDTOResult.isCanceled());
-        assertEquals("Hammer", reservationDetailsDTOResult.getTools().get(0).getName());
-        assertTrue(reservationDetailsDTOResult.getTools().get(0).getAvailable());
+        assertEquals("Hammer", reservationDetailsDTOResult.additionalComment());
+        assertTrue(reservationDetailsDTOResult.canceled());
+        assertEquals("Hammer", reservationDetailsDTOResult.tools().get(0).name());
+        assertTrue(reservationDetailsDTOResult.tools().get(0).available());
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToCancelReservation() {
+    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToCancelReservation() throws Exception {
         final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
 
         Mockito.when(reservationServiceMock.cancelReservation(1L)).thenThrow(expectedException);
@@ -273,8 +261,7 @@ class ReservationControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenReservationWasNotFoundWhileCancelingReservation() {
+    void shouldReturnNotFoundResponseWhenReservationWasNotFoundWhileCancelingReservation() throws Exception {
         final ReservationNotFoundException expectedException = ReservationNotFoundException.create(1L);
 
         Mockito.when(reservationServiceMock.cancelReservation(1L)).thenThrow(expectedException);
@@ -288,14 +275,13 @@ class ReservationControllerTest {
 
     void assertErrorResponse(final HttpStatus expectedStatus, final String expectedMessage, final String expectedUri,
         final ErrorResponse actualErrorResponse) {
-        assertEquals(expectedStatus.value(), actualErrorResponse.getCode());
-        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.getError());
-        assertEquals(expectedMessage, actualErrorResponse.getMessage());
-        assertEquals(expectedUri, actualErrorResponse.getURI());
+        assertEquals(expectedStatus.value(), actualErrorResponse.code());
+        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.error());
+        assertEquals(expectedMessage, actualErrorResponse.message());
+        assertEquals(expectedUri, actualErrorResponse.URI());
     }
 
-    @SneakyThrows
-    ErrorResponse toErrorResponse(final String responseMessage) {
+    ErrorResponse toErrorResponse(final String responseMessage) throws JsonProcessingException {
         return objectMapper.readValue(responseMessage, ErrorResponse.class);
     }
 

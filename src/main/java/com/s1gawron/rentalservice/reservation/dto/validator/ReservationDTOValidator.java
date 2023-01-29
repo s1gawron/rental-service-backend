@@ -3,47 +3,49 @@ package com.s1gawron.rentalservice.reservation.dto.validator;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDTO;
 import com.s1gawron.rentalservice.reservation.exception.DateMismatchException;
 import com.s1gawron.rentalservice.reservation.exception.ReservationEmptyPropertiesException;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 
-@Slf4j
 public enum ReservationDTOValidator {
 
     I;
+
+    private static final Logger log = LoggerFactory.getLogger(ReservationDTOValidator.class);
 
     private static final String MESSAGE = " cannot be empty";
 
     public boolean validate(final ReservationDTO reservationDTO) {
 
-        if (reservationDTO.getDateFrom() == null) {
+        if (reservationDTO.dateFrom() == null) {
             log.error("Date from" + MESSAGE);
             throw ReservationEmptyPropertiesException.createForDateFrom();
         }
 
         final LocalDate currentDate = LocalDate.now();
 
-        if (reservationDTO.getDateFrom().isBefore(currentDate)) {
+        if (reservationDTO.dateFrom().isBefore(currentDate)) {
             log.error("Date from is before current time!");
             throw DateMismatchException.createForDateFrom();
         }
 
-        if (reservationDTO.getDateTo() == null) {
+        if (reservationDTO.dateTo() == null) {
             log.error("Due date" + MESSAGE);
             throw ReservationEmptyPropertiesException.createForDateTo();
         }
 
-        if (reservationDTO.getDateTo().isBefore(currentDate)) {
+        if (reservationDTO.dateTo().isBefore(currentDate)) {
             log.error("Date from is before current time!");
             throw DateMismatchException.createForDateTo();
         }
 
-        if (reservationDTO.getDateFrom().isAfter(reservationDTO.getDateTo())) {
+        if (reservationDTO.dateFrom().isAfter(reservationDTO.dateTo())) {
             log.error("Date from cannot be after due date!");
             throw DateMismatchException.createForDateFromIsAfterDueDate();
         }
 
-        if (reservationDTO.getToolIds() == null || reservationDTO.getToolIds().isEmpty()) {
+        if (reservationDTO.toolIds() == null || reservationDTO.toolIds().isEmpty()) {
             log.error("Tools for reservation list" + MESSAGE);
             throw ReservationEmptyPropertiesException.createForToolsList();
         }

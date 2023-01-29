@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserLoginControllerIntegrationTest extends AbstractUserControllerIntegrationTest {
 
     @Test
-    void shouldLoginAndReturnValidTokenInHeader() {
+    void shouldLoginAndReturnValidTokenInHeader() throws Exception {
         final UserLoginDTO userLoginDTO = new UserLoginDTO(EMAIL, PASSWORD);
 
         final MvcResult result = performLoginAction(userLoginDTO);
@@ -22,7 +22,7 @@ class UserLoginControllerIntegrationTest extends AbstractUserControllerIntegrati
     }
 
     @Test
-    void shouldReturnUnauthorizedStatus() {
+    void shouldReturnUnauthorizedStatus() throws Exception {
         final UserLoginDTO userLoginDTO = new UserLoginDTO("testUser", "wrongPassword");
 
         final MvcResult result = performLoginAction(userLoginDTO);

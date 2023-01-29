@@ -1,8 +1,6 @@
 package com.s1gawron.rentalservice.address.model;
 
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -10,8 +8,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "address")
 @DynamicUpdate
-@NoArgsConstructor
-@Getter
 public class Address {
 
     @Id
@@ -31,6 +27,9 @@ public class Address {
     @Column(name = "post_code")
     private String postCode;
 
+    public Address() {
+    }
+
     private Address(final String country, final String city, final String street, final String postCode) {
         this.country = country;
         this.city = city;
@@ -39,10 +38,26 @@ public class Address {
     }
 
     public static Address from(final AddressDTO addressDTO) {
-        return new Address(addressDTO.getCountry(), addressDTO.getCity(), addressDTO.getStreet(), addressDTO.getPostCode());
+        return new Address(addressDTO.country(), addressDTO.city(), addressDTO.street(), addressDTO.postCode());
     }
 
     public AddressDTO toAddressDTO() {
         return new AddressDTO(this.country, this.city, this.street, this.postCode);
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public String getPostCode() {
+        return postCode;
     }
 }

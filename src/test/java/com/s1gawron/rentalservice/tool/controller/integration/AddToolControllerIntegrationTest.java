@@ -1,7 +1,6 @@
 package com.s1gawron.rentalservice.tool.controller.integration;
 
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,18 +15,18 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     private static final String TOOL_ADD_ENDPOINT = "/api/tool/add";
 
     @Test
-    @SneakyThrows
-    void shouldValidateAndAddTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Hammer\",\n"
-            + "  \"description\": \"It's just a hammer :)\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"price\": 10.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"NEW\",\n"
-            + "    \"description\": \"New and shiny tool\"\n"
-            + "  }\n"
-            + "}";
+    void shouldValidateAndAddTool() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "description": "It's just a hammer :)",
+              "toolCategory": "LIGHT",
+              "price": 10.99,
+              "toolState": {
+                "stateType": "NEW",
+                "description": "New and shiny tool"
+              }
+            }""";
         final ToolDetailsDTO expectedObject = objectMapper.readValue(json, ToolDetailsDTO.class);
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
@@ -42,18 +41,18 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToAddTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Hammer\",\n"
-            + "  \"description\": \"It's just a hammer :)\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"price\": 10.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"NEW\",\n"
-            + "    \"description\": \"New and shiny tool\"\n"
-            + "  }\n"
-            + "}";
+    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToAddTool() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "description": "It's just a hammer :)",
+              "toolCategory": "LIGHT",
+              "price": 10.99,
+              "toolState": {
+                "stateType": "NEW",
+                "description": "New and shiny tool"
+              }
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getCustomerAuthorizationToken());
 
@@ -64,17 +63,17 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolNameIsEmptyWhileAddingTool() {
-        final String json = "{\n"
-            + "  \"description\": \"It's just a hammer :)\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"price\": 10.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"NEW\",\n"
-            + "    \"description\": \"New and shiny tool\"\n"
-            + "  }\n"
-            + "}";
+    void shouldReturnBadRequestResponseWhenToolNameIsEmptyWhileAddingTool() throws Exception {
+        final String json = """
+            {
+              "description": "It's just a hammer :)",
+              "toolCategory": "LIGHT",
+              "price": 10.99,
+              "toolState": {
+                "stateType": "NEW",
+                "description": "New and shiny tool"
+              }
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
@@ -85,17 +84,17 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolDescriptionIsEmptyWhileAddingTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Hammer\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"price\": 10.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"NEW\",\n"
-            + "    \"description\": \"New and shiny tool\"\n"
-            + "  }\n"
-            + "}";
+    void shouldReturnBadRequestResponseWhenToolDescriptionIsEmptyWhileAddingTool() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "toolCategory": "LIGHT",
+              "price": 10.99,
+              "toolState": {
+                "stateType": "NEW",
+                "description": "New and shiny tool"
+              }
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
@@ -106,17 +105,17 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolCategoryIsEmptyWhileAddingTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Hammer\",\n"
-            + "  \"description\": \"It's just a hammer :)\",\n"
-            + "  \"price\": 10.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"NEW\",\n"
-            + "    \"description\": \"New and shiny tool\"\n"
-            + "  }\n"
-            + "}";
+    void shouldReturnBadRequestResponseWhenToolCategoryIsEmptyWhileAddingTool() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "description": "It's just a hammer :)",
+              "price": 10.99,
+              "toolState": {
+                "stateType": "NEW",
+                "description": "New and shiny tool"
+              }
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
@@ -127,18 +126,18 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExistWhileAddingTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Hammer\",\n"
-            + "  \"description\": \"It's just a hammer :)\",\n"
-            + "  \"toolCategory\": \"UNKNOWN\",\n"
-            + "  \"price\": 10.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"NEW\",\n"
-            + "    \"description\": \"New and shiny tool\"\n"
-            + "  }\n"
-            + "}";
+    void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExistWhileAddingTool() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "description": "It's just a hammer :)",
+              "toolCategory": "UNKNOWN",
+              "price": 10.99,
+              "toolState": {
+                "stateType": "NEW",
+                "description": "New and shiny tool"
+              }
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
@@ -149,17 +148,17 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolPriceIsEmptyWhileAddingTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Hammer\",\n"
-            + "  \"description\": \"It's just a hammer :)\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"NEW\",\n"
-            + "    \"description\": \"New and shiny tool\"\n"
-            + "  }\n"
-            + "}";
+    void shouldReturnBadRequestResponseWhenToolPriceIsEmptyWhileAddingTool() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "description": "It's just a hammer :)",
+              "toolCategory": "LIGHT",
+              "toolState": {
+                "stateType": "NEW",
+                "description": "New and shiny tool"
+              }
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
@@ -170,14 +169,14 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateIsEmptyWhileAddingTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Hammer\",\n"
-            + "  \"description\": \"It's just a hammer :)\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"price\": 10.99\n"
-            + "}";
+    void shouldReturnBadRequestResponseWhenToolStateIsEmptyWhileAddingTool() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "description": "It's just a hammer :)",
+              "toolCategory": "LIGHT",
+              "price": 10.99
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
@@ -188,17 +187,17 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateTypeIsEmptyWhileAddingTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Hammer\",\n"
-            + "  \"description\": \"It's just a hammer :)\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"price\": 10.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"description\": \"New and shiny tool\"\n"
-            + "  }\n"
-            + "}";
+    void shouldReturnBadRequestResponseWhenToolStateTypeIsEmptyWhileAddingTool() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "description": "It's just a hammer :)",
+              "toolCategory": "LIGHT",
+              "price": 10.99,
+              "toolState": {
+                "description": "New and shiny tool"
+              }
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
@@ -209,18 +208,18 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateTypeDoesNotExistWhileAddingTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Hammer\",\n"
-            + "  \"description\": \"It's just a hammer :)\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"price\": 10.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"UNKNOWN\",\n"
-            + "    \"description\": \"New and shiny tool\"\n"
-            + "  }\n"
-            + "}";
+    void shouldReturnBadRequestResponseWhenToolStateTypeDoesNotExistWhileAddingTool() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "description": "It's just a hammer :)",
+              "toolCategory": "LIGHT",
+              "price": 10.99,
+              "toolState": {
+                "stateType": "UNKNOWN",
+                "description": "New and shiny tool"
+              }
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
@@ -231,17 +230,17 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateDescriptionIsEmptyWhileAddingTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Hammer\",\n"
-            + "  \"description\": \"It's just a hammer :)\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"price\": 10.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"NEW\"\n"
-            + "  }\n"
-            + "}";
+    void shouldReturnBadRequestResponseWhenToolStateDescriptionIsEmptyWhileAddingTool() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "description": "It's just a hammer :)",
+              "toolCategory": "LIGHT",
+              "price": 10.99,
+              "toolState": {
+                "stateType": "NEW"
+              }
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
@@ -252,12 +251,12 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool, final boolean isAvailable) {
-        assertEquals(expected.getName(), resultTool.getName());
-        assertEquals(isAvailable, resultTool.getAvailable());
-        assertEquals(expected.getDescription(), resultTool.getDescription());
-        assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
-        assertEquals(expected.getPrice(), resultTool.getPrice());
-        assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
+        assertEquals(expected.name(), resultTool.name());
+        assertEquals(isAvailable, resultTool.available());
+        assertEquals(expected.description(), resultTool.description());
+        assertEquals(expected.toolCategory(), resultTool.toolCategory());
+        assertEquals(expected.price(), resultTool.price());
+        assertEquals(expected.toolState().stateType(), resultTool.toolState().stateType());
     }
 
 }

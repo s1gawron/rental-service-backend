@@ -8,7 +8,6 @@ import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.*;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -31,10 +30,9 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     private static final String USER_REGISTER_ENDPOINT = "/api/public/user/register";
 
     @Test
-    @SneakyThrows
-    void shouldRegisterUser() {
+    void shouldRegisterUser() throws Exception {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserDTO userDTO = new UserDTO("John", "Kowalski", "test@test.pl", UserRole.CUSTOMER.getName(), addressDTO);
+        final UserDTO userDTO = new UserDTO("John", "Kowalski", "test@test.pl", UserRole.CUSTOMER.name(), addressDTO);
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenReturn(userDTO);
 
@@ -45,15 +43,14 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(userDTOResult);
-        assertEquals(userDTO.getEmail(), userDTOResult.getEmail());
-        assertEquals(userDTO.getEmail(), userDTOResult.getEmail());
-        assertEquals(userDTO.getCustomerAddress().getCountry(), userDTOResult.getCustomerAddress().getCountry());
-        assertEquals(userDTO.getCustomerAddress().getPostCode(), userDTOResult.getCustomerAddress().getPostCode());
+        assertEquals(userDTO.email(), userDTOResult.email());
+        assertEquals(userDTO.email(), userDTOResult.email());
+        assertEquals(userDTO.customerAddress().country(), userDTOResult.customerAddress().country());
+        assertEquals(userDTO.customerAddress().postCode(), userDTOResult.customerAddress().postCode());
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnConflictResponseWhenUserEmailAlreadyExistsWhileRegisteringUser() {
+    void shouldReturnConflictResponseWhenUserEmailAlreadyExistsWhileRegisteringUser() throws Exception {
         final UserEmailExistsException userEmailExistsException = UserEmailExistsException.create();
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(userEmailExistsException);
@@ -66,8 +63,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenAddressRegisterPropertiesAreEmptyWhileRegisteringUser() {
+    void shouldReturnBadRequestResponseWhenAddressRegisterPropertiesAreEmptyWhileRegisteringUser() throws Exception {
         final AddressRegisterEmptyPropertiesException addressRegisterEmptyPropertiesException = AddressRegisterEmptyPropertiesException.create();
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(addressRegisterEmptyPropertiesException);
@@ -80,8 +76,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenRegisterPropertiesAreEmptyWhileRegisteringUser() {
+    void shouldReturnBadRequestResponseWhenRegisterPropertiesAreEmptyWhileRegisteringUser() throws Exception {
         final UserRegisterEmptyPropertiesException userRegisterEmptyPropertiesException = UserRegisterEmptyPropertiesException.createForPassword();
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(userRegisterEmptyPropertiesException);
@@ -94,8 +89,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenEmailPatternDoesNotMatchWhileRegisteringUser() {
+    void shouldReturnBadRequestResponseWhenEmailPatternDoesNotMatchWhileRegisteringUser() throws Exception {
         final UserEmailPatternViolationException userEmailPatternViolationException = UserEmailPatternViolationException.create("test-test.pl");
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(userEmailPatternViolationException);
@@ -108,8 +102,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenPasswordIsTooWeakWhileRegisteringUser() {
+    void shouldReturnBadRequestResponseWhenPasswordIsTooWeakWhileRegisteringUser() throws Exception {
         final UserPasswordTooWeakException userPasswordTooWeakException = UserPasswordTooWeakException.create();
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(userPasswordTooWeakException);
@@ -122,8 +115,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenPostCodePatternDoesNotMatchWhileRegisteringUser() {
+    void shouldReturnBadRequestResponseWhenPostCodePatternDoesNotMatchWhileRegisteringUser() throws Exception {
         final PostCodePatternViolationException postCodePatternViolationException = PostCodePatternViolationException.create("00000");
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(postCodePatternViolationException);
@@ -136,8 +128,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenUserRoleDoesNotExistWhileRegisteringUser() {
+    void shouldReturnBadRequestResponseWhenUserRoleDoesNotExistWhileRegisteringUser() throws Exception {
         final UserRoleDoesNotExistException userRegisterEmptyPropertiesException = UserRoleDoesNotExistException.create("UNKNOWN");
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(userRegisterEmptyPropertiesException);

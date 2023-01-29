@@ -3,7 +3,6 @@ package com.s1gawron.rentalservice.tool.controller.integration;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -35,8 +34,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldValidateAndEditTool() {
+    void shouldValidateAndEditTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"available\": \"false\",\n"
@@ -63,8 +61,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToEditTool() {
+    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToEditTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"name\": \"Big hammer\",\n"
@@ -86,26 +83,26 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileEditingTool() {
+    void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileEditingTool() throws Exception {
         final Optional<Tool> noToolInDb = toolRepository.findById(99L);
 
         if (noToolInDb.isPresent()) {
             throw new IllegalStateException("Tool cannot be in database, because it was not added!");
         }
 
-        final String json = "{\n"
-            + "  \"toolId\": " + 99 + ",\n"
-            + "  \"available\": \"true\",\n"
-            + "  \"name\": \"Big hammer\",\n"
-            + "  \"description\": \"Bigger hammer\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"price\": 15.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"MINIMAL_WEAR\",\n"
-            + "    \"description\": \"Used twice\"\n"
-            + "  }\n"
-            + "}";
+        final String json = """
+            {
+              "toolId": 99,
+              "available": "true",
+              "name": "Big hammer",
+              "description": "Bigger hammer",
+              "toolCategory": "LIGHT",
+              "price": 15.99,
+              "toolState": {
+                "stateType": "MINIMAL_WEAR",
+                "description": "Used twice"
+              }
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
@@ -116,18 +113,18 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolIdIsEmptyWhileEditingTool() {
-        final String json = "{\n"
-            + "  \"name\": \"Big hammer\",\n"
-            + "  \"description\": \"Bigger hammer\",\n"
-            + "  \"toolCategory\": \"LIGHT\",\n"
-            + "  \"price\": 15.99,\n"
-            + "  \"toolState\": {\n"
-            + "    \"stateType\": \"MINIMAL_WEAR\",\n"
-            + "    \"description\": \"Used twice\"\n"
-            + "  }\n"
-            + "}";
+    void shouldReturnBadRequestResponseWhenToolIdIsEmptyWhileEditingTool() throws Exception {
+        final String json = """
+            {
+              "name": "Big hammer",
+              "description": "Bigger hammer",
+              "toolCategory": "LIGHT",
+              "price": 15.99,
+              "toolState": {
+                "stateType": "MINIMAL_WEAR",
+                "description": "Used twice"
+              }
+            }""";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
             .header("Authorization", getWorkerAuthorizationToken());
 
@@ -137,8 +134,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolNameIsEmptyWhileEditingTool() {
+    void shouldReturnBadRequestResponseWhenToolNameIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"description\": \"Bigger hammer\",\n"
@@ -159,8 +155,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolDescriptionIsEmptyWhileEditingTool() {
+    void shouldReturnBadRequestResponseWhenToolDescriptionIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
@@ -180,8 +175,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolCategoryIsEmptyWhileEditingTool() {
+    void shouldReturnBadRequestResponseWhenToolCategoryIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"description\": \"Bigger hammer\",\n"
@@ -201,8 +195,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExistWhileEditingTool() {
+    void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExistWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"description\": \"Bigger hammer\",\n"
@@ -223,8 +216,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolPriceIsEmptyWhileEditingTool() {
+    void shouldReturnBadRequestResponseWhenToolPriceIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"description\": \"Bigger hammer\",\n"
@@ -244,8 +236,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateIsEmptyWhileEditingTool() {
+    void shouldReturnBadRequestResponseWhenToolStateIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"description\": \"Bigger hammer\",\n"
@@ -262,8 +253,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateTypeIsEmptyWhileEditingTool() {
+    void shouldReturnBadRequestResponseWhenToolStateTypeIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"description\": \"Bigger hammer\",\n"
@@ -283,8 +273,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateTypeDoesNotExistWhileEditingTool() {
+    void shouldReturnBadRequestResponseWhenToolStateTypeDoesNotExistWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"description\": \"Bigger hammer\",\n"
@@ -305,8 +294,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnBadRequestResponseWhenToolStateDescriptionIsEmptyWhileEditingTool() {
+    void shouldReturnBadRequestResponseWhenToolStateDescriptionIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"description\": \"Bigger hammer\",\n"
@@ -326,12 +314,12 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool) {
-        assertEquals(expected.getName(), resultTool.getName());
-        assertEquals(expected.getAvailable(), resultTool.getAvailable());
-        assertEquals(expected.getDescription(), resultTool.getDescription());
-        assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
-        assertEquals(expected.getPrice(), resultTool.getPrice());
-        assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
+        assertEquals(expected.name(), resultTool.name());
+        assertEquals(expected.available(), resultTool.available());
+        assertEquals(expected.description(), resultTool.description());
+        assertEquals(expected.toolCategory(), resultTool.toolCategory());
+        assertEquals(expected.price(), resultTool.price());
+        assertEquals(expected.toolState().stateType(), resultTool.toolState().stateType());
     }
 
     private void assertThatToolHasNotBeenEdited() {

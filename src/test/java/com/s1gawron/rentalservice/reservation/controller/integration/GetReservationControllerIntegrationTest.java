@@ -1,10 +1,8 @@
 package com.s1gawron.rentalservice.reservation.controller.integration;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationListingDTO;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
@@ -12,15 +10,13 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GetReservationControllerIntegrationTest extends AbstractReservationControllerIntegrationTest {
 
     @Test
-    @SneakyThrows
-    void shouldGetUserReservations() {
+    void shouldGetUserReservations() throws Exception {
         performMakeReservationRequests();
 
         final RequestBuilder request = MockMvcRequestBuilders.get(RESERVATION_ENDPOINT + "get/all")
@@ -30,16 +26,15 @@ class GetReservationControllerIntegrationTest extends AbstractReservationControl
         final ReservationListingDTO resultObject = objectMapper.readValue(resultJson, ReservationListingDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(2, resultObject.getCount());
+        assertEquals(2, resultObject.count());
 
-        for (final ReservationDetailsDTO reservationDetailsDTO : resultObject.getReservations()) {
-            assertEquals(1, reservationDetailsDTO.getTools().size());
+        for (final ReservationDetailsDTO reservationDetailsDTO : resultObject.reservations()) {
+            assertEquals(1, reservationDetailsDTO.tools().size());
         }
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsWorkerWhenGettingUserReservations() {
+    void shouldReturnForbiddenResponseWhenUserIsWorkerWhenGettingUserReservations() throws Exception {
         performMakeReservationRequests();
 
         final String endpoint = RESERVATION_ENDPOINT + "get/all";
@@ -51,8 +46,7 @@ class GetReservationControllerIntegrationTest extends AbstractReservationControl
     }
 
     @Test
-    @SneakyThrows
-    void shouldGetReservationDetails() {
+    void shouldGetReservationDetails() throws Exception {
         performMakeReservationRequests();
 
         final RequestBuilder request = MockMvcRequestBuilders.get(RESERVATION_ENDPOINT + "get/id/" + currentReservationId)
@@ -62,18 +56,17 @@ class GetReservationControllerIntegrationTest extends AbstractReservationControl
         final ReservationDetailsDTO resultObject = objectMapper.readValue(resultJson, ReservationDetailsDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(currentReservationId, resultObject.getReservationId());
-        assertEquals(LocalDate.now(), resultObject.getDateFrom());
-        assertEquals(LocalDate.now().plusDays(2L), resultObject.getDateTo());
-        assertEquals("Hammer", resultObject.getAdditionalComment());
-        assertEquals(1, resultObject.getTools().size());
-        assertEquals(currentToolId, resultObject.getTools().get(0).getToolId());
-        assertEquals("Hammer", resultObject.getTools().get(0).getName());
+        assertEquals(currentReservationId, resultObject.reservationId());
+        assertEquals(LocalDate.now(), resultObject.dateFrom());
+        assertEquals(LocalDate.now().plusDays(2L), resultObject.dateTo());
+        assertEquals("Hammer", resultObject.additionalComment());
+        assertEquals(1, resultObject.tools().size());
+        assertEquals(currentToolId, resultObject.tools().get(0).toolId());
+        assertEquals("Hammer", resultObject.tools().get(0).name());
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsWorkerWhenGettingReservationDetails() {
+    void shouldReturnForbiddenResponseWhenUserIsWorkerWhenGettingReservationDetails() throws Exception {
         performMakeReservationRequests();
 
         final String endpoint = RESERVATION_ENDPOINT + "get/id/" + currentReservationId;
@@ -85,8 +78,7 @@ class GetReservationControllerIntegrationTest extends AbstractReservationControl
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenReservationDoesNotBelongToUserWhenGettingReservationDetails() {
+    void shouldReturnNotFoundResponseWhenReservationDoesNotBelongToUserWhenGettingReservationDetails() throws Exception {
         performMakeReservationRequests();
 
         final ReservationNotFoundException expectedException = ReservationNotFoundException.create(currentReservationId);

@@ -82,11 +82,11 @@ class UserServiceTest {
         final UserDTO result = userService.validateAndRegisterUser(userRegisterDTO);
 
         Mockito.verify(userRepositoryMock, Mockito.times(1)).save(Mockito.any(User.class));
-        assertEquals(EMAIL, result.getEmail());
-        assertEquals("John", result.getFirstName());
-        assertEquals("Kowalski", result.getLastName());
-        assertEquals("Poland", result.getCustomerAddress().getCountry());
-        assertEquals("01-000", result.getCustomerAddress().getPostCode());
+        assertEquals(EMAIL, result.email());
+        assertEquals("John", result.firstName());
+        assertEquals("Kowalski", result.lastName());
+        assertEquals("Poland", result.customerAddress().country());
+        assertEquals("01-000", result.customerAddress().postCode());
     }
 
     @Test
@@ -109,12 +109,12 @@ class UserServiceTest {
         final UserDTO result = userService.getUserDetails();
 
         assertNotNull(result);
-        assertEquals(EMAIL, result.getEmail());
-        assertEquals("John", result.getFirstName());
-        assertEquals("Kowalski", result.getLastName());
-        assertEquals(UserRole.CUSTOMER.getName(), result.getUserRole());
-        assertEquals("Poland", result.getCustomerAddress().getCountry());
-        assertEquals("01-000", result.getCustomerAddress().getPostCode());
+        assertEquals(EMAIL, result.email());
+        assertEquals("John", result.firstName());
+        assertEquals("Kowalski", result.lastName());
+        assertEquals(UserRole.CUSTOMER.name(), result.userRole());
+        assertEquals("Poland", result.customerAddress().country());
+        assertEquals("01-000", result.customerAddress().postCode());
     }
 
     @Test

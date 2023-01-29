@@ -7,7 +7,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,12 +26,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
 public class JwtTokenVerifier extends OncePerRequestFilter {
 
     private static final String UNTRUSTED_TOKEN_MESSAGE = "Token cannot be trusted!";
 
     private final JwtConfig jwtConfig;
+
+    private final ObjectMapper objectMapper;
+
+    public JwtTokenVerifier(final JwtConfig jwtConfig, final ObjectMapper objectMapper) {
+        this.jwtConfig = jwtConfig;
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain)
@@ -60,8 +65,6 @@ public class JwtTokenVerifier extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (JwtException e) {
-            final ObjectMapper objectMapper = new ObjectMapper();
-
             httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
             httpServletResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
 

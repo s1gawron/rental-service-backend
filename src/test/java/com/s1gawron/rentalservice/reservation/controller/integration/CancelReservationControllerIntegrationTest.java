@@ -2,7 +2,6 @@ package com.s1gawron.rentalservice.reservation.controller.integration;
 
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
@@ -19,8 +18,7 @@ class CancelReservationControllerIntegrationTest extends AbstractReservationCont
     private static final String CANCEL_RESERVATION_ENDPOINT = "/api/customer/reservation/cancel/";
 
     @Test
-    @SneakyThrows
-    void shouldCancelReservation() {
+    void shouldCancelReservation() throws Exception {
         performMakeReservationRequests();
 
         final RequestBuilder request = MockMvcRequestBuilders.post(CANCEL_RESERVATION_ENDPOINT + currentReservationId)
@@ -30,17 +28,16 @@ class CancelReservationControllerIntegrationTest extends AbstractReservationCont
         final ReservationDetailsDTO resultObject = objectMapper.readValue(resultJson, ReservationDetailsDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(1, resultObject.getTools().size());
+        assertEquals(1, resultObject.tools().size());
         assertTrue(getReservationDetails(currentReservationId).isCanceled());
-        assertEquals(currentToolId, resultObject.getTools().get(0).getToolId());
-        assertEquals("Hammer", resultObject.getTools().get(0).getName());
-        assertEquals(BigDecimal.valueOf(10.99), resultObject.getReservationFinalPrice());
+        assertEquals(currentToolId, resultObject.tools().get(0).toolId());
+        assertEquals("Hammer", resultObject.tools().get(0).name());
+        assertEquals(BigDecimal.valueOf(10.99), resultObject.reservationFinalPrice());
         assertTrue(toolService.getToolById(currentToolId).isAvailable());
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToCancelReservation() {
+    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToCancelReservation() throws Exception {
         performMakeReservationRequests();
 
         final String endpoint = CANCEL_RESERVATION_ENDPOINT + currentReservationId;
@@ -52,8 +49,7 @@ class CancelReservationControllerIntegrationTest extends AbstractReservationCont
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenReservationWasNotFoundWhileCancelingReservation() {
+    void shouldReturnNotFoundResponseWhenReservationWasNotFoundWhileCancelingReservation() throws Exception {
         performMakeReservationRequests();
 
         final ReservationNotFoundException expectedException = ReservationNotFoundException.create(currentReservationId);

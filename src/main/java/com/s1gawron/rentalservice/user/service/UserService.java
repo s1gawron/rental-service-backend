@@ -9,7 +9,6 @@ import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,28 +17,32 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
 
     private final AddressService addressService;
 
+    public UserService(final UserRepository userRepository, final AddressService addressService) {
+        this.userRepository = userRepository;
+        this.addressService = addressService;
+    }
+
     @Transactional
     public UserDTO validateAndRegisterUser(final UserRegisterDTO userRegisterDTO) {
         UserDTOValidator.I.validate(userRegisterDTO);
 
-        final Optional<User> userEmailExistOptional = getUserByEmail(userRegisterDTO.getEmail());
+        final Optional<User> userEmailExistOptional = getUserByEmail(userRegisterDTO.email());
 
         if (userEmailExistOptional.isPresent()) {
             throw UserEmailExistsException.create();
         }
 
-        final String encryptedPassword = new BCryptPasswordEncoder().encode(userRegisterDTO.getPassword());
-        final UserRole userRole = UserRole.findByValue(userRegisterDTO.getUserRole());
+        final String encryptedPassword = new BCryptPasswordEncoder().encode(userRegisterDTO.password());
+        final UserRole userRole = UserRole.findByValue(userRegisterDTO.userRole());
         final User user = User.createUser(userRegisterDTO, userRole, encryptedPassword);
 
-        addressService.validateAndSaveAddress(userRegisterDTO.getAddress(), userRole).ifPresent(user::setCustomerAddress);
+        addressService.validateAndSaveAddress(userRegisterDTO.address(), userRole).ifPresent(user::setCustomerAddress);
         userRepository.save(user);
 
         return user.toUserDTO();

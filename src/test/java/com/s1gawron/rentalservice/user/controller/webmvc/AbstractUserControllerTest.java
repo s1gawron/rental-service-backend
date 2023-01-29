@@ -1,12 +1,13 @@
 package com.s1gawron.rentalservice.user.controller.webmvc;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.jwt.JwtConfig;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
+import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.service.UserService;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -35,26 +36,24 @@ abstract class AbstractUserControllerTest {
     @MockBean
     protected UserService userServiceMock;
 
-    protected final ObjectMapper objectMapper = new ObjectMapper();
+    protected final ObjectMapper objectMapper = ObjectMapperCreator.I.getMapper();
 
     protected String userRegisterJson;
 
     @BeforeEach
-    @SneakyThrows
-    void setUp() {
+    void setUp() throws JsonProcessingException {
         userRegisterJson = objectMapper.writeValueAsString(USER_REGISTER_DTO);
     }
 
     protected void assertErrorResponse(final HttpStatus expectedStatus, final String expectedMessage, final String expectedUri,
         final ErrorResponse actualErrorResponse) {
-        assertEquals(expectedStatus.value(), actualErrorResponse.getCode());
-        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.getError());
-        assertEquals(expectedMessage, actualErrorResponse.getMessage());
-        assertEquals(expectedUri, actualErrorResponse.getURI());
+        assertEquals(expectedStatus.value(), actualErrorResponse.code());
+        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.error());
+        assertEquals(expectedMessage, actualErrorResponse.message());
+        assertEquals(expectedUri, actualErrorResponse.URI());
     }
 
-    @SneakyThrows
-    protected ErrorResponse toErrorResponse(final String responseMessage) {
+    protected ErrorResponse toErrorResponse(final String responseMessage) throws JsonProcessingException {
         return objectMapper.readValue(responseMessage, ErrorResponse.class);
     }
 

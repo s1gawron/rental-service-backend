@@ -73,9 +73,9 @@ class ToolServiceTest {
 
         final ToolListingDTO result = toolService.getToolsByCategory("heavy");
 
-        assertEquals(2, result.getCount());
-        assertEquals(2, result.getTools().size());
-        result.getTools().forEach(toolDTO -> assertEquals(ToolCategory.HEAVY.getName(), toolDTO.getToolCategory()));
+        assertEquals(2, result.count());
+        assertEquals(2, result.tools().size());
+        result.tools().forEach(toolDTO -> assertEquals(ToolCategory.HEAVY.name(), toolDTO.toolCategory()));
     }
 
     @Test
@@ -88,8 +88,8 @@ class ToolServiceTest {
 
         final ToolListingDTO result = toolService.getToolsByCategory("light");
 
-        assertEquals(0, result.getCount());
-        assertEquals(0, result.getTools().size());
+        assertEquals(0, result.count());
+        assertEquals(0, result.tools().size());
     }
 
     @Test
@@ -176,7 +176,7 @@ class ToolServiceTest {
 
         Mockito.verify(toolStateRepositoryMock, Mockito.times(1)).save(Mockito.any(ToolState.class));
         Mockito.verify(toolRepositoryMock, Mockito.times(1)).save(Mockito.any(Tool.class));
-        assertTool(originalTool, Tool.from(result, ToolState.from(result.getToolState())));
+        assertTool(originalTool, Tool.from(result, ToolState.from(result.toolState())));
     }
 
     private void assertTool(final Tool originalTool, final Tool resultTool) {
@@ -241,10 +241,10 @@ class ToolServiceTest {
     void shouldGetToolsByName() {
         final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
         final List<Tool> tools = ToolCreatorHelper.I.createCommonNameToolList().stream()
-            .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.getToolName()))
+            .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.toolName()))
             .collect(Collectors.toList());
 
-        Mockito.when(toolRepositoryMock.findByNameContainingIgnoreCase(toolSearchDTO.getToolName())).thenReturn(tools);
+        Mockito.when(toolRepositoryMock.findByNameContainingIgnoreCase(toolSearchDTO.toolName())).thenReturn(tools);
 
         final List<ToolDetailsDTO> expectedTools = ToolCreatorHelper.I.createCommonNameToolDTOList();
         final List<ToolDetailsDTO> result = toolService.getToolsByName(toolSearchDTO);
@@ -337,7 +337,7 @@ class ToolServiceTest {
     private void assertTools(final List<ToolDetailsDTO> expectedTools, final List<ToolDetailsDTO> resultTools) {
         resultTools.forEach(resultTool -> {
             final Optional<ToolDetailsDTO> expected = expectedTools.stream()
-                .filter(expectedTool -> expectedTool.getName().equals(resultTool.getName()))
+                .filter(expectedTool -> expectedTool.name().equals(resultTool.name()))
                 .findFirst();
 
             if (expected.isEmpty()) {
@@ -349,20 +349,20 @@ class ToolServiceTest {
     }
 
     private void assertToolDTO(final ToolDTO expected, final ToolDetailsDTO resultTool) {
-        assertEquals(expected.getName(), resultTool.getName());
-        assertEquals(expected.getDescription(), resultTool.getDescription());
-        assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
-        assertEquals(expected.getPrice(), resultTool.getPrice());
-        assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
+        assertEquals(expected.name(), resultTool.name());
+        assertEquals(expected.description(), resultTool.description());
+        assertEquals(expected.toolCategory(), resultTool.toolCategory());
+        assertEquals(expected.price(), resultTool.price());
+        assertEquals(expected.toolState().stateType(), resultTool.toolState().stateType());
     }
 
     private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool) {
-        assertEquals(expected.getName(), resultTool.getName());
-        assertEquals(expected.getAvailable(), resultTool.getAvailable());
-        assertEquals(expected.getDescription(), resultTool.getDescription());
-        assertEquals(expected.getToolCategory(), resultTool.getToolCategory());
-        assertEquals(expected.getPrice(), resultTool.getPrice());
-        assertEquals(expected.getToolState().getStateType(), resultTool.getToolState().getStateType());
+        assertEquals(expected.name(), resultTool.name());
+        assertEquals(expected.available(), resultTool.available());
+        assertEquals(expected.description(), resultTool.description());
+        assertEquals(expected.toolCategory(), resultTool.toolCategory());
+        assertEquals(expected.price(), resultTool.price());
+        assertEquals(expected.toolState().stateType(), resultTool.toolState().stateType());
     }
 
 }

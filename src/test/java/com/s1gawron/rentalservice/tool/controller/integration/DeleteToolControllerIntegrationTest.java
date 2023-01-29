@@ -2,7 +2,6 @@ package com.s1gawron.rentalservice.tool.controller.integration;
 
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -31,8 +30,7 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
     }
 
     @Test
-    @SneakyThrows
-    void shouldDeleteTool() {
+    void shouldDeleteTool() throws Exception {
         final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT + currentToolId)
             .header("Authorization", getWorkerAuthorizationToken());
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -43,8 +41,7 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToDeleteTool() {
+    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToDeleteTool() throws Exception {
         final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT + currentToolId)
             .header("Authorization", getCustomerAuthorizationToken());
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -54,8 +51,7 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
     }
 
     @Test
-    @SneakyThrows
-    void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileDeletingTool() {
+    void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileDeletingTool() throws Exception {
         final Optional<Tool> noToolInDb = toolRepository.findById(99L);
 
         if (noToolInDb.isPresent()) {

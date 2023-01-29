@@ -1,5 +1,6 @@
 package com.s1gawron.rentalservice.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.jwt.JwtConfig;
 import com.s1gawron.rentalservice.jwt.JwtTokenVerifier;
 import com.s1gawron.rentalservice.jwt.JwtUsernamePasswordAuthenticationFilter;
@@ -38,11 +39,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final JwtConfig jwtConfig;
 
+    private final ObjectMapper objectMapper;
+
     private final String frontendUrl;
 
-    public SecurityConfiguration(final DataSource dataSource, final JwtConfig jwtConfig, @Value("${frontend.url}") final String frontendUrl) {
+    public SecurityConfiguration(final DataSource dataSource, final JwtConfig jwtConfig, final ObjectMapper objectMapper,
+        @Value("${frontend.url}") final String frontendUrl) {
         this.dataSource = dataSource;
         this.jwtConfig = jwtConfig;
+        this.objectMapper = objectMapper;
         this.frontendUrl = frontendUrl;
     }
 
@@ -55,8 +60,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager(), jwtConfig))
-            .addFilterAfter(new JwtTokenVerifier(jwtConfig), JwtUsernamePasswordAuthenticationFilter.class)
+            .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager(), jwtConfig, objectMapper))
+            .addFilterAfter(new JwtTokenVerifier(jwtConfig, objectMapper), JwtUsernamePasswordAuthenticationFilter.class)
             .authorizeRequests()
             .antMatchers("/api/public/**").permitAll()
             .antMatchers("/swagger-ui/**").permitAll()
@@ -81,7 +86,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         final CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
         corsConfiguration.setAllowedOrigins(List.of(frontendUrl));
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setExposedHeaders(List.of("Authorization"));
         return corsConfiguration;

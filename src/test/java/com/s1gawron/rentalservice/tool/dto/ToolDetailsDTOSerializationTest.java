@@ -2,13 +2,14 @@ package com.s1gawron.rentalservice.tool.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.model.ToolStateType;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,11 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ToolDetailsDTOSerializationTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = ObjectMapperCreator.I.getMapper();
 
     @Test
-    @SneakyThrows
-    void shouldSerialize() {
+    void shouldSerialize() throws IOException {
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New and shiny tool");
         final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", "LIGHT", BigDecimal.valueOf(10.99), toolStateDTO,
             "www.image.com/hammer");
@@ -37,8 +37,7 @@ class ToolDetailsDTOSerializationTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldSerializeList() {
+    void shouldSerializeList() throws IOException {
         final List<ToolDetailsDTO> toolDetailsDTOList = ToolCreatorHelper.I.createToolDTOList();
         final String toolDTOListJsonResult = mapper.writeValueAsString(toolDetailsDTOList);
         final String expectedToolDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-details-dto-list.json"));
@@ -50,18 +49,17 @@ class ToolDetailsDTOSerializationTest {
     }
 
     @Test
-    @SneakyThrows
-    void shouldDeserialize() {
+    void shouldDeserialize() throws IOException {
         final String toolJson = Files.readString(Path.of("src/test/resources/tool-details-dto.json"));
         final ToolDetailsDTO result = mapper.readValue(toolJson, ToolDetailsDTO.class);
 
-        assertEquals("Hammer", result.getName());
-        assertEquals("It's just a hammer :)", result.getDescription());
-        assertEquals(ToolCategory.LIGHT.getName(), result.getToolCategory());
-        assertEquals(BigDecimal.valueOf(10.99), result.getPrice());
-        assertEquals(ToolStateType.NEW.getName(), result.getToolState().getStateType());
-        assertEquals("New and shiny tool", result.getToolState().getDescription());
-        assertEquals("www.image.com/hammer", result.getImageUrl());
+        assertEquals("Hammer", result.name());
+        assertEquals("It's just a hammer :)", result.description());
+        assertEquals(ToolCategory.LIGHT.name(), result.toolCategory());
+        assertEquals(BigDecimal.valueOf(10.99), result.price());
+        assertEquals(ToolStateType.NEW.name(), result.toolState().stateType());
+        assertEquals("New and shiny tool", result.toolState().description());
+        assertEquals("www.image.com/hammer", result.imageUrl());
     }
 
 }

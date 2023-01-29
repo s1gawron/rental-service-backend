@@ -7,8 +7,6 @@ import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
@@ -18,8 +16,6 @@ import java.util.List;
 @Entity
 @Table(name = "user")
 @DynamicUpdate
-@NoArgsConstructor
-@Getter
 public class User {
 
     @Id
@@ -53,6 +49,9 @@ public class User {
     @OneToMany(mappedBy = "customer")
     private List<Reservation> customerReservations;
 
+    public User() {
+    }
+
     private User(final boolean active, final String email, final String password, final String firstName, final String lastName, final UserRole userRole) {
         this.active = active;
         this.email = email;
@@ -63,16 +62,16 @@ public class User {
     }
 
     public static User createUser(final UserRegisterDTO userRegisterDTO, final UserRole userRole, final String encryptedPassword) {
-        return new User(true, userRegisterDTO.getEmail(), encryptedPassword, userRegisterDTO.getFirstName(), userRegisterDTO.getLastName(), userRole);
+        return new User(true, userRegisterDTO.email(), encryptedPassword, userRegisterDTO.firstName(), userRegisterDTO.lastName(), userRole);
     }
 
     public UserDTO toUserDTO() {
         if (this.userRole == UserRole.CUSTOMER) {
             final AddressDTO userAddress = this.customerAddress.toAddressDTO();
-            return new UserDTO(this.firstName, this.lastName, this.email, this.userRole.getName(), userAddress);
+            return new UserDTO(this.firstName, this.lastName, this.email, this.userRole.name(), userAddress);
         }
 
-        return new UserDTO(this.firstName, this.lastName, this.email, this.userRole.getName(), null);
+        return new UserDTO(this.firstName, this.lastName, this.email, this.userRole.name(), null);
     }
 
     public boolean isWorker() {
@@ -108,4 +107,29 @@ public class User {
             throw ReservationNotFoundException.create(reservationId);
         }
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public UserRole getUserRole() {
+        return userRole;
+    }
+
+    public Address getCustomerAddress() {
+        return customerAddress;
+    }
+
 }
