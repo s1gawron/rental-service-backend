@@ -1,12 +1,11 @@
 package com.s1gawron.rentalservice.shared;
 
-import com.s1gawron.rentalservice.jwt.exception.UntrustedTokenException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 
 public abstract class AbstractErrorHandlerController {
@@ -27,12 +26,12 @@ public abstract class AbstractErrorHandlerController {
             noAccessForUserRoleException.getMessage(), httpServletRequest.getRequestURI());
     }
 
-    @ExceptionHandler(UntrustedTokenException.class)
+    @ExceptionHandler(UserUnauthenticatedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponse untrustedTokenExceptionHandler(final UntrustedTokenException untrustedTokenException,
+    public ErrorResponse userUnauthorizedExceptionExceptionHandler(final UserUnauthenticatedException userUnauthenticatedException,
         final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase(),
-            untrustedTokenException.getMessage(), httpServletRequest.getRequestURI());
+            userUnauthenticatedException.getMessage(), httpServletRequest.getRequestURI());
     }
 
     @ExceptionHandler(ToolNotFoundException.class)

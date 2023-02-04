@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.address.model;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "address")

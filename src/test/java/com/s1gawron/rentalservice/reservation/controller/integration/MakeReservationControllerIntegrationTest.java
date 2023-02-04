@@ -16,6 +16,8 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class MakeReservationControllerIntegrationTest extends AbstractReservationControllerIntegrationTest {
 
@@ -82,10 +84,10 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
         final ReservationEmptyPropertiesException expectedException = ReservationEmptyPropertiesException.createForToolsList();
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
             .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), MAKE_RESERVATION_ENDPOINT,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -109,10 +111,10 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
         final DateMismatchException expectedException = DateMismatchException.createForDateFrom();
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
             .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), MAKE_RESERVATION_ENDPOINT,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -131,10 +133,10 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
         final DateMismatchException expectedException = DateMismatchException.createForDateFromIsAfterDueDate();
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
             .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), MAKE_RESERVATION_ENDPOINT,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -159,10 +161,10 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
         final ToolUnavailableException expectedException = ToolUnavailableException.create(currentToolId);
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
             .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), MAKE_RESERVATION_ENDPOINT,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
 }

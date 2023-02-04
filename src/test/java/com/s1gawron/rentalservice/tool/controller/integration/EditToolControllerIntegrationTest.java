@@ -3,6 +3,7 @@ package com.s1gawron.rentalservice.tool.controller.integration;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -49,7 +50,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             + "}";
         final ToolDetailsDTO expectedObject = objectMapper.readValue(json, ToolDetailsDTO.class);
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
@@ -74,7 +75,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             + "  }\n"
             + "}";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getCustomerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -104,7 +105,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -126,7 +127,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -146,7 +147,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             + "  }\n"
             + "}";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -166,7 +167,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             + "  }\n"
             + "}";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -186,7 +187,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             + "  }\n"
             + "}";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -207,7 +208,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             + "  }\n"
             + "}";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -227,7 +228,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             + "  }\n"
             + "}";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -244,7 +245,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             + "  \"price\": 15.99\n"
             + "}";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -264,7 +265,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             + "  }\n"
             + "}";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -285,7 +286,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             + "  }\n"
             + "}";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -305,7 +306,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             + "  }\n"
             + "}";
         final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 

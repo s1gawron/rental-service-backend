@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.tool.model;
 import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "tool_state")

@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class GetToolControllerTest extends ToolControllerTest {
 
@@ -55,9 +57,10 @@ class GetToolControllerTest extends ToolControllerTest {
         Mockito.when(toolServiceMock.getToolsByCategory("medium")).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -102,9 +105,10 @@ class GetToolControllerTest extends ToolControllerTest {
         Mockito.when(toolServiceMock.getToolDetails(1L)).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test

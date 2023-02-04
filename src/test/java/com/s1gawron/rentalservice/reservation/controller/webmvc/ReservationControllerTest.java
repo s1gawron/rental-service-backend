@@ -1,8 +1,7 @@
 package com.s1gawron.rentalservice.reservation.controller.webmvc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.s1gawron.rentalservice.jwt.JwtConfig;
+import com.s1gawron.rentalservice.configuration.jwt.JwtService;
 import com.s1gawron.rentalservice.reservation.controller.ReservationController;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
@@ -12,7 +11,6 @@ import com.s1gawron.rentalservice.reservation.exception.ReservationEmptyProperti
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
-import com.s1gawron.rentalservice.shared.ErrorResponse;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
@@ -20,6 +18,7 @@ import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
@@ -31,17 +30,21 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ReservationController.class)
 @ActiveProfiles("test")
 @WithMockUser
+@AutoConfigureMockMvc(addFilters = false)
 class ReservationControllerTest {
+
+    private static final String ERROR_RESPONSE_MESSAGE_PLACEHOLDER = "$.message";
 
     private static final String RESERVATION_ENDPOINT = "/api/customer/reservation/";
 
@@ -49,13 +52,10 @@ class ReservationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private DataSource dataSourceMock;
-
-    @MockBean
-    private JwtConfig jwtConfigMock;
-
-    @MockBean
     private ReservationService reservationServiceMock;
+
+    @MockBean
+    private JwtService jwtServiceMock;
 
     private final ObjectMapper objectMapper = ObjectMapperCreator.I.getMapper();
 
@@ -84,9 +84,10 @@ class ReservationControllerTest {
 
         final String endpoint = RESERVATION_ENDPOINT + "get/all";
         final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.FORBIDDEN, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -114,9 +115,10 @@ class ReservationControllerTest {
 
         final String endpoint = RESERVATION_ENDPOINT + "get/id/1";
         final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.FORBIDDEN, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -127,9 +129,10 @@ class ReservationControllerTest {
 
         final String endpoint = RESERVATION_ENDPOINT + "get/id/1";
         final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -163,9 +166,10 @@ class ReservationControllerTest {
 
         final String endpoint = RESERVATION_ENDPOINT + "make";
         final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -178,9 +182,10 @@ class ReservationControllerTest {
 
         final String endpoint = RESERVATION_ENDPOINT + "make";
         final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -193,9 +198,10 @@ class ReservationControllerTest {
 
         final String endpoint = RESERVATION_ENDPOINT + "make";
         final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.FORBIDDEN, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -208,9 +214,10 @@ class ReservationControllerTest {
 
         final String endpoint = RESERVATION_ENDPOINT + "make";
         final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -223,9 +230,10 @@ class ReservationControllerTest {
 
         final String endpoint = RESERVATION_ENDPOINT + "make";
         final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -255,9 +263,10 @@ class ReservationControllerTest {
 
         final String endpoint = RESERVATION_ENDPOINT + "cancel/1";
         final RequestBuilder request = MockMvcRequestBuilders.post(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.FORBIDDEN, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -268,21 +277,10 @@ class ReservationControllerTest {
 
         final String endpoint = RESERVATION_ENDPOINT + "cancel/1";
         final RequestBuilder request = MockMvcRequestBuilders.post(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
-    }
-
-    void assertErrorResponse(final HttpStatus expectedStatus, final String expectedMessage, final String expectedUri,
-        final ErrorResponse actualErrorResponse) {
-        assertEquals(expectedStatus.value(), actualErrorResponse.code());
-        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.error());
-        assertEquals(expectedMessage, actualErrorResponse.message());
-        assertEquals(expectedUri, actualErrorResponse.URI());
-    }
-
-    ErrorResponse toErrorResponse(final String responseMessage) throws JsonProcessingException {
-        return objectMapper.readValue(responseMessage, ErrorResponse.class);
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
 }

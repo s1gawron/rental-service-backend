@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.user.controller.integration;
 
-import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
+import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
+import com.s1gawron.rentalservice.user.dto.UserLoginRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
@@ -11,26 +12,22 @@ class UserLoginControllerIntegrationTest extends AbstractUserControllerIntegrati
 
     @Test
     void shouldLoginAndReturnValidTokenInHeader() throws Exception {
-        final UserLoginDTO userLoginDTO = new UserLoginDTO(EMAIL, PASSWORD);
+        final UserLoginRequest userLoginRequest = new UserLoginRequest(EMAIL, PASSWORD);
 
-        final MvcResult result = performLoginAction(userLoginDTO);
-        final String token = result.getResponse().getHeader("Authorization");
+        final MvcResult result = performLoginAction(userLoginRequest);
+        final AuthenticationResponse authResponse = objectMapper.readValue(result.getResponse().getContentAsString(), AuthenticationResponse.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertNotNull(token);
-        assertTrue(token.startsWith("Bearer"));
+        assertNotNull(authResponse.token());
     }
 
     @Test
-    void shouldReturnUnauthorizedStatus() throws Exception {
-        final UserLoginDTO userLoginDTO = new UserLoginDTO("testUser", "wrongPassword");
+    void shouldReturnForbiddenStatus() throws Exception {
+        final UserLoginRequest userLoginRequest = new UserLoginRequest("test@test.pl", "wrongPassword");
 
-        final MvcResult result = performLoginAction(userLoginDTO);
-        final String token = result.getResponse().getHeader("Authorization");
+        final MvcResult result = performLoginAction(userLoginRequest);
 
-        assertEquals(HttpStatus.UNAUTHORIZED.value(), result.getResponse().getStatus());
-
-        assertNull(token);
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
     }
 
 }

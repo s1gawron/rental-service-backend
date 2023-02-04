@@ -5,8 +5,9 @@ import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.repository.ToolRepository;
 import com.s1gawron.rentalservice.tool.service.ToolService;
-import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
+import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
+import com.s1gawron.rentalservice.user.dto.UserLoginRequest;
+import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import com.s1gawron.rentalservice.user.service.UserService;
@@ -15,9 +16,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -54,8 +56,9 @@ abstract class AbstractToolControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO customerRegisterDTO = new UserRegisterDTO(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER.name(), addressDTO);
-        final UserRegisterDTO workerRegisterDTO = new UserRegisterDTO(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER.name(), null);
+        final UserRegisterRequest customerRegisterDTO = new UserRegisterRequest(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER.name(),
+            addressDTO);
+        final UserRegisterRequest workerRegisterDTO = new UserRegisterRequest(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER.name(), null);
 
         userService.validateAndRegisterUser(customerRegisterDTO);
         userService.validateAndRegisterUser(workerRegisterDTO);
@@ -67,22 +70,22 @@ abstract class AbstractToolControllerIntegrationTest {
         userRepository.deleteAll();
     }
 
-    protected String getCustomerAuthorizationToken() throws Exception {
-        final UserLoginDTO userLoginDTO = new UserLoginDTO(CUSTOMER_EMAIL, PASSWORD);
-        final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson);
-        final MvcResult loginResult = mockMvc.perform(request).andReturn();
+    protected String getAuthorizationToken(final UserRole userRole) throws Exception {
+        if (userRole == UserRole.WORKER) {
+            return getTokenFor(WORKER_EMAIL);
+        }
 
-        return loginResult.getResponse().getHeader("Authorization");
+        return getTokenFor(CUSTOMER_EMAIL);
     }
 
-    protected String getWorkerAuthorizationToken() throws Exception {
-        final UserLoginDTO userLoginDTO = new UserLoginDTO(WORKER_EMAIL, PASSWORD);
-        final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson);
-        final MvcResult loginResult = mockMvc.perform(request).andReturn();
+    private String getTokenFor(final String email) throws Exception {
+        final UserLoginRequest userLoginRequest = new UserLoginRequest(email, PASSWORD);
+        final String userLoginJson = objectMapper.writeValueAsString(userLoginRequest);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson).contentType(MediaType.APPLICATION_JSON);
+        final MockHttpServletResponse response = mockMvc.perform(request).andReturn().getResponse();
+        final AuthenticationResponse authResponse = objectMapper.readValue(response.getContentAsString(), AuthenticationResponse.class);
 
-        return loginResult.getResponse().getHeader("Authorization");
+        return "Bearer " + authResponse.token();
     }
 
 }

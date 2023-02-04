@@ -1,85 +1,54 @@
 package com.s1gawron.rentalservice.configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.s1gawron.rentalservice.jwt.JwtConfig;
-import com.s1gawron.rentalservice.jwt.JwtTokenVerifier;
-import com.s1gawron.rentalservice.jwt.JwtUsernamePasswordAuthenticationFilter;
+import com.s1gawron.rentalservice.configuration.jwt.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@CrossOrigin
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
-    private static final String USER_AUTH_QUERY = "SELECT email, password, active from user WHERE email=?";
+    private final AuthenticationProvider authenticationProvider;
 
-    private static final String USER_AUTHORITY_QUERY = "SELECT email, user_role from user WHERE email=?";
-
-    private static final String[] AUTH_WHITELIST = {
-        "/swagger-resources/**",
-        "/swagger-ui.html",
-        "/v2/api-docs",
-        "/webjars/**"
-    };
-
-    private final DataSource dataSource;
-
-    private final JwtConfig jwtConfig;
-
-    private final ObjectMapper objectMapper;
+    private final JwtAuthFilter jwtAuthFilter;
 
     private final String frontendUrl;
 
-    public SecurityConfiguration(final DataSource dataSource, final JwtConfig jwtConfig, final ObjectMapper objectMapper,
+    public SecurityConfiguration(final AuthenticationProvider authenticationProvider, final JwtAuthFilter jwtAuthFilter,
         @Value("${frontend.url}") final String frontendUrl) {
-        this.dataSource = dataSource;
-        this.jwtConfig = jwtConfig;
-        this.objectMapper = objectMapper;
+        this.authenticationProvider = authenticationProvider;
+        this.jwtAuthFilter = jwtAuthFilter;
         this.frontendUrl = frontendUrl;
     }
 
-    @Override
-    protected void configure(final HttpSecurity http) throws Exception {
-        http
+    @Bean
+    public SecurityFilterChain securityFilterChain(final HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
             .csrf().disable()
             .cors().configurationSource(request -> getCorsConfiguration())
+            .and()
+            .authorizeHttpRequests()
+            .requestMatchers("/api/public/**").permitAll()
+            .requestMatchers("/swagger-ui/**").permitAll()
+            .anyRequest().authenticated()
             .and()
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager(), jwtConfig, objectMapper))
-            .addFilterAfter(new JwtTokenVerifier(jwtConfig, objectMapper), JwtUsernamePasswordAuthenticationFilter.class)
-            .authorizeRequests()
-            .antMatchers("/api/public/**").permitAll()
-            .antMatchers("/swagger-ui/**").permitAll()
-            .anyRequest().authenticated();
-    }
+            .authenticationProvider(authenticationProvider)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-    @Override
-    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-        auth
-            .jdbcAuthentication()
-            .dataSource(dataSource)
-            .usersByUsernameQuery(USER_AUTH_QUERY)
-            .authoritiesByUsernameQuery(USER_AUTHORITY_QUERY)
-            .passwordEncoder(new BCryptPasswordEncoder());
-    }
-
-    @Override public void configure(final WebSecurity web) {
-        web.ignoring().antMatchers(AUTH_WHITELIST);
+        return httpSecurity.build();
     }
 
     private CorsConfiguration getCorsConfiguration() {
@@ -91,4 +60,5 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         corsConfiguration.setExposedHeaders(List.of("Authorization"));
         return corsConfiguration;
     }
+
 }

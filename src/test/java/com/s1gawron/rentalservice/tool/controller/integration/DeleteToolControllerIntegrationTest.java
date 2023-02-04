@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.tool.controller.integration;
 
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
     @Test
     void shouldDeleteTool() throws Exception {
         final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT + currentToolId)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
@@ -43,7 +44,7 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
     @Test
     void shouldReturnForbiddenResponseWhenUserIsNotAllowedToDeleteTool() throws Exception {
         final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT + currentToolId)
-            .header("Authorization", getCustomerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
@@ -58,7 +59,7 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
             throw new IllegalStateException("Tool cannot be in database, because it was not added!");
         }
 
-        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT + "99").header("Authorization", getWorkerAuthorizationToken());
+        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT + "99").header("Authorization", getAuthorizationToken(UserRole.WORKER));
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());

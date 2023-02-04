@@ -5,6 +5,7 @@ import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
@@ -36,7 +37,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ToolServiceTest {
 
-    private static final String USER_EMAIL = "test@test.pl";
+    private static final String ERROR_MESSAGE = "User: test@test.pl could not be found!";
+
+    private Authentication authenticationMock;
 
     private SecurityContext securityContextMock;
 
@@ -50,11 +53,10 @@ class ToolServiceTest {
 
     @BeforeEach
     void setUp() {
-        final Authentication authentication = Mockito.mock(Authentication.class);
+        authenticationMock = Mockito.mock(Authentication.class);
         securityContextMock = Mockito.mock(SecurityContext.class);
 
-        Mockito.when(securityContextMock.getAuthentication()).thenReturn(authentication);
-        Mockito.when(authentication.getPrincipal()).thenReturn(USER_EMAIL);
+        Mockito.when(securityContextMock.getAuthentication()).thenReturn(authenticationMock);
         SecurityContextHolder.setContext(securityContextMock);
 
         toolRepositoryMock = Mockito.mock(ToolRepository.class);
@@ -132,10 +134,11 @@ class ToolServiceTest {
 
     @Test
     void shouldValidateAndAddTool() {
-        final User user = UserCreatorHelper.I.createWorker();
+        final User worker = UserCreatorHelper.I.createWorker();
         final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
 
-        Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+        Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
 
         final ToolDetailsDTO result = toolService.validateAndAddTool(expected);
 
@@ -146,18 +149,21 @@ class ToolServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserDoesNotExistWhileAddingTool() {
+        final User worker = UserCreatorHelper.I.createWorker();
         final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
 
-        assertThrows(UserNotFoundException.class, () -> toolService.validateAndAddTool(expected),
-            "User: " + USER_EMAIL + " could not be found!");
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+
+        assertThrows(UserNotFoundException.class, () -> toolService.validateAndAddTool(expected), ERROR_MESSAGE);
     }
 
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToAddTool() {
-        final User user = UserCreatorHelper.I.createCustomer();
+        final User customer = UserCreatorHelper.I.createCustomer();
         final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
 
-        Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
+        Mockito.when(userServiceMock.getUserByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
 
         assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndAddTool(expected),
             "Current user role is not allowed to use: TOOL MANAGEMENT module!");
@@ -165,11 +171,12 @@ class ToolServiceTest {
 
     @Test
     void shouldValidateAndEditTool() {
-        final User user = UserCreatorHelper.I.createWorker();
+        final User worker = UserCreatorHelper.I.createWorker();
         final Tool originalTool = ToolCreatorHelper.I.createTool();
         final ToolDetailsDTO editedTool = ToolCreatorHelper.I.createEditedToolDTO();
 
-        Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+        Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
         Mockito.when(toolRepositoryMock.findById(1L)).thenReturn(Optional.of(originalTool));
 
         final ToolDetailsDTO result = toolService.validateAndEditTool(editedTool);
@@ -189,18 +196,21 @@ class ToolServiceTest {
 
     @Test
     void shouldThrowExceptionWhenUserDoesNotExistWhileEditingTool() {
+        final User worker = UserCreatorHelper.I.createWorker();
         final ToolDetailsDTO expected = ToolCreatorHelper.I.createToolDetailsDTO();
 
-        assertThrows(UserNotFoundException.class, () -> toolService.validateAndEditTool(expected),
-            "User: " + USER_EMAIL + " could not be found!");
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+
+        assertThrows(UserNotFoundException.class, () -> toolService.validateAndEditTool(expected), ERROR_MESSAGE);
     }
 
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToEditTool() {
-        final User user = UserCreatorHelper.I.createCustomer();
+        final User worker = UserCreatorHelper.I.createCustomer();
         final ToolDetailsDTO expected = ToolCreatorHelper.I.createToolDetailsDTO();
 
-        Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+        Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
 
         assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndEditTool(expected),
             "Current user role is not allowed to use: TOOL MANAGEMENT module!");
@@ -208,10 +218,11 @@ class ToolServiceTest {
 
     @Test
     void shouldDeleteTool() {
-        final User user = UserCreatorHelper.I.createWorker();
+        final User worker = UserCreatorHelper.I.createWorker();
         final Tool tool = ToolCreatorHelper.I.createTool();
 
-        Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+        Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
         Mockito.when(toolRepositoryMock.findById(1L)).thenReturn(Optional.of(tool));
 
         final boolean result = toolService.deleteTool(1L);
@@ -222,16 +233,25 @@ class ToolServiceTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenPrincipalIsNullWhileDeletingTools() {
+        assertThrows(UserUnauthenticatedException.class, () -> toolService.deleteTool(1L), "User is not authenticated!");
+    }
+
+    @Test
     void shouldThrowExceptionWhenUserDoesNotExistWhileDeletingTool() {
-        assertThrows(UserNotFoundException.class, () -> toolService.deleteTool(1L),
-            "User: " + USER_EMAIL + " could not be found!");
+        final User customer = UserCreatorHelper.I.createCustomer();
+
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
+
+        assertThrows(UserNotFoundException.class, () -> toolService.deleteTool(1L), ERROR_MESSAGE);
     }
 
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToDeleteTool() {
-        final User user = UserCreatorHelper.I.createCustomer();
+        final User customer = UserCreatorHelper.I.createCustomer();
 
-        Mockito.when(userServiceMock.getUserByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
+        Mockito.when(userServiceMock.getUserByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
 
         assertThrows(NoAccessForUserRoleException.class, () -> toolService.deleteTool(1L),
             "Current user role is not allowed to use: TOOL MANAGEMENT module!");

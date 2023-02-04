@@ -1,6 +1,6 @@
 package com.s1gawron.rentalservice.user.dto.validator;
 
-import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
+import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
 import com.s1gawron.rentalservice.user.exception.UserEmailPatternViolationException;
 import com.s1gawron.rentalservice.user.exception.UserPasswordTooWeakException;
 import com.s1gawron.rentalservice.user.exception.UserRegisterEmptyPropertiesException;
@@ -23,42 +23,42 @@ public enum UserDTOValidator {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
 
-    public boolean validate(final UserRegisterDTO userRegisterDTO) {
-        if (userRegisterDTO.email() == null) {
+    public boolean validate(final UserRegisterRequest userRegisterRequest) {
+        if (userRegisterRequest.email() == null) {
             log.error("Email" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForEmail();
         }
 
-        if (userRegisterDTO.password() == null) {
+        if (userRegisterRequest.password() == null) {
             log.error("Password" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForPassword();
         }
 
-        if (userRegisterDTO.firstName() == null) {
+        if (userRegisterRequest.firstName() == null) {
             log.error("First name" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForFirstName();
         }
 
-        if (userRegisterDTO.lastName() == null) {
+        if (userRegisterRequest.lastName() == null) {
             log.error("Last name" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForLastName();
         }
 
-        if (userRegisterDTO.userRole() == null) {
+        if (userRegisterRequest.userRole() == null) {
             log.error("User type" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForUserRole();
         }
 
-        UserRole.findByValue(userRegisterDTO.userRole());
+        UserRole.findByValue(userRegisterRequest.userRole());
 
-        final Matcher emailMatcher = EMAIL_PATTERN.matcher(userRegisterDTO.email());
+        final Matcher emailMatcher = EMAIL_PATTERN.matcher(userRegisterRequest.email());
 
         if (!emailMatcher.matches()) {
-            log.error("Provided email: {}, does not match pattern in registration process", userRegisterDTO.email());
-            throw UserEmailPatternViolationException.create(userRegisterDTO.email());
+            log.error("Provided email: {}, does not match pattern in registration process", userRegisterRequest.email());
+            throw UserEmailPatternViolationException.create(userRegisterRequest.email());
         }
 
-        final Matcher passwordMatcher = PASSWORD_PATTERN.matcher(userRegisterDTO.password());
+        final Matcher passwordMatcher = PASSWORD_PATTERN.matcher(userRegisterRequest.password());
 
         if (!passwordMatcher.matches()) {
             log.error("Password does not meet security policy in registration process");

@@ -11,6 +11,7 @@ import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepos
 import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.service.ToolService;
@@ -26,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -159,8 +161,9 @@ public class ReservationService {
     }
 
     private User getAndCheckIfUserIsCustomer() {
-        final String authenticatedUserEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        final User user = userService.getUserByEmail(authenticatedUserEmail).orElseThrow(() -> UserNotFoundException.create(authenticatedUserEmail));
+        final Optional<Object> principal = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        final User principalToUser = principal.map(p -> (User) p).orElseThrow(UserUnauthenticatedException::create);
+        final User user = userService.getUserByEmail(principalToUser.getEmail()).orElseThrow(() -> UserNotFoundException.create(principalToUser.getEmail()));
 
         if (user.isWorker()) {
             throw NoAccessForUserRoleException.create(ELEMENT_NAME);

@@ -7,13 +7,14 @@ import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class DeleteToolControllerTest extends ToolManagementControllerTest {
 
@@ -39,10 +40,10 @@ class DeleteToolControllerTest extends ToolManagementControllerTest {
         Mockito.when(toolServiceMock.deleteTool(1L)).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), TOOL_DELETE_ENDPOINT,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -55,10 +56,10 @@ class DeleteToolControllerTest extends ToolManagementControllerTest {
 
         final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT).content(expectedJson)
             .contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.FORBIDDEN, expectedException.getMessage(), TOOL_DELETE_ENDPOINT,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -70,10 +71,10 @@ class DeleteToolControllerTest extends ToolManagementControllerTest {
         Mockito.when(toolServiceMock.deleteTool(1L)).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), TOOL_DELETE_ENDPOINT,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
 }

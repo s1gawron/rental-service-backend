@@ -2,15 +2,16 @@ package com.s1gawron.rentalservice.user.service;
 
 import com.s1gawron.rentalservice.address.service.AddressService;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
+import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
 import com.s1gawron.rentalservice.user.dto.validator.UserDTOValidator;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,26 +24,29 @@ public class UserService {
 
     private final AddressService addressService;
 
-    public UserService(final UserRepository userRepository, final AddressService addressService) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(final UserRepository userRepository, final AddressService addressService, final PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.addressService = addressService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
-    public UserDTO validateAndRegisterUser(final UserRegisterDTO userRegisterDTO) {
-        UserDTOValidator.I.validate(userRegisterDTO);
+    public UserDTO validateAndRegisterUser(final UserRegisterRequest userRegisterRequest) {
+        UserDTOValidator.I.validate(userRegisterRequest);
 
-        final Optional<User> userEmailExistOptional = getUserByEmail(userRegisterDTO.email());
+        final Optional<User> userEmailExistOptional = getUserByEmail(userRegisterRequest.email());
 
         if (userEmailExistOptional.isPresent()) {
             throw UserEmailExistsException.create();
         }
 
-        final String encryptedPassword = new BCryptPasswordEncoder().encode(userRegisterDTO.password());
-        final UserRole userRole = UserRole.findByValue(userRegisterDTO.userRole());
-        final User user = User.createUser(userRegisterDTO, userRole, encryptedPassword);
+        final String encryptedPassword = passwordEncoder.encode(userRegisterRequest.password());
+        final UserRole userRole = UserRole.findByValue(userRegisterRequest.userRole());
+        final User user = User.createUser(userRegisterRequest, userRole, encryptedPassword);
 
-        addressService.validateAndSaveAddress(userRegisterDTO.address(), userRole).ifPresent(user::setCustomerAddress);
+        addressService.validateAndSaveAddress(userRegisterRequest.address(), userRole).ifPresent(user::setCustomerAddress);
         userRepository.save(user);
 
         return user.toUserDTO();
@@ -55,8 +59,9 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserDTO getUserDetails() {
-        final String authenticatedUserEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        final User user = getUserByEmail(authenticatedUserEmail).orElseThrow(() -> UserNotFoundException.create(authenticatedUserEmail));
+        final Optional<Object> principal = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        final User principalToUser = principal.map(p -> (User) p).orElseThrow(UserUnauthenticatedException::create);
+        final User user = getUserByEmail(principalToUser.getEmail()).orElseThrow(() -> UserNotFoundException.create(principalToUser.getEmail()));
 
         return user.toUserDTO();
     }

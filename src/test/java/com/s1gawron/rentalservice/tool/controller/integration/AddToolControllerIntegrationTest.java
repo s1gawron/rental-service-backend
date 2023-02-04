@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.tool.controller.integration;
 
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,7 +30,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
             }""";
         final ToolDetailsDTO expectedObject = objectMapper.readValue(json, ToolDetailsDTO.class);
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
@@ -54,7 +55,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getCustomerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -75,7 +76,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -96,7 +97,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -117,7 +118,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -139,7 +140,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -160,7 +161,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -178,7 +179,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               "price": 10.99
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -199,7 +200,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -221,7 +222,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
@@ -242,7 +243,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 

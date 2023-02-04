@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.reservation.model;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "reservation_has_tool")

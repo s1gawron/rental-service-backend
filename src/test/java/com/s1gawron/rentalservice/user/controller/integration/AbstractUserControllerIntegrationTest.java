@@ -3,8 +3,8 @@ package com.s1gawron.rentalservice.user.controller.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
-import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
+import com.s1gawron.rentalservice.user.dto.UserLoginRequest;
+import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.AfterEach;
@@ -44,8 +44,8 @@ abstract class AbstractUserControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, PASSWORD, "John", "Kowalski", "CUSTOMER", addressDTO);
-        userService.validateAndRegisterUser(userRegisterDTO);
+        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, PASSWORD, "John", "Kowalski", "CUSTOMER", addressDTO);
+        userService.validateAndRegisterUser(userRegisterRequest);
     }
 
     @AfterEach
@@ -53,8 +53,8 @@ abstract class AbstractUserControllerIntegrationTest {
         userRepository.deleteAll();
     }
 
-    protected MvcResult performLoginAction(final UserLoginDTO userLoginDTO) throws Exception {
-        final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
+    protected MvcResult performLoginAction(final UserLoginRequest userLoginRequest) throws Exception {
+        final String userLoginJson = objectMapper.writeValueAsString(userLoginRequest);
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson).contentType(MediaType.APPLICATION_JSON);
 
         return mockMvc.perform(request).andReturn();
