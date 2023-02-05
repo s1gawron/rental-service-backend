@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,7 +25,8 @@ class DeleteToolControllerTest extends ToolManagementControllerTest {
     void shouldDeleteTool() throws Exception {
         Mockito.when(toolServiceMock.deleteTool(1L)).thenReturn(true);
 
-        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT);
+        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT).with(csrf());
+
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
 
@@ -39,7 +41,8 @@ class DeleteToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.deleteTool(1L)).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isNotFound())
@@ -54,7 +57,7 @@ class DeleteToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.deleteTool(1L)).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT).content(expectedJson)
+        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT).with(csrf()).content(expectedJson)
             .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -70,7 +73,8 @@ class DeleteToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.deleteTool(1L)).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isNotFound())

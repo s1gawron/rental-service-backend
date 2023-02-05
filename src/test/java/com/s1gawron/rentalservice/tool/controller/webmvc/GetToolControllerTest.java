@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -121,7 +122,8 @@ class GetToolControllerTest extends ToolControllerTest {
         Mockito.when(toolServiceMock.getToolsByName(Mockito.any(ToolSearchDTO.class))).thenReturn(toolDetailsDTOList);
 
         final String json = objectMapper.writeValueAsString(toolSearchDTO);
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").content(json).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").with(csrf()).content(json)
+            .contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
@@ -137,7 +139,8 @@ class GetToolControllerTest extends ToolControllerTest {
     void shouldReturnEmptyListWhenToolsAreNotFoundByName() throws Exception {
         final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
         final String json = objectMapper.writeValueAsString(toolSearchDTO);
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").content(json).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").with(csrf()).content(json)
+            .contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {

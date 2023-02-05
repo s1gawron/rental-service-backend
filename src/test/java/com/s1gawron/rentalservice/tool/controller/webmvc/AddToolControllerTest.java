@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,7 +37,7 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenReturn(toolDetailsDTO);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(toolDTOJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(toolDTOJson).contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
@@ -55,7 +56,8 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isNotFound())
@@ -70,7 +72,8 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isForbidden())
@@ -86,7 +89,8 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -102,7 +106,8 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -118,7 +123,8 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -134,7 +140,8 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -150,7 +157,8 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -165,7 +173,8 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -181,7 +190,8 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -197,7 +207,8 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -213,7 +224,8 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())

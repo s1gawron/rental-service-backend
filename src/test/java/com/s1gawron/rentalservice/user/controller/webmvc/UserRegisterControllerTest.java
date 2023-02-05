@@ -10,7 +10,6 @@ import com.s1gawron.rentalservice.user.exception.*;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,13 +21,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
 @ActiveProfiles("test")
 @WithMockUser
-@AutoConfigureMockMvc(addFilters = false)
 class UserRegisterControllerTest extends AbstractUserControllerTest {
 
     private static final String USER_REGISTER_ENDPOINT = "/api/public/user/register";
@@ -40,7 +39,8 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenReturn(userDTO);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(userRegisterJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
+            .contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final UserDTO userDTOResult = objectMapper.readValue(jsonResult, UserDTO.class);
@@ -59,7 +59,8 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(userRegisterJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isConflict())
@@ -72,7 +73,8 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(userRegisterJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -85,7 +87,8 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(userRegisterJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -98,7 +101,8 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(userRegisterJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -111,7 +115,8 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(userRegisterJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -124,7 +129,8 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(userRegisterJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -137,7 +143,8 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
 
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(userRegisterJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())

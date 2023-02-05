@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,7 +36,9 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenReturn(toolDetailsDTO);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
+
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
 
@@ -52,7 +55,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isNotFound())
@@ -67,7 +71,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isForbidden())
@@ -82,7 +87,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isNotFound())
@@ -99,7 +105,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -116,7 +123,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -133,7 +141,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -150,7 +159,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -167,7 +177,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -183,7 +194,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -199,7 +211,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -216,7 +229,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -233,7 +247,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
@@ -250,7 +265,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
 
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).content(expectedJson).contentType(MediaType.APPLICATION_JSON);
+        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
+            .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
