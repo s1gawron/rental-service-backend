@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -33,7 +32,7 @@ class GetToolControllerTest extends ToolControllerTest {
     void shouldGetToolsByCategory() throws Exception {
         final List<ToolDetailsDTO> heavyTools = ToolCreatorHelper.I.createToolDTOList().stream()
             .filter(tool -> tool.toolCategory().equals(ToolCategory.HEAVY.name()))
-            .collect(Collectors.toList());
+            .toList();
 
         Mockito.when(toolServiceMock.getToolsByCategory("heavy")).thenReturn(new ToolListingDTO(heavyTools.size(), heavyTools));
 
@@ -66,7 +65,7 @@ class GetToolControllerTest extends ToolControllerTest {
 
     @Test
     void shouldGetNewTools() throws Exception {
-        final List<ToolDetailsDTO> tools = ToolCreatorHelper.I.createToolDTOList().stream().limit(3).collect(Collectors.toList());
+        final List<ToolDetailsDTO> tools = ToolCreatorHelper.I.createToolDTOList().stream().limit(3).toList();
 
         Mockito.when(toolServiceMock.getNewTools()).thenReturn(tools);
 
@@ -117,7 +116,7 @@ class GetToolControllerTest extends ToolControllerTest {
         final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
         final List<ToolDetailsDTO> toolDetailsDTOList = ToolCreatorHelper.I.createCommonNameToolDTOList().stream()
             .filter(tool -> tool.name().toLowerCase().contains(toolSearchDTO.toolName()))
-            .collect(Collectors.toList());
+            .toList();
 
         Mockito.when(toolServiceMock.getToolsByName(Mockito.any(ToolSearchDTO.class))).thenReturn(toolDetailsDTOList);
 

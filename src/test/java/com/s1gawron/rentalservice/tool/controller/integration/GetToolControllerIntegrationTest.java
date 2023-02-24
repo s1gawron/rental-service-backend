@@ -5,9 +5,11 @@ import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -21,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GetToolControllerIntegrationTest extends AbstractToolControllerIntegrationTest {
 
     private static final String TOOL_GET_ENDPOINT = "/api/public/tool/get/";
+
+    private static final String TOOL_MANAGEMENT_ENDPOINT = "/api/management/tool/";
 
     @Test
     void shouldGetToolsByCategory() throws Exception {
@@ -151,6 +155,36 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    void shouldGetAllToolsIfUserIsWorker() throws Exception {
+        toolRepository.saveAll(ToolCreatorHelper.I.createToolList());
+        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
+
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_MANAGEMENT_ENDPOINT + "get/all")
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
+        final MockHttpServletResponse result = mockMvc.perform(request).andReturn().getResponse();
+        final ToolListingDTO resultObject = objectMapper.readValue(result.getContentAsString(), ToolListingDTO.class);
+        final long removedToolsCount = resultObject.tools().stream().filter(ToolDetailsDTO::removed).count();
+        final long notRemovedToolsCount = resultObject.tools().stream().filter(tool -> !tool.removed()).count();
+
+        assertEquals(HttpStatus.OK.value(), result.getStatus());
+        assertEquals(9, resultObject.count());
+        assertEquals(9, resultObject.tools().size());
+        assertEquals(6, removedToolsCount);
+        assertEquals(3, notRemovedToolsCount);
+    }
+
+    @Test
+    void shouldReturnForbiddenResponseIfUserIsNotAllowedToGetAllTools() throws Exception {
+        toolRepository.saveAll(ToolCreatorHelper.I.createToolList());
+
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_MANAGEMENT_ENDPOINT + "get/all")
+            .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
+        final MockHttpServletResponse result = mockMvc.perform(request).andReturn().getResponse();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getStatus());
     }
 
 }

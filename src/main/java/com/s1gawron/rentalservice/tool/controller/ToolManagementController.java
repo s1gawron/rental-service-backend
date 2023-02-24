@@ -2,17 +2,23 @@ package com.s1gawron.rentalservice.tool.controller;
 
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
+import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/tool")
+@RequestMapping("api/management/tool")
 public class ToolManagementController extends ToolErrorHandlerController {
 
     private final ToolService toolService;
 
     public ToolManagementController(final ToolService toolService) {
         this.toolService = toolService;
+    }
+
+    @GetMapping("get/all")
+    public ToolListingDTO getAllTools() {
+        return toolService.getAllTools();
     }
 
     @PostMapping("add")

@@ -4,9 +4,9 @@ import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
+import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -24,6 +24,9 @@ public class Tool {
 
     @Column(name = "is_available")
     private boolean available;
+
+    @Column(name = "is_removed")
+    private boolean removed;
 
     @Column(name = "name")
     private String name;
@@ -54,9 +57,11 @@ public class Tool {
     public Tool() {
     }
 
-    private Tool(final boolean available, final String name, final String description, final ToolCategory toolCategory, final BigDecimal price,
+    private Tool(final boolean available, final boolean removed, final String name, final String description, final ToolCategory toolCategory,
+        final BigDecimal price,
         final ToolState toolState, final LocalDate dateAdded, final String imageUrl) {
         this.available = available;
+        this.removed = removed;
         this.name = name;
         this.description = description;
         this.toolCategory = toolCategory;
@@ -67,28 +72,29 @@ public class Tool {
     }
 
     public static Tool from(final ToolDetailsDTO toolDetailsDTO, final ToolState toolState) {
-        return new Tool(toolDetailsDTO.available(), toolDetailsDTO.name(), toolDetailsDTO.description(),
+        return new Tool(toolDetailsDTO.available(), toolDetailsDTO.removed(), toolDetailsDTO.name(), toolDetailsDTO.description(),
             ToolCategory.findByValue(toolDetailsDTO.toolCategory()), toolDetailsDTO.price(), toolState, LocalDate.now(), toolDetailsDTO.imageUrl());
     }
 
     public static Tool from(final ToolDTO toolDTO, final ToolState toolState) {
-        return new Tool(true, toolDTO.name(), toolDTO.description(), ToolCategory.findByValue(toolDTO.toolCategory()), toolDTO.price(),
+        return new Tool(true, false, toolDTO.name(), toolDTO.description(), ToolCategory.findByValue(toolDTO.toolCategory()), toolDTO.price(),
             toolState, LocalDate.now(), toolDTO.imageUrl());
     }
 
     public static Tool from(final ToolDetailsDTO toolDetailsDTO, final ToolState toolState, final LocalDate dateAdded) {
-        return new Tool(true, toolDetailsDTO.name(), toolDetailsDTO.description(), ToolCategory.findByValue(toolDetailsDTO.toolCategory()),
+        return new Tool(true, false, toolDetailsDTO.name(), toolDetailsDTO.description(), ToolCategory.findByValue(toolDetailsDTO.toolCategory()),
             toolDetailsDTO.price(), toolState, dateAdded, toolDetailsDTO.imageUrl());
     }
 
     public ToolDetailsDTO toToolDetailsDTO() {
-        return new ToolDetailsDTO(this.toolId, this.available, this.name, this.description, this.toolCategory.name(), this.price,
+        return new ToolDetailsDTO(this.toolId, this.available, this.removed, this.name, this.description, this.toolCategory.name(), this.price,
             new ToolStateDTO(this.toolState.getStateType().name(), this.toolState.getDescription()), this.imageUrl);
     }
 
     public void edit(final ToolDetailsDTO toolDetailsDTO) {
         this.name = toolDetailsDTO.name();
         this.available = toolDetailsDTO.available();
+        this.removed = toolDetailsDTO.removed();
         this.description = toolDetailsDTO.description();
         this.toolCategory = ToolCategory.findByValue(toolDetailsDTO.toolCategory());
         this.price = toolDetailsDTO.price();
@@ -100,6 +106,10 @@ public class Tool {
             this.reservationHasTools = new ArrayList<>();
         }
         this.reservationHasTools.add(reservationHasTool);
+    }
+
+    public void remove() {
+        this.removed = true;
     }
 
     public void makeToolUnavailable() {
@@ -141,4 +151,9 @@ public class Tool {
     public String getImageUrl() {
         return imageUrl;
     }
+
+    public boolean isRemoved() {
+        return removed;
+    }
+
 }

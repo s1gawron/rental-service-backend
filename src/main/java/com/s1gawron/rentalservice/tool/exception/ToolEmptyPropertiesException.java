@@ -38,7 +38,4 @@ public class ToolEmptyPropertiesException extends RuntimeException {
         return new ToolEmptyPropertiesException("Tool state description cannot be empty!");
     }
 
-    public static ToolEmptyPropertiesException createForToolAvailability() {
-        return new ToolEmptyPropertiesException("Tool availability cannot be empty!");
-    }
 }

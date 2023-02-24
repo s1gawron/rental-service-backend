@@ -11,7 +11,6 @@ import com.s1gawron.rentalservice.tool.model.ToolStateType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public enum ToolCreatorHelper {
 
@@ -19,13 +18,13 @@ public enum ToolCreatorHelper {
 
     public List<ToolDetailsDTO> createToolDTOList() {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
-        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT.name(),
+        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT.name(),
             BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
         final ToolStateDTO usedState = new ToolStateDTO(ToolStateType.MINIMAL_WEAR.name(), "No signs of usage");
-        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, "Loader", "4 wheeled loader :)", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, false, "Loader", "4 wheeled loader :)", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(1000.99), usedState, "www.image.com/loader");
         final ToolStateDTO wornState = new ToolStateDTO(ToolStateType.WELL_WORN.name(), "Rusty");
-        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, "Crane", "Mechanical giraffe", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, false, "Crane", "Mechanical giraffe", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(19999.99), wornState, "www.image.com/crane");
 
         return List.of(newToolDetailsDTO, usedToolDetailsDTO, wornToolDetailsDTO);
@@ -37,22 +36,22 @@ public enum ToolCreatorHelper {
                 final ToolState toolState = ToolState.from(toolDTO.toolState());
                 return Tool.from(toolDTO, toolState);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public List<Tool> createHeavyTools() {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
-        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
         final Tool newTool = Tool.from(newToolDetailsDTO, ToolState.from(newState));
 
         final ToolStateDTO usedState = new ToolStateDTO(ToolStateType.MINIMAL_WEAR.name(), "No signs of usage");
-        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, "Loader", "4 wheeled loader :)", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, false, "Loader", "4 wheeled loader :)", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(1000.99), usedState, "www.image.com/loader");
         final Tool usedTool = Tool.from(usedToolDetailsDTO, ToolState.from(usedState));
 
         final ToolStateDTO wornState = new ToolStateDTO(ToolStateType.WELL_WORN.name(), "Rusty");
-        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, "Crane", "Mechanical giraffe", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, false, "Crane", "Mechanical giraffe", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(19999.99), wornState, "www.image.com/crane");
         final Tool wornTool = Tool.from(wornToolDetailsDTO, ToolState.from(wornState));
 
@@ -61,17 +60,17 @@ public enum ToolCreatorHelper {
 
     public List<Tool> createLightTools() {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
-        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT.name(),
+        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT.name(),
             BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
         final Tool newTool = Tool.from(newToolDetailsDTO, ToolState.from(newState));
 
         final ToolStateDTO usedState = new ToolStateDTO(ToolStateType.MINIMAL_WEAR.name(), "No signs of usage");
-        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, "Screwdriver", "U know for screws :)", ToolCategory.LIGHT.name(),
+        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, false, "Screwdriver", "U know for screws :)", ToolCategory.LIGHT.name(),
             BigDecimal.valueOf(5.99), usedState, "www.image.com/screwdriver");
         final Tool usedTool = Tool.from(usedToolDetailsDTO, ToolState.from(usedState));
 
         final ToolStateDTO wornState = new ToolStateDTO(ToolStateType.WELL_WORN.name(), "Rusty");
-        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, "Big hammer", "Just a bigger hammer", ToolCategory.LIGHT.name(),
+        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, false, "Big hammer", "Just a bigger hammer", ToolCategory.LIGHT.name(),
             BigDecimal.valueOf(15.99), wornState, "www.image.com/big_hammer");
         final Tool wornTool = Tool.from(wornToolDetailsDTO, ToolState.from(wornState));
 
@@ -80,20 +79,20 @@ public enum ToolCreatorHelper {
 
     public Tool createTool() {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
-        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
         return Tool.from(newToolDetailsDTO, ToolState.from(newState));
     }
 
     public ToolDetailsDTO createToolDetailsDTO() {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
-        return new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(), BigDecimal.valueOf(10.99), newState,
+        return new ToolDetailsDTO(1L, true, false, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(), BigDecimal.valueOf(10.99), newState,
             "www.image.com/hammer");
     }
 
     public ToolDetailsDTO createEditedToolDTO() {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New");
-        return new ToolDetailsDTO(1L, true, "Hammer#2", "It's a second hammer", ToolCategory.LIGHT.name(), BigDecimal.valueOf(5.99), newState,
+        return new ToolDetailsDTO(1L, true, false, "Hammer#2", "It's a second hammer", ToolCategory.LIGHT.name(), BigDecimal.valueOf(5.99), newState,
             "www.image.com/second_hammer");
     }
 
@@ -104,13 +103,13 @@ public enum ToolCreatorHelper {
 
     public List<ToolDetailsDTO> createCommonNameToolDTOList() {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
-        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT.name(),
+        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT.name(),
             BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
         final ToolStateDTO usedState = new ToolStateDTO(ToolStateType.MINIMAL_WEAR.name(), "No signs of usage");
-        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, "Big hammer", "It's just a bigger hammer :)", ToolCategory.LIGHT.name(),
+        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, false, "Big hammer", "It's just a bigger hammer :)", ToolCategory.LIGHT.name(),
             BigDecimal.valueOf(1000.99), usedState, "www.image.com/big_hammer");
         final ToolStateDTO wornState = new ToolStateDTO(ToolStateType.WELL_WORN.name(), "Rusty");
-        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, "Screwdriver", "Not a hammer", ToolCategory.LIGHT.name(),
+        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, false, "Screwdriver", "Not a hammer", ToolCategory.LIGHT.name(),
             BigDecimal.valueOf(19999.99), wornState, "www.image.com/screwdriver");
 
         return List.of(newToolDetailsDTO, usedToolDetailsDTO, wornToolDetailsDTO);
@@ -122,7 +121,7 @@ public enum ToolCreatorHelper {
                 final ToolState toolState = ToolState.from(toolDTO.toolState());
                 return Tool.from(toolDTO, toolState);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public Tool createChainsaw() {
@@ -143,24 +142,24 @@ public enum ToolCreatorHelper {
 
     public Tool createUnavailableTool() {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
-        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, false, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, false, false, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
         return Tool.from(newToolDetailsDTO, ToolState.from(newState));
     }
 
     public List<Tool> createHeavyToolsWithDate() {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
-        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
         final Tool newTool = Tool.from(newToolDetailsDTO, ToolState.from(newState), LocalDate.parse("2023-01-01"));
 
         final ToolStateDTO usedState = new ToolStateDTO(ToolStateType.MINIMAL_WEAR.name(), "No signs of usage");
-        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, "Loader", "4 wheeled loader :)", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, false, "Loader", "4 wheeled loader :)", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(1000.99), usedState, "www.image.com/loader");
         final Tool usedTool = Tool.from(usedToolDetailsDTO, ToolState.from(usedState), LocalDate.parse("2023-01-02"));
 
         final ToolStateDTO wornState = new ToolStateDTO(ToolStateType.WELL_WORN.name(), "Rusty");
-        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, "Crane", "Mechanical giraffe", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, false, "Crane", "Mechanical giraffe", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(19999.99), wornState, "www.image.com/crane");
         final Tool wornTool = Tool.from(wornToolDetailsDTO, ToolState.from(wornState), LocalDate.parse("2023-01-03"));
 
@@ -169,20 +168,51 @@ public enum ToolCreatorHelper {
 
     public List<Tool> createLightToolsWithDate() {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
-        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT.name(),
+        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT.name(),
             BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
         final Tool newTool = Tool.from(newToolDetailsDTO, ToolState.from(newState), LocalDate.parse("2023-01-01"));
 
         final ToolStateDTO usedState = new ToolStateDTO(ToolStateType.MINIMAL_WEAR.name(), "No signs of usage");
-        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, "Screwdriver", "U know for screws :)", ToolCategory.LIGHT.name(),
+        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, false, "Screwdriver", "U know for screws :)", ToolCategory.LIGHT.name(),
             BigDecimal.valueOf(5.99), usedState, "www.image.com/screwdriver");
         final Tool usedTool = Tool.from(usedToolDetailsDTO, ToolState.from(usedState), LocalDate.parse("2023-01-01"));
 
         final ToolStateDTO wornState = new ToolStateDTO(ToolStateType.WELL_WORN.name(), "Rusty");
-        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, "Big hammer", "Just a bigger hammer", ToolCategory.LIGHT.name(),
+        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, false, "Big hammer", "Just a bigger hammer", ToolCategory.LIGHT.name(),
             BigDecimal.valueOf(15.99), wornState, "www.image.com/big_hammer");
         final Tool wornTool = Tool.from(wornToolDetailsDTO, ToolState.from(wornState), LocalDate.parse("2023-01-04"));
 
         return List.of(newTool, usedTool, wornTool);
+    }
+
+    public List<Tool> createRemovedTools() {
+        final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
+        final ToolDetailsDTO newHeavyToolDetailsDTO = new ToolDetailsDTO(1L, true, true, "Removed heavy hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(),
+            BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
+        final Tool newHeavyTool = Tool.from(newHeavyToolDetailsDTO, ToolState.from(newState));
+
+        final ToolStateDTO usedState = new ToolStateDTO(ToolStateType.MINIMAL_WEAR.name(), "No signs of usage");
+        final ToolDetailsDTO usedHeavyToolDetailsDTO = new ToolDetailsDTO(2L, true, true, "Removed loader", "4 wheeled loader :)", ToolCategory.HEAVY.name(),
+            BigDecimal.valueOf(1000.99), usedState, "www.image.com/loader");
+        final Tool usedHeavyTool = Tool.from(usedHeavyToolDetailsDTO, ToolState.from(usedState));
+
+        final ToolStateDTO wornState = new ToolStateDTO(ToolStateType.WELL_WORN.name(), "Rusty");
+        final ToolDetailsDTO wornHeavyToolDetailsDTO = new ToolDetailsDTO(3L, true, true, "Removed crane", "Mechanical giraffe", ToolCategory.HEAVY.name(),
+            BigDecimal.valueOf(19999.99), wornState, "www.image.com/crane");
+        final Tool wornHeavyTool = Tool.from(wornHeavyToolDetailsDTO, ToolState.from(wornState));
+
+        final ToolDetailsDTO newLightToolDetailsDTO = new ToolDetailsDTO(1L, true, true, "Removed light hammer", "It's just a hammer :)", ToolCategory.LIGHT.name(),
+            BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
+        final Tool newLightTool = Tool.from(newLightToolDetailsDTO, ToolState.from(newState));
+
+        final ToolDetailsDTO usedLightToolDetailsDTO = new ToolDetailsDTO(2L, true, true, "Removed screwdriver", "U know for screws :)", ToolCategory.LIGHT.name(),
+            BigDecimal.valueOf(5.99), usedState, "www.image.com/screwdriver");
+        final Tool usedLightTool = Tool.from(usedLightToolDetailsDTO, ToolState.from(usedState));
+
+        final ToolDetailsDTO wornLightToolDetailsDTO = new ToolDetailsDTO(3L, true, true, "Removed big hammer", "Just a bigger hammer", ToolCategory.LIGHT.name(),
+            BigDecimal.valueOf(15.99), wornState, "www.image.com/big_hammer");
+        final Tool wornLightTool = Tool.from(wornLightToolDetailsDTO, ToolState.from(wornState));
+
+        return List.of(newHeavyTool, newLightTool, usedHeavyTool, usedLightTool, wornHeavyTool, wornLightTool);
     }
 }

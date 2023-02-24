@@ -31,13 +31,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ToolServiceTest {
 
     private static final String ERROR_MESSAGE = "User: test@test.pl could not be found!";
+
+    private static final String UNAUTHENTICATED_ERROR_MESSAGE = "User is not authenticated!";
+
+    private static final String USER_NOT_ALLOWED_ERROR_MESSAGE = "Current user role is not allowed to use: TOOL MANAGEMENT module!";
 
     private Authentication authenticationMock;
 
@@ -69,7 +72,7 @@ class ToolServiceTest {
     void shouldGetToolsByCategory() {
         final List<Tool> heavyTools = ToolCreatorHelper.I.createToolList().stream()
             .filter(tool -> tool.getToolCategory().equals(ToolCategory.HEAVY))
-            .collect(Collectors.toList());
+            .toList();
 
         Mockito.when(toolRepositoryMock.findAllByToolCategory(ToolCategory.HEAVY)).thenReturn(heavyTools);
 
@@ -84,7 +87,7 @@ class ToolServiceTest {
     void shouldNotGetHeavyToolsByLightCategory() {
         final List<Tool> lightTools = ToolCreatorHelper.I.createHeavyTools().stream()
             .filter(tool -> tool.getToolCategory().equals(ToolCategory.LIGHT))
-            .collect(Collectors.toList());
+            .toList();
 
         Mockito.when(toolRepositoryMock.findAllByToolCategory(ToolCategory.LIGHT)).thenReturn(lightTools);
 
@@ -165,8 +168,7 @@ class ToolServiceTest {
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
         Mockito.when(userServiceMock.getUserByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
 
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndAddTool(expected),
-            "Current user role is not allowed to use: TOOL MANAGEMENT module!");
+        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndAddTool(expected), USER_NOT_ALLOWED_ERROR_MESSAGE);
     }
 
     @Test
@@ -212,8 +214,7 @@ class ToolServiceTest {
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
         Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
 
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndEditTool(expected),
-            "Current user role is not allowed to use: TOOL MANAGEMENT module!");
+        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndEditTool(expected), USER_NOT_ALLOWED_ERROR_MESSAGE);
     }
 
     @Test
@@ -227,14 +228,13 @@ class ToolServiceTest {
 
         final boolean result = toolService.deleteTool(1L);
 
-        Mockito.verify(toolStateRepositoryMock, Mockito.times(1)).delete(Mockito.any(ToolState.class));
-        Mockito.verify(toolRepositoryMock, Mockito.times(1)).delete(Mockito.any(Tool.class));
         assertTrue(result);
+        assertTrue(tool.isRemoved());
     }
 
     @Test
     void shouldThrowExceptionWhenPrincipalIsNullWhileDeletingTools() {
-        assertThrows(UserUnauthenticatedException.class, () -> toolService.deleteTool(1L), "User is not authenticated!");
+        assertThrows(UserUnauthenticatedException.class, () -> toolService.deleteTool(1L), UNAUTHENTICATED_ERROR_MESSAGE);
     }
 
     @Test
@@ -253,8 +253,7 @@ class ToolServiceTest {
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
         Mockito.when(userServiceMock.getUserByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
 
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.deleteTool(1L),
-            "Current user role is not allowed to use: TOOL MANAGEMENT module!");
+        assertThrows(NoAccessForUserRoleException.class, () -> toolService.deleteTool(1L), USER_NOT_ALLOWED_ERROR_MESSAGE);
     }
 
     @Test
@@ -262,7 +261,7 @@ class ToolServiceTest {
         final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
         final List<Tool> tools = ToolCreatorHelper.I.createCommonNameToolList().stream()
             .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.toolName()))
-            .collect(Collectors.toList());
+            .toList();
 
         Mockito.when(toolRepositoryMock.findByNameContainingIgnoreCase(toolSearchDTO.toolName())).thenReturn(tools);
 
@@ -352,6 +351,40 @@ class ToolServiceTest {
         toolService.makeToolAvailableAndSave(unavailableTool);
 
         assertTrue(unavailableTool.isAvailable());
+    }
+
+    @Test
+    void shouldGetAllTools() {
+        final List<Tool> tools = ToolCreatorHelper.I.createToolList();
+        final User worker = UserCreatorHelper.I.createWorker();
+
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+        Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
+        Mockito.when(toolRepositoryMock.findAll()).thenReturn(tools);
+
+        final ToolListingDTO result = toolService.getAllTools();
+
+        assertEquals(3, result.count());
+        assertEquals(3, result.tools().size());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserDoesNotExistGetAllTools() {
+        final List<Tool> tools = ToolCreatorHelper.I.createToolList();
+
+        Mockito.when(toolRepositoryMock.findAll()).thenReturn(tools);
+
+        assertThrows(UserUnauthenticatedException.class, () -> toolService.getAllTools(), UNAUTHENTICATED_ERROR_MESSAGE);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUserIsNotAllowedToGetAllTools() {
+        final User customer = UserCreatorHelper.I.createCustomer();
+
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
+        Mockito.when(userServiceMock.getUserByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
+
+        assertThrows(NoAccessForUserRoleException.class, () -> toolService.getAllTools(), USER_NOT_ALLOWED_ERROR_MESSAGE);
     }
 
     private void assertTools(final List<ToolDetailsDTO> expectedTools, final List<ToolDetailsDTO> resultTools) {

@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class EditToolControllerTest extends ToolManagementControllerTest {
 
-    private static final String TOOL_EDIT_ENDPOINT = "/api/tool/edit";
+    private static final String TOOL_EDIT_ENDPOINT = "/api/management/tool/edit";
 
     @Test
     void shouldValidateAndEditTool() throws Exception {
@@ -99,7 +99,7 @@ class EditToolControllerTest extends ToolManagementControllerTest {
     void shouldReturnBadRequestResponseWhenToolIdIsEmptyWhileEditingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForName();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(null, true, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(null, true, false, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
             "www.image.com/hammer");
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
@@ -117,7 +117,7 @@ class EditToolControllerTest extends ToolManagementControllerTest {
     void shouldReturnBadRequestResponseWhenToolNameIsEmptyWhileEditingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForName();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, null, "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, false, null, "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
             "www.image.com/hammer");
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
@@ -135,7 +135,7 @@ class EditToolControllerTest extends ToolManagementControllerTest {
     void shouldReturnBadRequestResponseWhenToolDescriptionIsEmptyWhileEditingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForDescription();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", null, "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", null, "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
             "www.image.com/hammer");
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
@@ -153,7 +153,7 @@ class EditToolControllerTest extends ToolManagementControllerTest {
     void shouldReturnBadRequestResponseWhenToolCategoryIsEmptyWhileEditingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForCategory();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "Just a hammer", null, BigDecimal.valueOf(5.99), toolStateDTO,
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "Just a hammer", null, BigDecimal.valueOf(5.99), toolStateDTO,
             "www.image.com/hammer");
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
@@ -171,7 +171,7 @@ class EditToolControllerTest extends ToolManagementControllerTest {
     void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExistWhileEditingTool() throws Exception {
         final ToolCategoryDoesNotExistException expectedException = ToolCategoryDoesNotExistException.create("UNKNOWN");
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "Just a hammer", "UNKNOWN", BigDecimal.valueOf(5.99), toolStateDTO,
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "Just a hammer", "UNKNOWN", BigDecimal.valueOf(5.99), toolStateDTO,
             "www.image.com/hammer");
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
@@ -189,7 +189,8 @@ class EditToolControllerTest extends ToolManagementControllerTest {
     void shouldReturnBadRequestResponseWhenToolPriceIsEmptyWhileEditingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForPrice();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "Just a hammer", "LIGHT", null, toolStateDTO, "www.image.com/hammer");
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "Just a hammer", "LIGHT", null, toolStateDTO,
+            "www.image.com/hammer");
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
         Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
@@ -205,7 +206,7 @@ class EditToolControllerTest extends ToolManagementControllerTest {
     @Test
     void shouldReturnBadRequestResponseWhenToolStateIsEmptyWhileEditingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolState();
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), null,
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), null,
             "www.image.com/hammer");
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
@@ -223,7 +224,7 @@ class EditToolControllerTest extends ToolManagementControllerTest {
     void shouldReturnBadRequestResponseWhenToolStateTypeIsEmptyWhileEditingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolStateType();
         final ToolStateDTO toolStateDTO = new ToolStateDTO(null, "New tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
             "www.image.com/hammer");
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
@@ -241,7 +242,7 @@ class EditToolControllerTest extends ToolManagementControllerTest {
     void shouldReturnBadRequestResponseWhenToolStateTypeDoesNotExistWhileEditingTool() throws Exception {
         final ToolStateTypeDoesNotExistException expectedException = ToolStateTypeDoesNotExistException.create("UNKNOWN");
         final ToolStateDTO toolStateDTO = new ToolStateDTO("UNKNOWN", "New tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
             "www.image.com/hammer");
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 
@@ -259,7 +260,7 @@ class EditToolControllerTest extends ToolManagementControllerTest {
     void shouldReturnBadRequestResponseWhenToolStateDescriptionIsEmptyWhileEditingTool() throws Exception {
         final ToolEmptyPropertiesException expectedException = ToolEmptyPropertiesException.createForToolStateDescription();
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", null);
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
             "www.image.com/hammer");
         final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
 

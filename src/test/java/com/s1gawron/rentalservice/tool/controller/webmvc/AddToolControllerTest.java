@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AddToolControllerTest extends ToolManagementControllerTest {
 
-    private static final String TOOL_ADD_ENDPOINT = "/api/tool/add";
+    private static final String TOOL_ADD_ENDPOINT = "/api/management/tool/add";
 
     @Test
     void shouldValidateAndAddTool() throws Exception {

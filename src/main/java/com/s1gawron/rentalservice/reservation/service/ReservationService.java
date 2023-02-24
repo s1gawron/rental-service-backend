@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
@@ -63,7 +62,7 @@ public class ReservationService {
                 final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
                 return reservation.toReservationDetailsDTO(toolDetails);
             })
-            .collect(Collectors.toList());
+            .toList();
 
         return new ReservationListingDTO(userReservations.size(), userReservations);
     }

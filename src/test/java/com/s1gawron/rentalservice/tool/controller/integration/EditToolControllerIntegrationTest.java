@@ -14,11 +14,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EditToolControllerIntegrationTest extends AbstractToolControllerIntegrationTest {
 
-    private static final String TOOL_EDIT_ENDPOINT = "/api/tool/edit";
+    private static final String TOOL_EDIT_ENDPOINT = "/api/management/tool/edit";
 
     private long currentToolId;
 
@@ -39,6 +40,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
             + "  \"available\": \"false\",\n"
+            + "  \"removed\": \"true\",\n"
             + "  \"name\": \"Big hammer\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
@@ -65,6 +67,8 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     void shouldReturnForbiddenResponseWhenUserIsNotAllowedToEditTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
+            + "  \"available\": \"false\",\n"
+            + "  \"removed\": \"true\",\n"
             + "  \"name\": \"Big hammer\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
@@ -95,6 +99,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
             {
               "toolId": 99,
               "available": "true",
+              "removed": "false",
               "name": "Big hammer",
               "description": "Bigger hammer",
               "toolCategory": "LIGHT",
@@ -118,6 +123,8 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
         final String json = """
             {
               "name": "Big hammer",
+              "available": "true",
+              "removed": "false",
               "description": "Bigger hammer",
               "toolCategory": "LIGHT",
               "price": 15.99,
@@ -138,6 +145,8 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     void shouldReturnBadRequestResponseWhenToolNameIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
+            + "  \"available\": \"true\",\n"
+            + "  \"removed\": \"false\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
             + "  \"price\": 15.99,\n"
@@ -159,6 +168,9 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     void shouldReturnBadRequestResponseWhenToolDescriptionIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
+            + "  \"name\": \"Big hammer\",\n"
+            + "  \"available\": \"true\",\n"
+            + "  \"removed\": \"false\",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
             + "  \"price\": 15.99,\n"
             + "  \"toolState\": {\n"
@@ -179,7 +191,10 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     void shouldReturnBadRequestResponseWhenToolCategoryIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
+            + "  \"name\": \"Big hammer\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
+            + "  \"available\": \"true\",\n"
+            + "  \"removed\": \"false\",\n"
             + "  \"price\": 15.99,\n"
             + "  \"toolState\": {\n"
             + "    \"stateType\": \"MINIMAL_WEAR\",\n"
@@ -199,6 +214,9 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExistWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
+            + "  \"name\": \"Big hammer\",\n"
+            + "  \"available\": \"true\",\n"
+            + "  \"removed\": \"false\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
             + "  \"toolCategory\": \"UNKNOWN\",\n"
             + "  \"price\": 15.99,\n"
@@ -220,6 +238,9 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     void shouldReturnBadRequestResponseWhenToolPriceIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
+            + "  \"name\": \"Big hammer\",\n"
+            + "  \"available\": \"true\",\n"
+            + "  \"removed\": \"false\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
             + "  \"toolState\": {\n"
@@ -240,6 +261,9 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     void shouldReturnBadRequestResponseWhenToolStateIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
+            + "  \"name\": \"Big hammer\",\n"
+            + "  \"available\": \"true\",\n"
+            + "  \"removed\": \"false\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
             + "  \"price\": 15.99\n"
@@ -257,6 +281,9 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     void shouldReturnBadRequestResponseWhenToolStateTypeIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
+            + "  \"name\": \"Big hammer\",\n"
+            + "  \"available\": \"true\",\n"
+            + "  \"removed\": \"false\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
             + "  \"price\": 15.99,\n"
@@ -277,6 +304,9 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     void shouldReturnBadRequestResponseWhenToolStateTypeDoesNotExistWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
+            + "  \"name\": \"Big hammer\",\n"
+            + "  \"available\": \"true\",\n"
+            + "  \"removed\": \"false\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
             + "  \"price\": 15.99,\n"
@@ -298,6 +328,9 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     void shouldReturnBadRequestResponseWhenToolStateDescriptionIsEmptyWhileEditingTool() throws Exception {
         final String json = "{\n"
             + "  \"toolId\": " + currentToolId + ",\n"
+            + "  \"name\": \"Big hammer\",\n"
+            + "  \"available\": \"true\",\n"
+            + "  \"removed\": \"false\",\n"
             + "  \"description\": \"Bigger hammer\",\n"
             + "  \"toolCategory\": \"LIGHT\",\n"
             + "  \"price\": 15.99,\n"

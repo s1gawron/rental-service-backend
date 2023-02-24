@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.tool.dto.validator;
 
-import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDTOProperties;
+import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolEmptyPropertiesException;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.model.ToolStateType;
@@ -69,11 +69,6 @@ public enum ToolDTOValidator {
         if (((ToolDetailsDTO) toolDTOProperties).toolId() == null) {
             log.error("Tool id" + MESSAGE);
             throw ToolEmptyPropertiesException.createForId();
-        }
-
-        if (((ToolDetailsDTO) toolDTOProperties).available() == null) {
-            log.error("Tool availability" + MESSAGE);
-            throw ToolEmptyPropertiesException.createForToolAvailability();
         }
     }
 

@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ToolService {
@@ -49,7 +48,7 @@ public class ToolService {
         final List<ToolDetailsDTO> toolDetailsDTOSByCategory = toolRepository.findAllByToolCategory(toolCategory)
             .stream()
             .map(Tool::toToolDetailsDTO)
-            .collect(Collectors.toList());
+            .toList();
 
         return new ToolListingDTO(toolDetailsDTOSByCategory.size(), toolDetailsDTOSByCategory);
     }
@@ -59,7 +58,7 @@ public class ToolService {
         return toolRepository.findNewTools()
             .stream()
             .map(Tool::toToolDetailsDTO)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Transactional(readOnly = true)
@@ -76,7 +75,7 @@ public class ToolService {
     public List<ToolDetailsDTO> getToolsByName(final ToolSearchDTO toolSearchDTO) {
         final List<ToolDetailsDTO> toolDetails = toolRepository.findByNameContainingIgnoreCase(toolSearchDTO.toolName()).stream()
             .map(Tool::toToolDetailsDTO)
-            .collect(Collectors.toList());
+            .toList();
 
         if (toolDetails.isEmpty()) {
             throw ToolNotFoundException.createForName(toolSearchDTO.toolName());
@@ -120,10 +119,9 @@ public class ToolService {
         canUserPerformActionOnTools();
 
         final Tool tool = getToolById(toolId);
-        final ToolState toolState = tool.getToolState();
+        tool.remove();
 
-        toolStateRepository.delete(toolState);
-        toolRepository.delete(tool);
+        toolRepository.save(tool);
 
         return true;
     }
@@ -132,7 +130,7 @@ public class ToolService {
     public List<ToolDetailsDTO> getToolDetailsByReservationHasTools(final List<ReservationHasTool> reservationHasTools) {
         return toolRepository.findAllByReservationHasToolsIn(reservationHasTools).stream()
             .map(Tool::toToolDetailsDTO)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Transactional(readOnly = true)
@@ -161,6 +159,17 @@ public class ToolService {
     public void makeToolAvailableAndSave(final Tool tool) {
         tool.makeToolAvailable();
         toolRepository.save(tool);
+    }
+
+    @Transactional(readOnly = true)
+    public ToolListingDTO getAllTools() {
+        canUserPerformActionOnTools();
+
+        final List<ToolDetailsDTO> allTools = toolRepository.findAll().stream()
+            .map(Tool::toToolDetailsDTO)
+            .toList();
+
+        return new ToolListingDTO(allTools.size(), allTools);
     }
 
     private void canUserPerformActionOnTools() {

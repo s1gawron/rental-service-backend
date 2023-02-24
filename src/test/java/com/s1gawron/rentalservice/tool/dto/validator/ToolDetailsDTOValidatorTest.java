@@ -18,7 +18,7 @@ class ToolDetailsDTOValidatorTest {
     @Test
     void shouldValidateToolDTODuringEditOperation() {
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
             "www.image.com/hammer");
 
         assertTrue(ToolDTOValidator.I.validate(toolDetailsDTO));
@@ -27,19 +27,10 @@ class ToolDetailsDTOValidatorTest {
     @Test
     void shouldThrowExceptionWhenIdIsNullDuringEditOperation() {
         final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(null, true, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
+        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(null, true, false, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
             "www.image.com/hammer");
 
         assertThrows(ToolEmptyPropertiesException.class, () -> ToolDTOValidator.I.validate(toolDetailsDTO), "Tool id cannot be empty!");
-    }
-
-    @Test
-    void shouldThrowExceptionWhenToolAvailabilityIsNullDuringEditOperation() {
-        final ToolStateDTO toolStateDTO = new ToolStateDTO("NEW", "New tool");
-        final ToolDetailsDTO toolDetailsDTO = new ToolDetailsDTO(1L, null, "Hammer", "Just a hammer", "LIGHT", BigDecimal.valueOf(5.99), toolStateDTO,
-            "www.image.com/hammer");
-
-        assertThrows(ToolEmptyPropertiesException.class, () -> ToolDTOValidator.I.validate(toolDetailsDTO), "Tool availability cannot be empty!");
     }
 
     @Test

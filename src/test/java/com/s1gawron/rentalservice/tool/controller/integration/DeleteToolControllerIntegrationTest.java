@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrationTest {
 
-    private static final String TOOL_DELETE_ENDPOINT = "/api/tool/delete/";
+    private static final String TOOL_DELETE_ENDPOINT = "/api/management/tool/delete/";
 
     private long currentToolId;
 
@@ -38,7 +38,10 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertEquals("true", result.getResponse().getContentAsString());
-        assertTrue(toolRepository.findById(1L).isEmpty());
+
+        final Optional<Tool> removedTool = toolRepository.findById(currentToolId);
+        assertTrue(removedTool.isPresent());
+        assertTrue(removedTool.get().isRemoved());
     }
 
     @Test
@@ -59,7 +62,8 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
             throw new IllegalStateException("Tool cannot be in database, because it was not added!");
         }
 
-        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT + "99").header("Authorization", getAuthorizationToken(UserRole.WORKER));
+        final RequestBuilder request = MockMvcRequestBuilders.delete(TOOL_DELETE_ENDPOINT + "99")
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());

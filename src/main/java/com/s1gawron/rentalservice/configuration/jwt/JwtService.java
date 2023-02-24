@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -39,20 +38,11 @@ public class JwtService {
     }
 
     private boolean isTokenExpired(final String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(final String token) {
-        return extractClaim(token, Claims::getExpiration);
+        return extractClaims(token).getExpiration().before(new Date());
     }
 
     public String extractUsername(final String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    public <T> T extractClaim(final String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractClaims(token);
-        return claimsResolver.apply(claims);
+        return extractClaims(token).getSubject();
     }
 
     private Claims extractClaims(final String token) {
