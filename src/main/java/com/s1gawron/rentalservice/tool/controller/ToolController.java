@@ -3,6 +3,7 @@ package com.s1gawron.rentalservice.tool.controller;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
+import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class ToolController extends ToolErrorHandlerController {
     }
 
     @GetMapping("get/category/{category}")
-    public ToolListingDTO getToolsByCategory(@PathVariable String category) {
+    public ToolListingDTO getToolsByCategory(@PathVariable ToolCategory category) {
         return toolService.getToolsByCategory(category);
     }
 
@@ -36,6 +37,11 @@ public class ToolController extends ToolErrorHandlerController {
     @PostMapping("get/name")
     public List<ToolDetailsDTO> getToolsByName(@RequestBody final ToolSearchDTO toolSearchDTO) {
         return toolService.getToolsByName(toolSearchDTO);
+    }
+
+    @GetMapping("get/all")
+    public ToolListingDTO getAllTools() {
+        return toolService.getAllTools();
     }
 
 }

@@ -2,8 +2,6 @@ package com.s1gawron.rentalservice.tool.service;
 
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
-import com.s1gawron.rentalservice.shared.UserNotFoundException;
-import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
@@ -43,22 +41,21 @@ public class ToolService {
     }
 
     @Transactional(readOnly = true)
-    public ToolListingDTO getToolsByCategory(final String category) {
-        final ToolCategory toolCategory = ToolCategory.findByValue(category);
-        final List<ToolDetailsDTO> toolDetailsDTOSByCategory = toolRepository.findAllByToolCategory(toolCategory)
-            .stream()
-            .map(Tool::toToolDetailsDTO)
-            .toList();
+    public ToolListingDTO getToolsByCategory(final ToolCategory toolCategory) {
+        if (isUserCustomerOrUnauthenticated()) {
+            final List<Tool> notRemovedToolsByCategory = toolRepository.findAllByToolCategory(toolCategory.name(), false);
+            return toToolListingDTO(notRemovedToolsByCategory);
+        }
 
-        return new ToolListingDTO(toolDetailsDTOSByCategory.size(), toolDetailsDTOSByCategory);
+        return toToolListingDTO(toolRepository.findAllByToolCategory(toolCategory.name()));
     }
 
     @Transactional(readOnly = true)
     public List<ToolDetailsDTO> getNewTools() {
         return toolRepository.findNewTools()
-            .stream()
-            .map(Tool::toToolDetailsDTO)
-            .toList();
+                .stream()
+                .map(Tool::toToolDetailsDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -73,20 +70,23 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public List<ToolDetailsDTO> getToolsByName(final ToolSearchDTO toolSearchDTO) {
-        final List<ToolDetailsDTO> toolDetails = toolRepository.findByNameContainingIgnoreCase(toolSearchDTO.toolName()).stream()
-            .map(Tool::toToolDetailsDTO)
-            .toList();
-
-        if (toolDetails.isEmpty()) {
-            throw ToolNotFoundException.createForName(toolSearchDTO.toolName());
+        if (isUserCustomerOrUnauthenticated()) {
+            return toolRepository.findNotRemovedToolsByName(toolSearchDTO.toolName()).stream()
+                    .map(Tool::toToolDetailsDTO)
+                    .toList();
         }
 
-        return toolDetails;
+        return toolRepository.findByName(toolSearchDTO.toolName()).stream()
+                .map(Tool::toToolDetailsDTO)
+                .toList();
     }
 
     @Transactional
     public ToolDetailsDTO validateAndAddTool(final ToolDTO toolDTO) {
-        canUserPerformActionOnTools();
+        if (isUserCustomerOrUnauthenticated()) {
+            throw NoAccessForUserRoleException.create(ELEMENT_NAME);
+        }
+
         ToolDTOValidator.I.validate(toolDTO);
 
         final ToolState toolState = ToolState.from(toolDTO.toolState());
@@ -100,7 +100,10 @@ public class ToolService {
 
     @Transactional
     public ToolDetailsDTO validateAndEditTool(final ToolDetailsDTO toolDetailsDTO) {
-        canUserPerformActionOnTools();
+        if (isUserCustomerOrUnauthenticated()) {
+            throw NoAccessForUserRoleException.create(ELEMENT_NAME);
+        }
+
         ToolDTOValidator.I.validate(toolDetailsDTO);
 
         final Tool tool = getToolById(toolDetailsDTO.toolId());
@@ -116,7 +119,9 @@ public class ToolService {
 
     @Transactional
     public boolean deleteTool(final Long toolId) {
-        canUserPerformActionOnTools();
+        if (isUserCustomerOrUnauthenticated()) {
+            throw NoAccessForUserRoleException.create(ELEMENT_NAME);
+        }
 
         final Tool tool = getToolById(toolId);
         tool.remove();
@@ -128,9 +133,9 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public List<ToolDetailsDTO> getToolDetailsByReservationHasTools(final List<ReservationHasTool> reservationHasTools) {
-        return toolRepository.findAllByReservationHasToolsIn(reservationHasTools).stream()
-            .map(Tool::toToolDetailsDTO)
-            .toList();
+        return getToolsByReservationHasTools(reservationHasTools).stream()
+                .map(Tool::toToolDetailsDTO)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -163,22 +168,30 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public ToolListingDTO getAllTools() {
-        canUserPerformActionOnTools();
+        if (isUserCustomerOrUnauthenticated()) {
+            return toToolListingDTO(toolRepository.findAll(false));
+        }
 
-        final List<ToolDetailsDTO> allTools = toolRepository.findAll().stream()
-            .map(Tool::toToolDetailsDTO)
-            .toList();
-
-        return new ToolListingDTO(allTools.size(), allTools);
+        return toToolListingDTO(toolRepository.findAllWithLimit());
     }
 
-    private void canUserPerformActionOnTools() {
-        final Optional<Object> principal = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        final User principalToUser = principal.map(p -> (User) p).orElseThrow(UserUnauthenticatedException::create);
-        final User user = userService.getUserByEmail(principalToUser.getEmail()).orElseThrow(() -> UserNotFoundException.create(principalToUser.getEmail()));
+    private ToolListingDTO toToolListingDTO(final List<Tool> tools) {
+        final List<ToolDetailsDTO> toolDetailsDTOS = tools.stream()
+                .map(Tool::toToolDetailsDTO)
+                .toList();
 
-        if (user.isCustomer()) {
-            throw NoAccessForUserRoleException.create(ELEMENT_NAME);
+        return new ToolListingDTO(toolDetailsDTOS.size(), toolDetailsDTOS);
+    }
+
+    private boolean isUserCustomerOrUnauthenticated() {
+        final Optional<Object> principal = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+        if (principal.isEmpty() || principal.get().equals("anonymousUser")) {
+            return true;
         }
+
+        final String userEmail = principal.map(p -> (User) p).get().getEmail();
+
+        return userService.getUserByEmail(userEmail).map(User::isCustomer).orElse(false);
     }
 }

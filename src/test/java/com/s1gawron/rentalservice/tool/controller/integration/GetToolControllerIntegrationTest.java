@@ -24,14 +24,13 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     private static final String TOOL_GET_ENDPOINT = "/api/public/tool/get/";
 
-    private static final String TOOL_MANAGEMENT_ENDPOINT = "/api/management/tool/";
-
     @Test
-    void shouldGetToolsByCategory() throws Exception {
+    void shouldGetNotRemovedToolsByCategoryWhenUserIsUnauthenticated() throws Exception {
         toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
         toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
+        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
 
-        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "category/heavy");
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "category/HEAVY");
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
@@ -40,6 +39,42 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertEquals(3, resultObject.count());
         assertEquals(3, resultObject.tools().size());
+    }
+
+    @Test
+    void shouldGetNotRemovedToolsByCategoryWhenUserIsCustomer() throws Exception {
+        toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
+        toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
+        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
+
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "category/HEAVY")
+                .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
+
+        final MvcResult result = mockMvc.perform(request).andReturn();
+        final String resultJson = result.getResponse().getContentAsString();
+        final ToolListingDTO resultObject = objectMapper.readValue(resultJson, ToolListingDTO.class);
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        assertEquals(3, resultObject.count());
+        assertEquals(3, resultObject.tools().size());
+    }
+
+    @Test
+    void shouldGetAllToolsByCategoryWhenUserIsWorker() throws Exception {
+        toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
+        toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
+        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
+
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "category/HEAVY")
+                .header("Authorization", getAuthorizationToken(UserRole.WORKER));
+
+        final MvcResult result = mockMvc.perform(request).andReturn();
+        final String resultJson = result.getResponse().getContentAsString();
+        final ToolListingDTO resultObject = objectMapper.readValue(resultJson, ToolListingDTO.class);
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        assertEquals(6, resultObject.count());
+        assertEquals(6, resultObject.tools().size());
     }
 
     @Test
@@ -71,11 +106,10 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         assertEquals(3, resultList.size());
 
         final long areProperToolsInResultListCount = resultList.stream().filter(tool -> {
-                final String toolName = tool.name();
-
-                return toolName.equals("Loader") || toolName.equals("Crane") || toolName.equals("Big hammer");
-            })
-            .count();
+                    final String toolName = tool.name();
+                    return toolName.equals("Loader") || toolName.equals("Crane") || toolName.equals("Big hammer");
+                })
+                .count();
 
         assertEquals(3, areProperToolsInResultListCount);
     }
@@ -117,14 +151,15 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    void shouldGetToolsByName() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList());
+    void shouldGetNotRemovedToolsByNameWhenUserIsUnauthenticated() throws Exception {
+        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(false));
+        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(true));
         toolRepository.save(ToolCreatorHelper.I.createChainsaw());
 
         final String json = """
-            {
-              "toolName": "hammer"
-            }""";
+                {
+                  "toolName": "hammer"
+                }""";
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json);
 
@@ -143,18 +178,120 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
-    void shouldReturnNotFoundResponseWhenToolsAreNotFoundByName() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList());
+    void shouldGetNotRemovedToolsByNameWhenUserIsCustomer() throws Exception {
+        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(false));
+        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(true));
+        toolRepository.save(ToolCreatorHelper.I.createChainsaw());
 
         final String json = """
-            {
-              "toolName": "chainsaw"
-            }""";
+                {
+                  "toolName": "hammer"
+                }
+                """;
+
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json)
+                .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
+
+        final MvcResult result = mockMvc.perform(request).andReturn();
+        final String resultJson = result.getResponse().getContentAsString();
+        final List<ToolDetailsDTO> resultList = objectMapper.readValue(resultJson, new TypeReference<>() {
+
+        });
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        assertEquals(2, resultList.size());
+
+        for (final ToolDetailsDTO details : resultList) {
+            assertTrue(details.name().toLowerCase().contains("hammer"));
+        }
+    }
+
+    @Test
+    void shouldGetAllToolsByNameWhenUserIsWorker() throws Exception {
+        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(false));
+        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(true));
+        toolRepository.save(ToolCreatorHelper.I.createChainsaw());
+
+        final String json = """
+                {
+                  "toolName": "hammer"
+                }
+                """;
+
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json)
+                .header("Authorization", getAuthorizationToken(UserRole.WORKER));
+
+        final MvcResult result = mockMvc.perform(request).andReturn();
+        final String resultJson = result.getResponse().getContentAsString();
+        final List<ToolDetailsDTO> resultList = objectMapper.readValue(resultJson, new TypeReference<>() {
+
+        });
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        assertEquals(4, resultList.size());
+        assertEquals(2, resultList.stream().filter(tool -> !tool.removed()).count());
+        assertEquals(2, resultList.stream().filter(ToolDetailsDTO::removed).count());
+
+        for (final ToolDetailsDTO details : resultList) {
+            assertTrue(details.name().toLowerCase().contains("hammer"));
+        }
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenToolsAreNotFoundByName() throws Exception {
+        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(false));
+
+        final String json = """
+                {
+                  "toolName": "chainsaw"
+                }
+                """;
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json);
         final MvcResult result = mockMvc.perform(request).andReturn();
+        final String resultJson = result.getResponse().getContentAsString();
+        final List<ToolDetailsDTO> resultList = objectMapper.readValue(resultJson, new TypeReference<>() {
 
-        assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
+        });
+
+        assertEquals(0, resultList.size());
+    }
+
+    @Test
+    void shouldGetNotRemovedToolsIfUserIsUnauthenticated() throws Exception {
+        toolRepository.saveAll(ToolCreatorHelper.I.createToolList());
+        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
+
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "all");
+        final MockHttpServletResponse result = mockMvc.perform(request).andReturn().getResponse();
+        final ToolListingDTO resultObject = objectMapper.readValue(result.getContentAsString(), ToolListingDTO.class);
+        final long removedToolsCount = resultObject.tools().stream().filter(ToolDetailsDTO::removed).count();
+        final long notRemovedToolsCount = resultObject.tools().stream().filter(tool -> !tool.removed()).count();
+
+        assertEquals(HttpStatus.OK.value(), result.getStatus());
+        assertEquals(3, resultObject.count());
+        assertEquals(3, resultObject.tools().size());
+        assertEquals(0, removedToolsCount);
+        assertEquals(3, notRemovedToolsCount);
+    }
+
+    @Test
+    void shouldGetNotRemovedToolsIfUserIsCustomer() throws Exception {
+        toolRepository.saveAll(ToolCreatorHelper.I.createToolList());
+        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
+
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "all")
+                .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
+        final MockHttpServletResponse result = mockMvc.perform(request).andReturn().getResponse();
+        final ToolListingDTO resultObject = objectMapper.readValue(result.getContentAsString(), ToolListingDTO.class);
+        final long removedToolsCount = resultObject.tools().stream().filter(ToolDetailsDTO::removed).count();
+        final long notRemovedToolsCount = resultObject.tools().stream().filter(tool -> !tool.removed()).count();
+
+        assertEquals(HttpStatus.OK.value(), result.getStatus());
+        assertEquals(3, resultObject.count());
+        assertEquals(3, resultObject.tools().size());
+        assertEquals(0, removedToolsCount);
+        assertEquals(3, notRemovedToolsCount);
     }
 
     @Test
@@ -162,8 +299,8 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         toolRepository.saveAll(ToolCreatorHelper.I.createToolList());
         toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
 
-        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_MANAGEMENT_ENDPOINT + "get/all")
-            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "all")
+                .header("Authorization", getAuthorizationToken(UserRole.WORKER));
         final MockHttpServletResponse result = mockMvc.perform(request).andReturn().getResponse();
         final ToolListingDTO resultObject = objectMapper.readValue(result.getContentAsString(), ToolListingDTO.class);
         final long removedToolsCount = resultObject.tools().stream().filter(ToolDetailsDTO::removed).count();
@@ -174,17 +311,6 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         assertEquals(9, resultObject.tools().size());
         assertEquals(6, removedToolsCount);
         assertEquals(3, notRemovedToolsCount);
-    }
-
-    @Test
-    void shouldReturnForbiddenResponseIfUserIsNotAllowedToGetAllTools() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createToolList());
-
-        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_MANAGEMENT_ENDPOINT + "get/all")
-            .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
-        final MockHttpServletResponse result = mockMvc.perform(request).andReturn().getResponse();
-
-        assertEquals(HttpStatus.FORBIDDEN.value(), result.getStatus());
     }
 
 }

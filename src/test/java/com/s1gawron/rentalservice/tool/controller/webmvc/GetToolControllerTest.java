@@ -5,7 +5,6 @@ import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
 import com.s1gawron.rentalservice.tool.dto.validator.ToolDTOValidator;
-import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
@@ -31,12 +30,12 @@ class GetToolControllerTest extends ToolControllerTest {
     @Test
     void shouldGetToolsByCategory() throws Exception {
         final List<ToolDetailsDTO> heavyTools = ToolCreatorHelper.I.createToolDTOList().stream()
-            .filter(tool -> tool.toolCategory().equals(ToolCategory.HEAVY.name()))
-            .toList();
+                .filter(tool -> tool.toolCategory().equals(ToolCategory.HEAVY.name()))
+                .toList();
 
-        Mockito.when(toolServiceMock.getToolsByCategory("heavy")).thenReturn(new ToolListingDTO(heavyTools.size(), heavyTools));
+        Mockito.when(toolServiceMock.getToolsByCategory(ToolCategory.HEAVY)).thenReturn(new ToolListingDTO(heavyTools.size(), heavyTools));
 
-        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "category/heavy");
+        final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "category/HEAVY");
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final ToolListingDTO toolListingDTOResult = objectMapper.readValue(jsonResult, ToolListingDTO.class);
@@ -47,20 +46,6 @@ class GetToolControllerTest extends ToolControllerTest {
         assertEquals(2, toolListingDTOResult.tools().size());
         assertEquals(2, getToolListSizeFilteredByCategory(ToolCategory.HEAVY, toolListingDTOResult.tools()));
         assertEquals(0, getToolListSizeFilteredByCategory(ToolCategory.LIGHT, toolListingDTOResult.tools()));
-    }
-
-    @Test
-    void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExist() throws Exception {
-        final ToolCategoryDoesNotExistException expectedException = ToolCategoryDoesNotExistException.create("medium");
-        final String endpoint = TOOL_GET_ENDPOINT + "category/medium";
-
-        Mockito.when(toolServiceMock.getToolsByCategory("medium")).thenThrow(expectedException);
-
-        final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
-
-        mockMvc.perform(request)
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -107,22 +92,22 @@ class GetToolControllerTest extends ToolControllerTest {
         final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
 
         mockMvc.perform(request)
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
     void shouldGetToolsByName() throws Exception {
         final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
-        final List<ToolDetailsDTO> toolDetailsDTOList = ToolCreatorHelper.I.createCommonNameToolDTOList().stream()
-            .filter(tool -> tool.name().toLowerCase().contains(toolSearchDTO.toolName()))
-            .toList();
+        final List<ToolDetailsDTO> toolDetailsDTOList = ToolCreatorHelper.I.createCommonNameToolDTOList(false).stream()
+                .filter(tool -> tool.name().toLowerCase().contains(toolSearchDTO.toolName()))
+                .toList();
 
         Mockito.when(toolServiceMock.getToolsByName(Mockito.any(ToolSearchDTO.class))).thenReturn(toolDetailsDTOList);
 
         final String json = objectMapper.writeValueAsString(toolSearchDTO);
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").with(csrf()).content(json)
-            .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {
@@ -139,7 +124,7 @@ class GetToolControllerTest extends ToolControllerTest {
         final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
         final String json = objectMapper.writeValueAsString(toolSearchDTO);
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").with(csrf()).content(json)
-            .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final List<ToolDetailsDTO> toolDetailsDTOListResult = objectMapper.readValue(jsonResult, new TypeReference<>() {

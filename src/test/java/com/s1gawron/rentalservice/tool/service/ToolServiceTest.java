@@ -4,13 +4,10 @@ import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
-import com.s1gawron.rentalservice.shared.UserNotFoundException;
-import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
-import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
@@ -31,6 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,8 +42,6 @@ class ToolServiceTest {
 
     private Authentication authenticationMock;
 
-    private SecurityContext securityContextMock;
-
     private ToolRepository toolRepositoryMock;
 
     private ToolStateRepository toolStateRepositoryMock;
@@ -57,7 +53,7 @@ class ToolServiceTest {
     @BeforeEach
     void setUp() {
         authenticationMock = Mockito.mock(Authentication.class);
-        securityContextMock = Mockito.mock(SecurityContext.class);
+        final SecurityContext securityContextMock = Mockito.mock(SecurityContext.class);
 
         Mockito.when(securityContextMock.getAuthentication()).thenReturn(authenticationMock);
         SecurityContextHolder.setContext(securityContextMock);
@@ -69,14 +65,14 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldGetToolsByCategory() {
+    void shouldGetNotRemovedToolsByCategoryWhenPrincipalIsNull() {
         final List<Tool> heavyTools = ToolCreatorHelper.I.createToolList().stream()
-            .filter(tool -> tool.getToolCategory().equals(ToolCategory.HEAVY))
-            .toList();
+                .filter(tool -> tool.getToolCategory().equals(ToolCategory.HEAVY))
+                .toList();
 
-        Mockito.when(toolRepositoryMock.findAllByToolCategory(ToolCategory.HEAVY)).thenReturn(heavyTools);
+        Mockito.when(toolRepositoryMock.findAllByToolCategory(ToolCategory.HEAVY.name(), false)).thenReturn(heavyTools);
 
-        final ToolListingDTO result = toolService.getToolsByCategory("heavy");
+        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.HEAVY);
 
         assertEquals(2, result.count());
         assertEquals(2, result.tools().size());
@@ -84,25 +80,50 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldNotGetHeavyToolsByLightCategory() {
-        final List<Tool> lightTools = ToolCreatorHelper.I.createHeavyTools().stream()
-            .filter(tool -> tool.getToolCategory().equals(ToolCategory.LIGHT))
-            .toList();
+    void shouldGetNotRemovedToolsByCategoryWhenPrincipalIsAnonymousUser() {
+        final List<Tool> heavyTools = ToolCreatorHelper.I.createToolList().stream()
+                .filter(tool -> tool.getToolCategory().equals(ToolCategory.HEAVY))
+                .toList();
 
-        Mockito.when(toolRepositoryMock.findAllByToolCategory(ToolCategory.LIGHT)).thenReturn(lightTools);
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn("anonymousUser");
+        Mockito.when(toolRepositoryMock.findAllByToolCategory(ToolCategory.HEAVY.name(), false)).thenReturn(heavyTools);
 
-        final ToolListingDTO result = toolService.getToolsByCategory("light");
+        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.HEAVY);
 
-        assertEquals(0, result.count());
-        assertEquals(0, result.tools().size());
+        assertEquals(2, result.count());
+        assertEquals(2, result.tools().size());
+        result.tools().forEach(toolDTO -> assertEquals(ToolCategory.HEAVY.name(), toolDTO.toolCategory()));
     }
 
     @Test
-    void shouldThrowExceptionWhenCategoryDoesNotExist() {
-        final String categoryDoesNotExistName = "medium";
+    void shouldGetNotRemovedToolsByCategoryWhenPrincipalIsWorker() {
+        final User worker = UserCreatorHelper.I.createWorker();
+        final List<Tool> mixedHeavyTools = Stream.concat(ToolCreatorHelper.I.createToolList().stream(), ToolCreatorHelper.I.createRemovedTools().stream())
+                .filter(tool -> tool.getToolCategory().equals(ToolCategory.HEAVY))
+                .toList();
 
-        assertThrows(ToolCategoryDoesNotExistException.class, () -> toolService.getToolsByCategory(categoryDoesNotExistName),
-            "Category: " + categoryDoesNotExistName + " does not exist!");
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+        Mockito.when(toolRepositoryMock.findAllByToolCategory(ToolCategory.HEAVY.name())).thenReturn(mixedHeavyTools);
+
+        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.HEAVY);
+
+        assertEquals(5, result.count());
+        assertEquals(5, result.tools().size());
+        result.tools().forEach(toolDTO -> assertEquals(ToolCategory.HEAVY.name(), toolDTO.toolCategory()));
+    }
+
+    @Test
+    void shouldNotGetHeavyToolsByLightCategory() {
+        final List<Tool> lightTools = ToolCreatorHelper.I.createHeavyTools().stream()
+                .filter(tool -> tool.getToolCategory().equals(ToolCategory.LIGHT))
+                .toList();
+
+        Mockito.when(toolRepositoryMock.findAllByToolCategory(ToolCategory.LIGHT.name())).thenReturn(lightTools);
+
+        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.LIGHT);
+
+        assertEquals(0, result.count());
+        assertEquals(0, result.tools().size());
     }
 
     @Test
@@ -151,13 +172,19 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUserDoesNotExistWhileAddingTool() {
-        final User worker = UserCreatorHelper.I.createWorker();
+    void shouldThrowExceptionWhenPrincipalIsNullWhileAddingTool() {
         final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
 
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndAddTool(expected), ERROR_MESSAGE);
+    }
 
-        assertThrows(UserNotFoundException.class, () -> toolService.validateAndAddTool(expected), ERROR_MESSAGE);
+    @Test
+    void shouldThrowExceptionWhenUserPrincipalIsAnonymousUserWhileAddingTool() {
+        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
+
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn("anonymousUser");
+
+        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndAddTool(expected), ERROR_MESSAGE);
     }
 
     @Test
@@ -197,22 +224,28 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUserDoesNotExistWhileEditingTool() {
-        final User worker = UserCreatorHelper.I.createWorker();
+    void shouldThrowExceptionWhenPrincipalIsNullWhileEditingTool() {
         final ToolDetailsDTO expected = ToolCreatorHelper.I.createToolDetailsDTO();
 
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndEditTool(expected), ERROR_MESSAGE);
+    }
 
-        assertThrows(UserNotFoundException.class, () -> toolService.validateAndEditTool(expected), ERROR_MESSAGE);
+    @Test
+    void shouldThrowExceptionWhenPrincipalIsAnonymousUserWhileEditingTool() {
+        final ToolDetailsDTO expected = ToolCreatorHelper.I.createToolDetailsDTO();
+
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn("anonymousUser");
+
+        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndEditTool(expected), ERROR_MESSAGE);
     }
 
     @Test
     void shouldThrowExceptionWhenUserIsNotAllowedToEditTool() {
-        final User worker = UserCreatorHelper.I.createCustomer();
+        final User customer = UserCreatorHelper.I.createCustomer();
         final ToolDetailsDTO expected = ToolCreatorHelper.I.createToolDetailsDTO();
 
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
-        Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
+        Mockito.when(userServiceMock.getUserByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
 
         assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndEditTool(expected), USER_NOT_ALLOWED_ERROR_MESSAGE);
     }
@@ -230,20 +263,19 @@ class ToolServiceTest {
 
         assertTrue(result);
         assertTrue(tool.isRemoved());
+        assertFalse(tool.isAvailable());
     }
 
     @Test
     void shouldThrowExceptionWhenPrincipalIsNullWhileDeletingTools() {
-        assertThrows(UserUnauthenticatedException.class, () -> toolService.deleteTool(1L), UNAUTHENTICATED_ERROR_MESSAGE);
+        assertThrows(NoAccessForUserRoleException.class, () -> toolService.deleteTool(1L), UNAUTHENTICATED_ERROR_MESSAGE);
     }
 
     @Test
-    void shouldThrowExceptionWhenUserDoesNotExistWhileDeletingTool() {
-        final User customer = UserCreatorHelper.I.createCustomer();
+    void shouldThrowExceptionWhenUserPrincipalIsAnonymousUserWhileDeletingTool() {
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn("anonymousUser");
 
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-
-        assertThrows(UserNotFoundException.class, () -> toolService.deleteTool(1L), ERROR_MESSAGE);
+        assertThrows(NoAccessForUserRoleException.class, () -> toolService.deleteTool(1L), ERROR_MESSAGE);
     }
 
     @Test
@@ -257,19 +289,59 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldGetToolsByName() {
+    void shouldGetNotRemovedToolsByNameWhenUserIsUnauthenticated() {
         final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
-        final List<Tool> tools = ToolCreatorHelper.I.createCommonNameToolList().stream()
-            .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.toolName()))
-            .toList();
+        final List<Tool> tools = ToolCreatorHelper.I.createCommonNameToolList(false).stream()
+                .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.toolName()))
+                .toList();
 
-        Mockito.when(toolRepositoryMock.findByNameContainingIgnoreCase(toolSearchDTO.toolName())).thenReturn(tools);
+        Mockito.when(toolRepositoryMock.findNotRemovedToolsByName(toolSearchDTO.toolName())).thenReturn(tools);
 
-        final List<ToolDetailsDTO> expectedTools = ToolCreatorHelper.I.createCommonNameToolDTOList();
         final List<ToolDetailsDTO> result = toolService.getToolsByName(toolSearchDTO);
 
         assertEquals(2, result.size());
-        assertTools(expectedTools, result);
+    }
+
+    @Test
+    void shouldGetNotRemovedToolsByNameWhenUserIsCustomer() {
+        final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
+        final List<Tool> tools = ToolCreatorHelper.I.createCommonNameToolList(false).stream()
+                .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.toolName()))
+                .toList();
+        final User customer = UserCreatorHelper.I.createCustomer();
+
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
+        Mockito.when(userServiceMock.getUserByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
+        Mockito.when(toolRepositoryMock.findNotRemovedToolsByName(toolSearchDTO.toolName())).thenReturn(tools);
+
+        final List<ToolDetailsDTO> result = toolService.getToolsByName(toolSearchDTO);
+
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void shouldGetAllToolsByNameWhenUserIsWorker() {
+        final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
+        final Stream<Tool> tools = ToolCreatorHelper.I.createCommonNameToolList(false).stream()
+                .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.toolName()));
+        final Stream<Tool> removedTools = ToolCreatorHelper.I.createCommonNameToolList(true).stream()
+                .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.toolName()));
+        final User worker = UserCreatorHelper.I.createWorker();
+
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+        Mockito.when(toolRepositoryMock.findByName(toolSearchDTO.toolName())).thenReturn(Stream.concat(tools, removedTools).toList());
+
+        final List<ToolDetailsDTO> result = toolService.getToolsByName(toolSearchDTO);
+
+        assertEquals(4, result.size());
+    }
+
+    @Test
+    void shouldGetEmptyListWhenNoToolAreFoundByName() {
+        final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
+        final List<ToolDetailsDTO> result = toolService.getToolsByName(toolSearchDTO);
+
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -332,7 +404,7 @@ class ToolServiceTest {
         final List<Tool> tools = ToolCreatorHelper.I.createToolList();
         final Reservation reservation = ReservationCreatorHelper.I.createReservation();
         final List<ReservationHasTool> reservationHasTools = List.of(new ReservationHasTool(tools.get(0), reservation),
-            new ReservationHasTool(tools.get(1), reservation), new ReservationHasTool(tools.get(2), reservation));
+                new ReservationHasTool(tools.get(1), reservation), new ReservationHasTool(tools.get(2), reservation));
 
         Mockito.when(toolRepositoryMock.findAllByReservationHasToolsIn(reservationHasTools)).thenReturn(tools);
 
@@ -354,13 +426,10 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldGetAllTools() {
+    void shouldReturnNotRemovedToolsForUnauthenticatedUser() {
         final List<Tool> tools = ToolCreatorHelper.I.createToolList();
-        final User worker = UserCreatorHelper.I.createWorker();
 
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
-        Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
-        Mockito.when(toolRepositoryMock.findAll()).thenReturn(tools);
+        Mockito.when(toolRepositoryMock.findAll(false)).thenReturn(tools);
 
         final ToolListingDTO result = toolService.getAllTools();
 
@@ -369,29 +438,43 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUserDoesNotExistGetAllTools() {
-        final List<Tool> tools = ToolCreatorHelper.I.createToolList();
-
-        Mockito.when(toolRepositoryMock.findAll()).thenReturn(tools);
-
-        assertThrows(UserUnauthenticatedException.class, () -> toolService.getAllTools(), UNAUTHENTICATED_ERROR_MESSAGE);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserIsNotAllowedToGetAllTools() {
+    void shouldReturnNotRemovedToolsForCustomer() {
         final User customer = UserCreatorHelper.I.createCustomer();
+        final List<Tool> tools = ToolCreatorHelper.I.createToolList();
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
         Mockito.when(userServiceMock.getUserByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
+        Mockito.when(toolRepositoryMock.findAll(false)).thenReturn(tools);
 
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.getAllTools(), USER_NOT_ALLOWED_ERROR_MESSAGE);
+        final ToolListingDTO result = toolService.getAllTools();
+
+        assertEquals(3, result.count());
+        assertEquals(3, result.tools().size());
+    }
+
+    @Test
+    void shouldReturnAllToolsForWorker() {
+        final User worker = UserCreatorHelper.I.createWorker();
+        final List<Tool> mixedTools = Stream.concat(ToolCreatorHelper.I.createToolList().stream(), ToolCreatorHelper.I.createRemovedTools().stream()).toList();
+
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
+        Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
+        Mockito.when(toolRepositoryMock.findAllWithLimit()).thenReturn(mixedTools);
+
+        final ToolListingDTO result = toolService.getAllTools();
+
+        assertEquals(9, result.count());
+        assertEquals(9, result.tools().size());
+        assertEquals(6, result.tools().stream().filter(ToolDetailsDTO::removed).count());
+        assertEquals(3, result.tools().stream().filter(tool -> !tool.removed()).count());
     }
 
     private void assertTools(final List<ToolDetailsDTO> expectedTools, final List<ToolDetailsDTO> resultTools) {
+        assertEquals(expectedTools.size(), resultTools.size());
         resultTools.forEach(resultTool -> {
             final Optional<ToolDetailsDTO> expected = expectedTools.stream()
-                .filter(expectedTool -> expectedTool.name().equals(resultTool.name()))
-                .findFirst();
+                    .filter(expectedTool -> expectedTool.name().equals(resultTool.name()))
+                    .findFirst();
 
             if (expected.isEmpty()) {
                 throw new IllegalStateException("Expected tool cannot be empty!");
