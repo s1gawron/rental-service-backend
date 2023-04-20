@@ -215,4 +215,12 @@ public enum ToolCreatorHelper {
 
         return List.of(newHeavyTool, newLightTool, usedHeavyTool, usedLightTool, wornHeavyTool, wornLightTool);
     }
+
+    public Tool createRemovedHammerWithAvailability() {
+        final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
+        final ToolDetailsDTO newHeavyToolDetailsDTO = new ToolDetailsDTO(1L, true, true, "Removed heavy hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(),
+                BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
+
+        return Tool.from(newHeavyToolDetailsDTO, ToolState.from(newState));
+    }
 }

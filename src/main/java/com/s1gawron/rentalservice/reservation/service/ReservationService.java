@@ -46,8 +46,8 @@ public class ReservationService {
     private final ToolService toolService;
 
     public ReservationService(final ReservationRepository reservationRepository, final ReservationHasToolRepository reservationHasToolRepository,
-        final UserService userService,
-        final ToolService toolService) {
+                              final UserService userService,
+                              final ToolService toolService) {
         this.reservationRepository = reservationRepository;
         this.reservationHasToolRepository = reservationHasToolRepository;
         this.userService = userService;
@@ -58,11 +58,11 @@ public class ReservationService {
     public ReservationListingDTO getUserReservations() {
         final User customer = getAndCheckIfUserIsCustomer();
         final List<ReservationDetailsDTO> userReservations = reservationRepository.findAllByCustomer(customer).stream()
-            .map(reservation -> {
-                final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
-                return reservation.toReservationDetailsDTO(toolDetails);
-            })
-            .toList();
+                .map(reservation -> {
+                    final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
+                    return reservation.toReservationDetailsDTO(toolDetails);
+                })
+                .toList();
 
         return new ReservationListingDTO(userReservations.size(), userReservations);
     }
@@ -73,7 +73,7 @@ public class ReservationService {
         customer.doesReservationBelongToUser(reservationId);
 
         final Reservation reservationById = reservationRepository.findByReservationId(reservationId)
-            .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
+                .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
         final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservationById.getReservationHasTools());
 
         return reservationById.toReservationDetailsDTO(toolDetails);
@@ -84,7 +84,7 @@ public class ReservationService {
         ReservationDTOValidator.I.validate(reservationDTO);
 
         final User customer = getAndCheckIfUserIsCustomer();
-        reservationDTO.toolIds().forEach(toolService::isToolAvailable);
+        reservationDTO.toolIds().forEach(toolService::isToolAvailableOrRemoved);
 
         final Reservation reservation = Reservation.from(reservationDTO);
         reservation.addCustomer(customer);
@@ -120,7 +120,7 @@ public class ReservationService {
         customer.doesReservationBelongToUser(reservationId);
 
         final Reservation reservationById = reservationRepository.findByReservationId(reservationId)
-            .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
+                .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
         final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservationById.getReservationHasTools());
         final List<ToolDetailsDTO> toolDetails = new ArrayList<>();
 

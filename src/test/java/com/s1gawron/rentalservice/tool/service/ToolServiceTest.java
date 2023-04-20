@@ -9,6 +9,7 @@ import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
+import com.s1gawron.rentalservice.tool.exception.ToolRemovedException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
@@ -370,24 +371,41 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldNotThrowExceptionWhenToolIsAvailable() {
+    void shouldNotThrowExceptionWhenToolIsAvailableAndNotRemoved() {
         Mockito.when(toolRepositoryMock.isToolAvailable(1L)).thenReturn(Optional.of(true));
+        Mockito.when(toolRepositoryMock.isToolRemoved(1L)).thenReturn(Optional.of(false));
 
-        toolService.isToolAvailable(1L);
+        toolService.isToolAvailableOrRemoved(1L);
     }
 
     @Test
-    void shouldNotThrowExceptionWhenToolNotFoundWhileCheckingAvailability() {
+    void shouldThrowExceptionWhenToolIsNotFoundWhileCheckingAvailability() {
         Mockito.when(toolRepositoryMock.isToolAvailable(1L)).thenThrow(ToolNotFoundException.create(1L));
 
-        assertThrows(ToolNotFoundException.class, () -> toolService.isToolAvailable(1L), "Tool#1 could not be found!");
+        assertThrows(ToolNotFoundException.class, () -> toolService.isToolAvailableOrRemoved(1L), "Tool#1 could not be found!");
     }
 
     @Test
-    void shouldNotThrowExceptionWhenToolIsNotAvailable() {
+    void shouldThrowExceptionWhenToolIsNotAvailable() {
         Mockito.when(toolRepositoryMock.isToolAvailable(1L)).thenReturn(Optional.of(false));
 
-        assertThrows(ToolUnavailableException.class, () -> toolService.isToolAvailable(1L), "Tool#1 is unavailable!");
+        assertThrows(ToolUnavailableException.class, () -> toolService.isToolAvailableOrRemoved(1L), "Tool#1 is unavailable!");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenToolIsNotFoundWhileCheckingRemoveStatus() {
+        Mockito.when(toolRepositoryMock.isToolAvailable(1L)).thenReturn(Optional.of(true));
+        Mockito.when(toolRepositoryMock.isToolRemoved(1L)).thenThrow(ToolNotFoundException.create(1L));
+
+        assertThrows(ToolNotFoundException.class, () -> toolService.isToolAvailableOrRemoved(1L), "Tool#1 could not be found!");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenToolIsRemoved() {
+        Mockito.when(toolRepositoryMock.isToolAvailable(1L)).thenReturn(Optional.of(true));
+        Mockito.when(toolRepositoryMock.isToolRemoved(1L)).thenReturn(Optional.of(true));
+
+        assertThrows(ToolRemovedException.class, () -> toolService.isToolAvailableOrRemoved(1L), "Tool#1 is removed!");
     }
 
     @Test

@@ -31,6 +31,9 @@ public interface ToolRepository extends JpaRepository<Tool, Long> {
     @Query(value = "SELECT is_available FROM tool WHERE tool_id = :toolId", nativeQuery = true)
     Optional<Boolean> isToolAvailable(@Param(value = "toolId") final long toolId);
 
+    @Query(value = "SELECT is_removed FROM tool WHERE tool_id = :toolId", nativeQuery = true)
+    Optional<Boolean> isToolRemoved(@Param(value = "toolId") final long toolId);
+
     List<Tool> findAllByReservationHasToolsIn(final List<ReservationHasTool> reservationHasTools);
 
     @Query(value = "SELECT * FROM tool WHERE is_removed = :removed LIMIT 500", nativeQuery = true)

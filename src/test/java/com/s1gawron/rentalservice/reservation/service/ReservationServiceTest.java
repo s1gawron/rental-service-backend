@@ -14,6 +14,7 @@ import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
+import com.s1gawron.rentalservice.tool.exception.ToolRemovedException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
@@ -39,8 +40,6 @@ class ReservationServiceTest {
 
     private Authentication authenticationMock;
 
-    private SecurityContext securityContextMock;
-
     private ReservationRepository reservationRepositoryMock;
 
     private ReservationHasToolRepository reservationHasToolRepositoryMock;
@@ -54,7 +53,7 @@ class ReservationServiceTest {
     @BeforeEach
     void setUp() {
         authenticationMock = Mockito.mock(Authentication.class);
-        securityContextMock = Mockito.mock(SecurityContext.class);
+        final SecurityContext securityContextMock = Mockito.mock(SecurityContext.class);
 
         Mockito.when(securityContextMock.getAuthentication()).thenReturn(authenticationMock);
         SecurityContextHolder.setContext(securityContextMock);
@@ -80,7 +79,7 @@ class ReservationServiceTest {
 
         for (int i = 0; i < toolDetails.size(); i++) {
             Mockito.when(toolServiceMock.getToolDetailsByReservationHasTools(reservations.get(i).getReservationHasTools()))
-                .thenReturn(List.of(toolDetails.get(i)));
+                    .thenReturn(List.of(toolDetails.get(i)));
         }
 
         final ReservationListingDTO result = reservationService.getUserReservations();
@@ -101,7 +100,7 @@ class ReservationServiceTest {
         Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
 
         assertThrows(NoAccessForUserRoleException.class, () -> reservationService.getUserReservations(),
-            "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
+                "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
     }
 
     @Test
@@ -134,7 +133,7 @@ class ReservationServiceTest {
         Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
 
         assertThrows(NoAccessForUserRoleException.class, () -> reservationService.getReservationDetails(1L),
-            "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
+                "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
     }
 
     @Test
@@ -152,7 +151,7 @@ class ReservationServiceTest {
         Mockito.when(reservationRepositoryMock.findByReservationId(1L)).thenReturn(Optional.of(reservation));
 
         assertThrows(ReservationNotFoundException.class, () -> reservationService.getReservationDetails(2L),
-            "Reservation#2 was not found!");
+                "Reservation#2 was not found!");
     }
 
     @Test
@@ -227,7 +226,7 @@ class ReservationServiceTest {
         Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
 
         assertThrows(NoAccessForUserRoleException.class, () -> reservationService.makeReservation(reservationDTO),
-            "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
+                "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
     }
 
     @Test
@@ -237,7 +236,7 @@ class ReservationServiceTest {
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
         Mockito.when(userServiceMock.getUserByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
-        Mockito.doThrow(ToolNotFoundException.create(1L)).when(toolServiceMock).isToolAvailable(1L);
+        Mockito.doThrow(ToolNotFoundException.create(1L)).when(toolServiceMock).isToolAvailableOrRemoved(1L);
 
         assertThrows(ToolNotFoundException.class, () -> reservationService.makeReservation(reservationDTO), "Tool#1 could not be found!");
     }
@@ -249,9 +248,21 @@ class ReservationServiceTest {
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
         Mockito.when(userServiceMock.getUserByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
-        Mockito.doThrow(ToolUnavailableException.create(1L)).when(toolServiceMock).isToolAvailable(1L);
+        Mockito.doThrow(ToolUnavailableException.create(1L)).when(toolServiceMock).isToolAvailableOrRemoved(1L);
 
         assertThrows(ToolUnavailableException.class, () -> reservationService.makeReservation(reservationDTO), "Tool#1 is unavailable!");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenToolIsRemovedWhileMakingReservation() {
+        final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(1L), "Hammer and loader", List.of(1L, 2L));
+        final User customer = UserCreatorHelper.I.createCustomer();
+
+        Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
+        Mockito.when(userServiceMock.getUserByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
+        Mockito.doThrow(ToolRemovedException.create(1L)).when(toolServiceMock).isToolAvailableOrRemoved(1L);
+
+        assertThrows(ToolRemovedException.class, () -> reservationService.makeReservation(reservationDTO), "Tool#1 is removed!");
     }
 
     @Test
@@ -293,7 +304,7 @@ class ReservationServiceTest {
         Mockito.when(userServiceMock.getUserByEmail(worker.getEmail())).thenReturn(Optional.of(worker));
 
         assertThrows(NoAccessForUserRoleException.class, () -> reservationService.cancelReservation(1L),
-            "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
+                "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
     }
 
     @Test
@@ -311,7 +322,7 @@ class ReservationServiceTest {
         Mockito.when(reservationRepositoryMock.findByReservationId(1L)).thenReturn(Optional.of(reservation));
 
         assertThrows(ReservationNotFoundException.class, () -> reservationService.cancelReservation(2L),
-            "Reservation#2 was not found!");
+                "Reservation#2 was not found!");
     }
 
     @Test

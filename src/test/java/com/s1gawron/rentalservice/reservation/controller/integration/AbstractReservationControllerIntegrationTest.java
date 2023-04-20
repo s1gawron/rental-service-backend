@@ -92,14 +92,16 @@ abstract class AbstractReservationControllerIntegrationTest {
 
     protected long loaderToolId;
 
+    protected long removedToolId;
+
     @BeforeEach
     @Transactional
     void setUp() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
         final UserRegisterRequest customerRegisterDTO = new UserRegisterRequest(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER.name(),
-            addressDTO);
+                addressDTO);
         final UserRegisterRequest differentCustomerRegisterDTO = new UserRegisterRequest(DIFFERENT_CUSTOMER_EMAIL, PASSWORD, "Tony", "Hawk",
-            UserRole.CUSTOMER.name(), addressDTO);
+                UserRole.CUSTOMER.name(), addressDTO);
         final UserRegisterRequest workerRegisterDTO = new UserRegisterRequest(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER.name(), null);
 
         userService.validateAndRegisterUser(customerRegisterDTO);
@@ -117,6 +119,10 @@ abstract class AbstractReservationControllerIntegrationTest {
         final Tool loader = ToolCreatorHelper.I.createLoader();
         toolRepository.save(loader);
         loaderToolId = loader.getToolId();
+
+        final Tool removedHammer = ToolCreatorHelper.I.createRemovedHammerWithAvailability();
+        toolRepository.save(removedHammer);
+        removedToolId = removedHammer.getToolId();
     }
 
     @AfterEach
@@ -130,31 +136,31 @@ abstract class AbstractReservationControllerIntegrationTest {
 
     protected void performMakeReservationRequests() throws Exception {
         final String hammerReservationJson = "{\n"
-            + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
-            + "  \"dateTo\": \"" + LocalDate.now().plusDays(2L) + "\",\n"
-            + "  \"additionalComment\": \"Hammer\",\n"
-            + "  \"toolIds\": [\n"
-            + "    " + currentToolId + "\n"
-            + "  ]\n"
-            + "}";
+                + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
+                + "  \"dateTo\": \"" + LocalDate.now().plusDays(2L) + "\",\n"
+                + "  \"additionalComment\": \"Hammer\",\n"
+                + "  \"toolIds\": [\n"
+                + "    " + currentToolId + "\n"
+                + "  ]\n"
+                + "}";
 
         currentReservationId = performRequestAndCheckState(hammerReservationJson, getAuthorizationToken(CUSTOMER_EMAIL));
 
         final String chainsawReservationJson = "{\n"
-            + "  \"dateFrom\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
-            + "  \"dateTo\": \"" + LocalDate.now().plusDays(5L) + "\",\n"
-            + "  \"additionalComment\": \"Chainsaw\",\n"
-            + "  \"toolIds\": [\n"
-            + "    " + nextToolId + "\n"
-            + "  ]\n"
-            + "}";
+                + "  \"dateFrom\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
+                + "  \"dateTo\": \"" + LocalDate.now().plusDays(5L) + "\",\n"
+                + "  \"additionalComment\": \"Chainsaw\",\n"
+                + "  \"toolIds\": [\n"
+                + "    " + nextToolId + "\n"
+                + "  ]\n"
+                + "}";
 
         performRequestAndCheckState(chainsawReservationJson, getAuthorizationToken(CUSTOMER_EMAIL));
     }
 
     protected long performRequestAndCheckState(final String objectJson, final String authorizationToken) throws Exception {
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(objectJson).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", authorizationToken);
+                .header("Authorization", authorizationToken);
 
         final MockHttpServletResponse result = mockMvc.perform(request).andReturn().getResponse();
         final int status = result.getStatus();

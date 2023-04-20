@@ -8,6 +8,7 @@ import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
 import com.s1gawron.rentalservice.tool.dto.validator.ToolDTOValidator;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
+import com.s1gawron.rentalservice.tool.exception.ToolRemovedException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
@@ -139,14 +140,18 @@ public class ToolService {
     }
 
     @Transactional(readOnly = true)
-    public void isToolAvailable(final long toolId) {
-        final boolean isAvailable = toolRepository.isToolAvailable(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
+    public void isToolAvailableOrRemoved(final long toolId) {
+        final boolean isNotAvailable = !toolRepository.isToolAvailable(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
 
-        if (isAvailable) {
-            return;
+        if (isNotAvailable) {
+            throw ToolUnavailableException.create(toolId);
         }
 
-        throw ToolUnavailableException.create(toolId);
+        final boolean isRemoved = toolRepository.isToolRemoved(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
+
+        if (isRemoved) {
+            throw ToolRemovedException.create(toolId);
+        }
     }
 
     @Transactional
