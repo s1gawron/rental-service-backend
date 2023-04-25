@@ -5,6 +5,7 @@ import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.user.dto.UserLoginRequest;
 import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.AfterEach;
@@ -44,7 +45,7 @@ abstract class AbstractUserControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, PASSWORD, "John", "Kowalski", "CUSTOMER", addressDTO);
+        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
         userService.validateAndRegisterUser(userRegisterRequest);
     }
 

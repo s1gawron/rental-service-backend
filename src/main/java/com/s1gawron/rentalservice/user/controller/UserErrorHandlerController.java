@@ -4,12 +4,15 @@ import com.s1gawron.rentalservice.address.exception.AddressRegisterEmptyProperti
 import com.s1gawron.rentalservice.address.exception.PostCodePatternViolationException;
 import com.s1gawron.rentalservice.shared.AbstractErrorHandlerController;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
-import com.s1gawron.rentalservice.user.exception.*;
+import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
+import com.s1gawron.rentalservice.user.exception.UserEmailPatternViolationException;
+import com.s1gawron.rentalservice.user.exception.UserPasswordTooWeakException;
+import com.s1gawron.rentalservice.user.exception.UserRegisterEmptyPropertiesException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 
 public abstract class UserErrorHandlerController extends AbstractErrorHandlerController {
@@ -17,57 +20,49 @@ public abstract class UserErrorHandlerController extends AbstractErrorHandlerCon
     @ExceptionHandler(UserEmailExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse userEmailExistsExceptionHandler(final UserEmailExistsException userEmailExistsException,
-        final HttpServletRequest httpServletRequest) {
+                                                         final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.CONFLICT.value(), HttpStatus.CONFLICT.getReasonPhrase(),
-            userEmailExistsException.getMessage(), httpServletRequest.getRequestURI());
+                userEmailExistsException.getMessage(), httpServletRequest.getRequestURI());
     }
 
     @ExceptionHandler(UserRegisterEmptyPropertiesException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse userEmptyRegisterPropertiesExceptionHandler(final UserRegisterEmptyPropertiesException userRegisterEmptyPropertiesException,
-        final HttpServletRequest httpServletRequest) {
+                                                                     final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            userRegisterEmptyPropertiesException.getMessage(), httpServletRequest.getRequestURI());
+                userRegisterEmptyPropertiesException.getMessage(), httpServletRequest.getRequestURI());
     }
 
     @ExceptionHandler(UserEmailPatternViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse userEmailPatternViolationExceptionHandler(final UserEmailPatternViolationException userEmailPatternViolationException,
-        final HttpServletRequest httpServletRequest) {
+                                                                   final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            userEmailPatternViolationException.getMessage(), httpServletRequest.getRequestURI());
+                userEmailPatternViolationException.getMessage(), httpServletRequest.getRequestURI());
     }
 
     @ExceptionHandler(UserPasswordTooWeakException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse userPasswordTooWeakExceptionHandler(final UserPasswordTooWeakException userPasswordTooWeakException,
-        final HttpServletRequest httpServletRequest) {
+                                                             final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            userPasswordTooWeakException.getMessage(), httpServletRequest.getRequestURI());
+                userPasswordTooWeakException.getMessage(), httpServletRequest.getRequestURI());
     }
 
     @ExceptionHandler(AddressRegisterEmptyPropertiesException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse addressEmptyRegisterPropertiesExceptionHandler(final AddressRegisterEmptyPropertiesException addressRegisterEmptyPropertiesException,
-        final HttpServletRequest httpServletRequest) {
+                                                                        final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            addressRegisterEmptyPropertiesException.getMessage(), httpServletRequest.getRequestURI());
+                addressRegisterEmptyPropertiesException.getMessage(), httpServletRequest.getRequestURI());
     }
 
     @ExceptionHandler(PostCodePatternViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse postCodePatternViolationExceptionHandler(final PostCodePatternViolationException postCodePatternViolationException,
-        final HttpServletRequest httpServletRequest) {
+                                                                  final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            postCodePatternViolationException.getMessage(), httpServletRequest.getRequestURI());
-    }
-
-    @ExceptionHandler(UserRoleDoesNotExistException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse userRoleDoesNotExistExceptionHandler(final UserRoleDoesNotExistException userRoleDoesNotExistException,
-        final HttpServletRequest httpServletRequest) {
-        return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            userRoleDoesNotExistException.getMessage(), httpServletRequest.getRequestURI());
+                postCodePatternViolationException.getMessage(), httpServletRequest.getRequestURI());
     }
 
 }

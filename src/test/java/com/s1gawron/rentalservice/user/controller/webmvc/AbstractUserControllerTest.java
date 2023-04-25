@@ -6,6 +6,7 @@ import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.configuration.jwt.JwtService;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.AuthenticationService;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +18,7 @@ abstract class AbstractUserControllerTest {
 
     private static final AddressDTO ADDRESS_DTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
 
-    private static final UserRegisterRequest USER_REGISTER_DTO = new UserRegisterRequest("test@test.pl", "Start00!", "John", "Kowalski", "CUSTOMER",
-        ADDRESS_DTO);
+    private static final UserRegisterRequest USER_REGISTER_DTO = new UserRegisterRequest("test@test.pl", "Start00!", "John", "Kowalski", UserRole.CUSTOMER, ADDRESS_DTO);
 
     protected static final String ERROR_RESPONSE_MESSAGE_PLACEHOLDER = "$.message";
 

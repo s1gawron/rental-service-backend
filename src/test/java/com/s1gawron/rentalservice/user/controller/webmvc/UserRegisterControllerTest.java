@@ -6,7 +6,10 @@ import com.s1gawron.rentalservice.address.exception.PostCodePatternViolationExce
 import com.s1gawron.rentalservice.user.controller.UserController;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
-import com.s1gawron.rentalservice.user.exception.*;
+import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
+import com.s1gawron.rentalservice.user.exception.UserEmailPatternViolationException;
+import com.s1gawron.rentalservice.user.exception.UserPasswordTooWeakException;
+import com.s1gawron.rentalservice.user.exception.UserRegisterEmptyPropertiesException;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -40,7 +43,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenReturn(userDTO);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
-            .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final UserDTO userDTOResult = objectMapper.readValue(jsonResult, UserDTO.class);
@@ -60,11 +63,11 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
-            .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -74,11 +77,11 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
-            .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -88,11 +91,11 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
-            .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -102,11 +105,11 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
-            .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -116,11 +119,11 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
-            .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -130,25 +133,11 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
         Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
-            .contentType(MediaType.APPLICATION_JSON);
+                .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
-    }
-
-    @Test
-    void shouldReturnBadRequestResponseWhenUserRoleDoesNotExistWhileRegisteringUser() throws Exception {
-        final UserRoleDoesNotExistException expectedException = UserRoleDoesNotExistException.create("UNKNOWN");
-
-        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
-
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
-            .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
 }

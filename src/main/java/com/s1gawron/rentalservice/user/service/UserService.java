@@ -8,7 +8,6 @@ import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
 import com.s1gawron.rentalservice.user.dto.validator.UserDTOValidator;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,10 +42,9 @@ public class UserService {
         }
 
         final String encryptedPassword = passwordEncoder.encode(userRegisterRequest.password());
-        final UserRole userRole = UserRole.findByValue(userRegisterRequest.userRole());
-        final User user = User.createUser(userRegisterRequest, userRole, encryptedPassword);
+        final User user = User.createUser(userRegisterRequest, encryptedPassword);
 
-        addressService.validateAndSaveAddress(userRegisterRequest.address(), userRole).ifPresent(user::setCustomerAddress);
+        addressService.validateAndSaveAddress(userRegisterRequest.address(), userRegisterRequest.userRole()).ifPresent(user::setCustomerAddress);
         userRepository.save(user);
 
         return user.toUserDTO();

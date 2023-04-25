@@ -56,9 +56,8 @@ abstract class AbstractToolControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest customerRegisterDTO = new UserRegisterRequest(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER.name(),
-            addressDTO);
-        final UserRegisterRequest workerRegisterDTO = new UserRegisterRequest(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER.name(), null);
+        final UserRegisterRequest customerRegisterDTO = new UserRegisterRequest(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterRequest workerRegisterDTO = new UserRegisterRequest(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER, null);
 
         userService.validateAndRegisterUser(customerRegisterDTO);
         userService.validateAndRegisterUser(workerRegisterDTO);

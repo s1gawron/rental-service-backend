@@ -98,11 +98,9 @@ abstract class AbstractReservationControllerIntegrationTest {
     @Transactional
     void setUp() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest customerRegisterDTO = new UserRegisterRequest(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER.name(),
-                addressDTO);
-        final UserRegisterRequest differentCustomerRegisterDTO = new UserRegisterRequest(DIFFERENT_CUSTOMER_EMAIL, PASSWORD, "Tony", "Hawk",
-                UserRole.CUSTOMER.name(), addressDTO);
-        final UserRegisterRequest workerRegisterDTO = new UserRegisterRequest(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER.name(), null);
+        final UserRegisterRequest customerRegisterDTO = new UserRegisterRequest(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterRequest differentCustomerRegisterDTO = new UserRegisterRequest(DIFFERENT_CUSTOMER_EMAIL, PASSWORD, "Tony", "Hawk", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterRequest workerRegisterDTO = new UserRegisterRequest(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER, null);
 
         userService.validateAndRegisterUser(customerRegisterDTO);
         userService.validateAndRegisterUser(differentCustomerRegisterDTO);

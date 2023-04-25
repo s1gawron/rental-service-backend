@@ -4,7 +4,6 @@ import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
 import com.s1gawron.rentalservice.user.exception.UserEmailPatternViolationException;
 import com.s1gawron.rentalservice.user.exception.UserPasswordTooWeakException;
 import com.s1gawron.rentalservice.user.exception.UserRegisterEmptyPropertiesException;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +47,6 @@ public enum UserDTOValidator {
             log.error("User type" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForUserRole();
         }
-
-        UserRole.findByValue(userRegisterRequest.userRole());
 
         final Matcher emailMatcher = EMAIL_PATTERN.matcher(userRegisterRequest.email());
 

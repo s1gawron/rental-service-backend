@@ -14,8 +14,8 @@ public enum UserCreatorHelper {
 
     public User createCustomer() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER.name(), addressDTO);
-        final User user = User.createUser(userRegisterRequest, UserRole.CUSTOMER, "encryptedPassword");
+        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final User user = User.createUser(userRegisterRequest, "encryptedPassword");
 
         user.setCustomerAddress(Address.from(addressDTO));
 
@@ -24,8 +24,8 @@ public enum UserCreatorHelper {
 
     public User createWorker() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", UserRole.WORKER.name(), addressDTO);
-        final User user = User.createUser(userRegisterRequest, UserRole.WORKER, "encryptedPassword");
+        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", UserRole.WORKER, addressDTO);
+        final User user = User.createUser(userRegisterRequest, "encryptedPassword");
 
         user.setCustomerAddress(Address.from(addressDTO));
 
@@ -34,8 +34,8 @@ public enum UserCreatorHelper {
 
     public User createDifferentCustomer() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Przedmiescia", "01-100");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest("test2@test.pl", "Start00!", "George", "Happs", UserRole.CUSTOMER.name(), addressDTO);
-        final User user = User.createUser(userRegisterRequest, UserRole.CUSTOMER, "encryptedPassword");
+        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest("test2@test.pl", "Start00!", "George", "Happs", UserRole.CUSTOMER, addressDTO);
+        final User user = User.createUser(userRegisterRequest, "encryptedPassword");
 
         user.setCustomerAddress(Address.from(addressDTO));
 

@@ -24,7 +24,7 @@ class UserRegisterRequestDeserializationTest {
         assertEquals("Start00!", result.password());
         assertEquals("John", result.firstName());
         assertEquals("Kowalski", result.lastName());
-        assertEquals(UserRole.CUSTOMER.name(), result.userRole());
+        assertEquals(UserRole.CUSTOMER, result.userRole());
         assertEquals("Poland", result.address().country());
         assertEquals("01-000", result.address().postCode());
     }

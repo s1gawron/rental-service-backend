@@ -30,8 +30,6 @@ class UserServiceTest {
 
     private Authentication authenticationMock;
 
-    private SecurityContext securityContextMock;
-
     private UserRepository userRepositoryMock;
 
     private AddressService addressServiceMock;
@@ -41,7 +39,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         authenticationMock = Mockito.mock(Authentication.class);
-        securityContextMock = Mockito.mock(SecurityContext.class);
+        final SecurityContext securityContextMock = Mockito.mock(SecurityContext.class);
 
         Mockito.when(securityContextMock.getAuthentication()).thenReturn(authenticationMock);
         SecurityContextHolder.setContext(securityContextMock);
@@ -77,7 +75,7 @@ class UserServiceTest {
     @Test
     void shouldValidateAndRegisterUser() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", "CUSTOMER", addressDTO);
+        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
         final Address address = Address.from(addressDTO);
 
         Mockito.when(addressServiceMock.validateAndSaveAddress(addressDTO, UserRole.CUSTOMER)).thenReturn(Optional.of(address));
@@ -95,8 +93,8 @@ class UserServiceTest {
     @Test
     void shouldThrowExceptionWhenEmailAlreadyExistsWhileRegisteringUser() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", "CUSTOMER", addressDTO);
-        final User user = User.createUser(userRegisterRequest, UserRole.CUSTOMER, "encryptedPassword");
+        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final User user = User.createUser(userRegisterRequest, "encryptedPassword");
 
         Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
 
