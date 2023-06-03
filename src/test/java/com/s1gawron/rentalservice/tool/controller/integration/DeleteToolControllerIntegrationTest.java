@@ -26,7 +26,7 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
         super.setUp();
 
         final Tool tool = ToolCreatorHelper.I.createTool();
-        toolRepository.save(tool);
+        saveToolForTest(tool);
         currentToolId = tool.getToolId();
     }
 

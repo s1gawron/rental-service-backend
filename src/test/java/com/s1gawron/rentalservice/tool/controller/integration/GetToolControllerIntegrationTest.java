@@ -26,9 +26,9 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldGetNotRemovedToolsByCategoryWhenUserIsUnauthenticated() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
-        toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
-        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
+        saveToolsForTest(ToolCreatorHelper.I.createHeavyTools());
+        saveToolsForTest(ToolCreatorHelper.I.createLightTools());
+        saveToolsForTest(ToolCreatorHelper.I.createRemovedTools());
 
         final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "category/HEAVY");
 
@@ -43,12 +43,12 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldGetNotRemovedToolsByCategoryWhenUserIsCustomer() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
-        toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
-        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
+        saveToolsForTest(ToolCreatorHelper.I.createHeavyTools());
+        saveToolsForTest(ToolCreatorHelper.I.createLightTools());
+        saveToolsForTest(ToolCreatorHelper.I.createRemovedTools());
 
         final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "category/HEAVY")
-                .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
+            .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
@@ -61,12 +61,12 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldGetAllToolsByCategoryWhenUserIsWorker() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
-        toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
-        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
+        saveToolsForTest(ToolCreatorHelper.I.createHeavyTools());
+        saveToolsForTest(ToolCreatorHelper.I.createLightTools());
+        saveToolsForTest(ToolCreatorHelper.I.createRemovedTools());
 
         final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "category/HEAVY")
-                .header("Authorization", getAuthorizationToken(UserRole.WORKER));
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
@@ -79,8 +79,8 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldReturnBadRequestResponseWhenToolCategoryDoesNotExist() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
-        toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
+        saveToolsForTest(ToolCreatorHelper.I.createHeavyTools());
+        saveToolsForTest(ToolCreatorHelper.I.createLightTools());
 
         final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "category/unknown");
 
@@ -91,8 +91,8 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldGetNewTools() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createHeavyToolsWithDate());
-        toolRepository.saveAll(ToolCreatorHelper.I.createLightToolsWithDate());
+        saveToolsForTest(ToolCreatorHelper.I.createHeavyToolsWithDate());
+        saveToolsForTest(ToolCreatorHelper.I.createLightToolsWithDate());
 
         final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "new");
 
@@ -106,20 +106,20 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         assertEquals(3, resultList.size());
 
         final long areProperToolsInResultListCount = resultList.stream().filter(tool -> {
-                    final String toolName = tool.name();
-                    return toolName.equals("Loader") || toolName.equals("Crane") || toolName.equals("Big hammer");
-                })
-                .count();
+                final String toolName = tool.name();
+                return toolName.equals("Loader") || toolName.equals("Crane") || toolName.equals("Big hammer");
+            })
+            .count();
 
         assertEquals(3, areProperToolsInResultListCount);
     }
 
     @Test
     void shouldGetToolById() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
-        toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
+        saveToolsForTest(ToolCreatorHelper.I.createHeavyTools());
+        saveToolsForTest(ToolCreatorHelper.I.createLightTools());
         final Tool chainsaw = ToolCreatorHelper.I.createChainsaw();
-        toolRepository.save(chainsaw);
+        saveToolForTest(chainsaw);
 
         final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "id/" + chainsaw.getToolId());
 
@@ -134,8 +134,8 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldReturnNotFoundResponseWhenToolIsNotFoundById() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createHeavyTools());
-        toolRepository.saveAll(ToolCreatorHelper.I.createLightTools());
+        saveToolsForTest(ToolCreatorHelper.I.createHeavyTools());
+        saveToolsForTest(ToolCreatorHelper.I.createLightTools());
 
         final Optional<Tool> toolById = toolRepository.findById(99L);
 
@@ -152,14 +152,14 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldGetNotRemovedToolsByNameWhenUserIsUnauthenticated() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(false));
-        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(true));
-        toolRepository.save(ToolCreatorHelper.I.createChainsaw());
+        saveToolsForTest(ToolCreatorHelper.I.createCommonNameToolList(false));
+        saveToolsForTest(ToolCreatorHelper.I.createCommonNameToolList(true));
+        saveToolForTest(ToolCreatorHelper.I.createChainsaw());
 
         final String json = """
-                {
-                  "toolName": "hammer"
-                }""";
+            {
+              "toolName": "hammer"
+            }""";
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json);
 
@@ -179,18 +179,18 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldGetNotRemovedToolsByNameWhenUserIsCustomer() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(false));
-        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(true));
-        toolRepository.save(ToolCreatorHelper.I.createChainsaw());
+        saveToolsForTest(ToolCreatorHelper.I.createCommonNameToolList(false));
+        saveToolsForTest(ToolCreatorHelper.I.createCommonNameToolList(true));
+        saveToolForTest(ToolCreatorHelper.I.createChainsaw());
 
         final String json = """
-                {
-                  "toolName": "hammer"
-                }
-                """;
+            {
+              "toolName": "hammer"
+            }
+            """;
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json)
-                .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
+            .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
@@ -208,18 +208,18 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldGetAllToolsByNameWhenUserIsWorker() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(false));
-        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(true));
-        toolRepository.save(ToolCreatorHelper.I.createChainsaw());
+        saveToolsForTest(ToolCreatorHelper.I.createCommonNameToolList(false));
+        saveToolsForTest(ToolCreatorHelper.I.createCommonNameToolList(true));
+        saveToolForTest(ToolCreatorHelper.I.createChainsaw());
 
         final String json = """
-                {
-                  "toolName": "hammer"
-                }
-                """;
+            {
+              "toolName": "hammer"
+            }
+            """;
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json)
-                .header("Authorization", getAuthorizationToken(UserRole.WORKER));
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
@@ -239,13 +239,13 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldReturnEmptyListWhenToolsAreNotFoundByName() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createCommonNameToolList(false));
+        saveToolsForTest(ToolCreatorHelper.I.createCommonNameToolList(false));
 
         final String json = """
-                {
-                  "toolName": "chainsaw"
-                }
-                """;
+            {
+              "toolName": "chainsaw"
+            }
+            """;
 
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json);
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -259,8 +259,8 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldGetNotRemovedToolsIfUserIsUnauthenticated() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createToolList());
-        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
+        saveToolsForTest(ToolCreatorHelper.I.createToolList());
+        saveToolsForTest(ToolCreatorHelper.I.createRemovedTools());
 
         final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "all");
         final MockHttpServletResponse result = mockMvc.perform(request).andReturn().getResponse();
@@ -277,11 +277,11 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldGetNotRemovedToolsIfUserIsCustomer() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createToolList());
-        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
+        saveToolsForTest(ToolCreatorHelper.I.createToolList());
+        saveToolsForTest(ToolCreatorHelper.I.createRemovedTools());
 
         final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "all")
-                .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
+            .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
         final MockHttpServletResponse result = mockMvc.perform(request).andReturn().getResponse();
         final ToolListingDTO resultObject = objectMapper.readValue(result.getContentAsString(), ToolListingDTO.class);
         final long removedToolsCount = resultObject.tools().stream().filter(ToolDetailsDTO::removed).count();
@@ -296,11 +296,11 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
     @Test
     void shouldGetAllToolsIfUserIsWorker() throws Exception {
-        toolRepository.saveAll(ToolCreatorHelper.I.createToolList());
-        toolRepository.saveAll(ToolCreatorHelper.I.createRemovedTools());
+        saveToolsForTest(ToolCreatorHelper.I.createToolList());
+        saveToolsForTest(ToolCreatorHelper.I.createRemovedTools());
 
         final RequestBuilder request = MockMvcRequestBuilders.get(TOOL_GET_ENDPOINT + "all")
-                .header("Authorization", getAuthorizationToken(UserRole.WORKER));
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
         final MockHttpServletResponse result = mockMvc.perform(request).andReturn().getResponse();
         final ToolListingDTO resultObject = objectMapper.readValue(result.getContentAsString(), ToolListingDTO.class);
         final long removedToolsCount = resultObject.tools().stream().filter(ToolDetailsDTO::removed).count();

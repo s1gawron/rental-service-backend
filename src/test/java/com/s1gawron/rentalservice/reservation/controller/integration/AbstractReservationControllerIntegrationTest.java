@@ -13,6 +13,7 @@ import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.repository.ToolRepository;
+import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginRequest;
@@ -73,6 +74,9 @@ abstract class AbstractReservationControllerIntegrationTest {
     protected ToolRepository toolRepository;
 
     @Autowired
+    protected ToolStateRepository toolStateRepository;
+
+    @Autowired
     protected ToolService toolService;
 
     @Autowired
@@ -99,7 +103,8 @@ abstract class AbstractReservationControllerIntegrationTest {
     void setUp() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
         final UserRegisterRequest customerRegisterDTO = new UserRegisterRequest(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
-        final UserRegisterRequest differentCustomerRegisterDTO = new UserRegisterRequest(DIFFERENT_CUSTOMER_EMAIL, PASSWORD, "Tony", "Hawk", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterRequest differentCustomerRegisterDTO = new UserRegisterRequest(DIFFERENT_CUSTOMER_EMAIL, PASSWORD, "Tony", "Hawk", UserRole.CUSTOMER,
+            addressDTO);
         final UserRegisterRequest workerRegisterDTO = new UserRegisterRequest(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER, null);
 
         userService.validateAndRegisterUser(customerRegisterDTO);
@@ -107,19 +112,19 @@ abstract class AbstractReservationControllerIntegrationTest {
         userService.validateAndRegisterUser(workerRegisterDTO);
 
         final Tool hammer = ToolCreatorHelper.I.createTool();
-        toolRepository.save(hammer);
+        saveToolForTest(hammer);
         currentToolId = hammer.getToolId();
 
         final Tool chainsaw = ToolCreatorHelper.I.createChainsaw();
-        toolRepository.save(chainsaw);
+        saveToolForTest(chainsaw);
         nextToolId = chainsaw.getToolId();
 
         final Tool loader = ToolCreatorHelper.I.createLoader();
-        toolRepository.save(loader);
+        saveToolForTest(loader);
         loaderToolId = loader.getToolId();
 
         final Tool removedHammer = ToolCreatorHelper.I.createRemovedHammerWithAvailability();
-        toolRepository.save(removedHammer);
+        saveToolForTest(removedHammer);
         removedToolId = removedHammer.getToolId();
     }
 
@@ -129,36 +134,37 @@ abstract class AbstractReservationControllerIntegrationTest {
         reservationHasToolRepository.deleteAll();
         reservationRepository.deleteAll();
         toolRepository.deleteAll();
+        toolStateRepository.deleteAll();
         userRepository.deleteAll();
     }
 
     protected void performMakeReservationRequests() throws Exception {
         final String hammerReservationJson = "{\n"
-                + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
-                + "  \"dateTo\": \"" + LocalDate.now().plusDays(2L) + "\",\n"
-                + "  \"additionalComment\": \"Hammer\",\n"
-                + "  \"toolIds\": [\n"
-                + "    " + currentToolId + "\n"
-                + "  ]\n"
-                + "}";
+            + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now().plusDays(2L) + "\",\n"
+            + "  \"additionalComment\": \"Hammer\",\n"
+            + "  \"toolIds\": [\n"
+            + "    " + currentToolId + "\n"
+            + "  ]\n"
+            + "}";
 
         currentReservationId = performRequestAndCheckState(hammerReservationJson, getAuthorizationToken(CUSTOMER_EMAIL));
 
         final String chainsawReservationJson = "{\n"
-                + "  \"dateFrom\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
-                + "  \"dateTo\": \"" + LocalDate.now().plusDays(5L) + "\",\n"
-                + "  \"additionalComment\": \"Chainsaw\",\n"
-                + "  \"toolIds\": [\n"
-                + "    " + nextToolId + "\n"
-                + "  ]\n"
-                + "}";
+            + "  \"dateFrom\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now().plusDays(5L) + "\",\n"
+            + "  \"additionalComment\": \"Chainsaw\",\n"
+            + "  \"toolIds\": [\n"
+            + "    " + nextToolId + "\n"
+            + "  ]\n"
+            + "}";
 
         performRequestAndCheckState(chainsawReservationJson, getAuthorizationToken(CUSTOMER_EMAIL));
     }
 
     protected long performRequestAndCheckState(final String objectJson, final String authorizationToken) throws Exception {
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(objectJson).contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", authorizationToken);
+            .header("Authorization", authorizationToken);
 
         final MockHttpServletResponse result = mockMvc.perform(request).andReturn().getResponse();
         final int status = result.getStatus();
@@ -182,9 +188,13 @@ abstract class AbstractReservationControllerIntegrationTest {
         return "Bearer " + authResponse.token();
     }
 
-    @Transactional(readOnly = true)
     protected Reservation getReservationDetails(final long reservationId) {
         return reservationRepository.findByReservationId(reservationId).orElseThrow(() -> ReservationNotFoundException.create(reservationId));
+    }
+
+    private void saveToolForTest(final Tool tool) {
+        toolStateRepository.save(tool.getToolState());
+        toolRepository.save(tool);
     }
 
 }

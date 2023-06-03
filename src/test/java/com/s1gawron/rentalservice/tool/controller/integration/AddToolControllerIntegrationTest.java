@@ -64,6 +64,27 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
     }
 
     @Test
+    void shouldReturnForbiddenResponseWhenUserIsNotAuthenticated() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "description": "It's just a hammer :)",
+              "toolCategory": "LIGHT",
+              "price": 10.99,
+              "toolState": {
+                "stateType": "NEW",
+                "description": "New and shiny tool"
+              }
+            }""";
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON);
+
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+        assertEquals(0, toolRepository.findAll().size());
+    }
+
+    @Test
     void shouldReturnBadRequestResponseWhenToolNameIsEmptyWhileAddingTool() throws Exception {
         final String json = """
             {

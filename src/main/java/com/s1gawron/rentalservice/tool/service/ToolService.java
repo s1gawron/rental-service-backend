@@ -15,14 +15,13 @@ import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.model.ToolState;
 import com.s1gawron.rentalservice.tool.repository.ToolRepository;
 import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
-import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.service.UserService;
+import com.s1gawron.rentalservice.user.model.UserRole;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ToolService {
@@ -33,12 +32,9 @@ public class ToolService {
 
     private final ToolStateRepository toolStateRepository;
 
-    private final UserService userService;
-
-    public ToolService(final ToolRepository toolRepository, final ToolStateRepository toolStateRepository, final UserService userService) {
+    public ToolService(final ToolRepository toolRepository, final ToolStateRepository toolStateRepository) {
         this.toolRepository = toolRepository;
         this.toolStateRepository = toolStateRepository;
-        this.userService = userService;
     }
 
     @Transactional(readOnly = true)
@@ -54,9 +50,9 @@ public class ToolService {
     @Transactional(readOnly = true)
     public List<ToolDetailsDTO> getNewTools() {
         return toolRepository.findNewTools()
-                .stream()
-                .map(Tool::toToolDetailsDTO)
-                .toList();
+            .stream()
+            .map(Tool::toToolDetailsDTO)
+            .toList();
     }
 
     @Transactional(readOnly = true)
@@ -73,13 +69,13 @@ public class ToolService {
     public List<ToolDetailsDTO> getToolsByName(final ToolSearchDTO toolSearchDTO) {
         if (isUserCustomerOrUnauthenticated()) {
             return toolRepository.findNotRemovedToolsByName(toolSearchDTO.toolName()).stream()
-                    .map(Tool::toToolDetailsDTO)
-                    .toList();
+                .map(Tool::toToolDetailsDTO)
+                .toList();
         }
 
         return toolRepository.findByName(toolSearchDTO.toolName()).stream()
-                .map(Tool::toToolDetailsDTO)
-                .toList();
+            .map(Tool::toToolDetailsDTO)
+            .toList();
     }
 
     @Transactional
@@ -135,8 +131,8 @@ public class ToolService {
     @Transactional(readOnly = true)
     public List<ToolDetailsDTO> getToolDetailsByReservationHasTools(final List<ReservationHasTool> reservationHasTools) {
         return getToolsByReservationHasTools(reservationHasTools).stream()
-                .map(Tool::toToolDetailsDTO)
-                .toList();
+            .map(Tool::toToolDetailsDTO)
+            .toList();
     }
 
     @Transactional(readOnly = true)
@@ -182,21 +178,20 @@ public class ToolService {
 
     private ToolListingDTO toToolListingDTO(final List<Tool> tools) {
         final List<ToolDetailsDTO> toolDetailsDTOS = tools.stream()
-                .map(Tool::toToolDetailsDTO)
-                .toList();
+            .map(Tool::toToolDetailsDTO)
+            .toList();
 
         return new ToolListingDTO(toolDetailsDTOS.size(), toolDetailsDTOS);
     }
 
     private boolean isUserCustomerOrUnauthenticated() {
-        final Optional<Object> principal = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (principal.isEmpty() || principal.get().equals("anonymousUser")) {
+        if (authentication == null || authentication.getAuthorities().isEmpty()) {
             return true;
         }
 
-        final String userEmail = principal.map(p -> (User) p).get().getEmail();
-
-        return userService.getUserByEmail(userEmail).map(User::isCustomer).orElse(false);
+        return authentication.getAuthorities().contains(UserRole.ANONYMOUS.toSimpleGrantedAuthority()) ||
+            authentication.getAuthorities().contains(UserRole.CUSTOMER.toSimpleGrantedAuthority());
     }
 }

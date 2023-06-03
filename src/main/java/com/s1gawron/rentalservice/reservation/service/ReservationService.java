@@ -10,12 +10,12 @@ import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
 import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
-import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.model.User;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +46,7 @@ public class ReservationService {
     private final ToolService toolService;
 
     public ReservationService(final ReservationRepository reservationRepository, final ReservationHasToolRepository reservationHasToolRepository,
-                              final UserService userService,
-                              final ToolService toolService) {
+        final UserService userService, final ToolService toolService) {
         this.reservationRepository = reservationRepository;
         this.reservationHasToolRepository = reservationHasToolRepository;
         this.userService = userService;
@@ -58,11 +57,11 @@ public class ReservationService {
     public ReservationListingDTO getUserReservations() {
         final User customer = getAndCheckIfUserIsCustomer();
         final List<ReservationDetailsDTO> userReservations = reservationRepository.findAllByCustomer(customer).stream()
-                .map(reservation -> {
-                    final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
-                    return reservation.toReservationDetailsDTO(toolDetails);
-                })
-                .toList();
+            .map(reservation -> {
+                final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
+                return reservation.toReservationDetailsDTO(toolDetails);
+            })
+            .toList();
 
         return new ReservationListingDTO(userReservations.size(), userReservations);
     }
@@ -70,13 +69,11 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public ReservationDetailsDTO getReservationDetails(final Long reservationId) {
         final User customer = getAndCheckIfUserIsCustomer();
-        customer.doesReservationBelongToUser(reservationId);
+        final Reservation reservationByIdAndCustomer = reservationRepository.findByReservationIdAndCustomer(reservationId, customer)
+            .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
+        final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservationByIdAndCustomer.getReservationHasTools());
 
-        final Reservation reservationById = reservationRepository.findByReservationId(reservationId)
-                .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
-        final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservationById.getReservationHasTools());
-
-        return reservationById.toReservationDetailsDTO(toolDetails);
+        return reservationByIdAndCustomer.toReservationDetailsDTO(toolDetails);
     }
 
     @Transactional
@@ -108,7 +105,7 @@ public class ReservationService {
 
         final Reservation savedReservation = reservationRepository.save(reservation);
 
-        customer.addReservation(savedReservation);
+        reservationRepository.findAllByCustomer(customer).add(savedReservation);
         userService.saveCustomerWithReservation(customer);
 
         return savedReservation.toReservationDetailsDTO(toolDetails);
@@ -117,21 +114,19 @@ public class ReservationService {
     @Transactional
     public ReservationDetailsDTO cancelReservation(final Long reservationId) {
         final User customer = getAndCheckIfUserIsCustomer();
-        customer.doesReservationBelongToUser(reservationId);
-
-        final Reservation reservationById = reservationRepository.findByReservationId(reservationId)
-                .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
-        final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservationById.getReservationHasTools());
+        final Reservation reservationByIdAndCustomer = reservationRepository.findByReservationIdAndCustomer(reservationId, customer)
+            .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
+        final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservationByIdAndCustomer.getReservationHasTools());
         final List<ToolDetailsDTO> toolDetails = new ArrayList<>();
 
         toolsFromReservation.forEach(tool -> {
             toolService.makeToolAvailableAndSave(tool);
             toolDetails.add(tool.toToolDetailsDTO());
         });
-        reservationById.cancelReservation();
-        reservationRepository.save(reservationById);
+        reservationByIdAndCustomer.cancelReservation();
+        reservationRepository.save(reservationByIdAndCustomer);
 
-        return reservationById.toReservationDetailsDTO(toolDetails);
+        return reservationByIdAndCustomer.toReservationDetailsDTO(toolDetails);
     }
 
     @Transactional(readOnly = true)
@@ -161,10 +156,9 @@ public class ReservationService {
 
     private User getAndCheckIfUserIsCustomer() {
         final Optional<Object> principal = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        final User principalToUser = principal.map(p -> (User) p).orElseThrow(UserUnauthenticatedException::create);
-        final User user = userService.getUserByEmail(principalToUser.getEmail()).orElseThrow(() -> UserNotFoundException.create(principalToUser.getEmail()));
+        final User user = principal.map(p -> (User) p).orElseThrow(UserUnauthenticatedException::create);
 
-        if (user.isWorker()) {
+        if (user.getUserRole().equals(UserRole.WORKER)) {
             throw NoAccessForUserRoleException.create(ELEMENT_NAME);
         }
 

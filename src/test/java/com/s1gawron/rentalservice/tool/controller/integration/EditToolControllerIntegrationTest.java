@@ -30,7 +30,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
         super.setUp();
 
         final Tool tool = ToolCreatorHelper.I.createTool();
-        toolRepository.save(tool);
+        saveToolForTest(tool);
         currentToolId = tool.getToolId();
         currentToolFirstState = tool.toToolDetailsDTO();
     }

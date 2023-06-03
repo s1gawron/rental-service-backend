@@ -3,7 +3,9 @@ package com.s1gawron.rentalservice.tool.controller.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
+import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.repository.ToolRepository;
+import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginRequest;
@@ -22,6 +24,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.List;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -48,6 +52,9 @@ abstract class AbstractToolControllerIntegrationTest {
     protected ToolRepository toolRepository;
 
     @Autowired
+    protected ToolStateRepository toolStateRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -66,6 +73,7 @@ abstract class AbstractToolControllerIntegrationTest {
     @AfterEach
     void cleanUp() {
         toolRepository.deleteAll();
+        toolStateRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -75,6 +83,15 @@ abstract class AbstractToolControllerIntegrationTest {
         }
 
         return getTokenFor(CUSTOMER_EMAIL);
+    }
+
+    protected void saveToolsForTest(final List<Tool> tools) {
+        tools.forEach(this::saveToolForTest);
+    }
+
+    protected void saveToolForTest(final Tool tool) {
+        toolStateRepository.save(tool.getToolState());
+        toolRepository.save(tool);
     }
 
     private String getTokenFor(final String email) throws Exception {

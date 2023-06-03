@@ -41,7 +41,7 @@ public class Tool {
     @Column(name = "price")
     private BigDecimal price;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "tool_state_id", referencedColumnName = "tool_state_id")
     private ToolState toolState;
 
@@ -58,7 +58,7 @@ public class Tool {
     }
 
     private Tool(final boolean available, final boolean removed, final String name, final String description, final ToolCategory toolCategory,
-                 final BigDecimal price, final ToolState toolState, final LocalDate dateAdded, final String imageUrl) {
+        final BigDecimal price, final ToolState toolState, final LocalDate dateAdded, final String imageUrl) {
         this.available = available;
         this.removed = removed;
         this.name = name;
@@ -72,22 +72,22 @@ public class Tool {
 
     public static Tool from(final ToolDetailsDTO toolDetailsDTO, final ToolState toolState) {
         return new Tool(toolDetailsDTO.available(), toolDetailsDTO.removed(), toolDetailsDTO.name(), toolDetailsDTO.description(),
-                ToolCategory.findByValue(toolDetailsDTO.toolCategory()), toolDetailsDTO.price(), toolState, LocalDate.now(), toolDetailsDTO.imageUrl());
+            ToolCategory.findByValue(toolDetailsDTO.toolCategory()), toolDetailsDTO.price(), toolState, LocalDate.now(), toolDetailsDTO.imageUrl());
     }
 
     public static Tool from(final ToolDTO toolDTO, final ToolState toolState) {
         return new Tool(true, false, toolDTO.name(), toolDTO.description(), ToolCategory.findByValue(toolDTO.toolCategory()), toolDTO.price(),
-                toolState, LocalDate.now(), toolDTO.imageUrl());
+            toolState, LocalDate.now(), toolDTO.imageUrl());
     }
 
     public static Tool from(final ToolDetailsDTO toolDetailsDTO, final ToolState toolState, final LocalDate dateAdded) {
         return new Tool(true, false, toolDetailsDTO.name(), toolDetailsDTO.description(), ToolCategory.findByValue(toolDetailsDTO.toolCategory()),
-                toolDetailsDTO.price(), toolState, dateAdded, toolDetailsDTO.imageUrl());
+            toolDetailsDTO.price(), toolState, dateAdded, toolDetailsDTO.imageUrl());
     }
 
     public ToolDetailsDTO toToolDetailsDTO() {
         return new ToolDetailsDTO(this.toolId, this.available, this.removed, this.name, this.description, this.toolCategory.name(), this.price,
-                new ToolStateDTO(this.toolState.getStateType().name(), this.toolState.getDescription()), this.imageUrl);
+            new ToolStateDTO(this.toolState.getStateType().name(), this.toolState.getDescription()), this.imageUrl);
     }
 
     public void edit(final ToolDetailsDTO toolDetailsDTO) {
@@ -146,10 +146,6 @@ public class Tool {
 
     public ToolState getToolState() {
         return toolState;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
     }
 
     public boolean isRemoved() {
