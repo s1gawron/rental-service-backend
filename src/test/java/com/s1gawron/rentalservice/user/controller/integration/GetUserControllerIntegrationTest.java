@@ -2,7 +2,7 @@ package com.s1gawron.rentalservice.user.controller.integration;
 
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
-import com.s1gawron.rentalservice.user.dto.UserLoginRequest;
+import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MvcResult;
@@ -21,8 +21,8 @@ class GetUserControllerIntegrationTest extends AbstractUserControllerIntegration
         final UserDTO expectedUserDto = userService.getUserByEmail(EMAIL)
             .orElseThrow(() -> new IllegalStateException("Expected user dto cannot be null!"))
             .toUserDTO();
-        final UserLoginRequest userLoginRequest = new UserLoginRequest(EMAIL, PASSWORD);
-        final MvcResult loginResult = performLoginAction(userLoginRequest);
+        final UserLoginDTO userLoginDTO = new UserLoginDTO(EMAIL, PASSWORD);
+        final MvcResult loginResult = performLoginAction(userLoginDTO);
         final AuthenticationResponse authResponse = objectMapper.readValue(loginResult.getResponse().getContentAsString(), AuthenticationResponse.class);
         final String token = "Bearer " + authResponse.token();
         final RequestBuilder request = MockMvcRequestBuilders.get(USER_DETAILS_ENDPOINT).header("Authorization", token);

@@ -6,7 +6,7 @@ import com.s1gawron.rentalservice.address.service.AddressService;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
 import com.s1gawron.rentalservice.user.exception.WorkerRegisteredByNonAdminUserException;
 import com.s1gawron.rentalservice.user.helper.UserCreatorHelper;
@@ -76,12 +76,12 @@ class UserServiceTest {
     @Test
     void shouldValidateAndRegisterUser() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
         final Address address = Address.from(addressDTO);
 
         Mockito.when(addressServiceMock.validateAndSaveAddress(addressDTO, UserRole.CUSTOMER)).thenReturn(Optional.of(address));
 
-        final UserDTO result = userService.validateAndRegisterUser(userRegisterRequest);
+        final UserDTO result = userService.validateAndRegisterUser(userRegisterDTO);
 
         Mockito.verify(userRepositoryMock, Mockito.times(1)).save(Mockito.any(User.class));
         assertEquals(EMAIL, result.email());
@@ -93,20 +93,20 @@ class UserServiceTest {
 
     @Test
     void shouldThrowExceptionWhenWorkerIsNotRegisteredByAdmin() {
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", UserRole.WORKER, null);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.WORKER, null);
 
-        assertThrows(WorkerRegisteredByNonAdminUserException.class, () -> userService.validateAndRegisterUser(userRegisterRequest));
+        assertThrows(WorkerRegisteredByNonAdminUserException.class, () -> userService.validateAndRegisterUser(userRegisterDTO));
     }
 
     @Test
     void shouldThrowExceptionWhenEmailAlreadyExistsWhileRegisteringUser() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
-        final User user = User.createUser(userRegisterRequest, "encryptedPassword");
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final User user = User.createUser(userRegisterDTO, "encryptedPassword");
 
         Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
 
-        assertThrows(UserEmailExistsException.class, () -> userService.validateAndRegisterUser(userRegisterRequest));
+        assertThrows(UserEmailExistsException.class, () -> userService.validateAndRegisterUser(userRegisterDTO));
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.user.dto.validator;
 
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.UserEmailPatternViolationException;
 import com.s1gawron.rentalservice.user.exception.UserPasswordTooWeakException;
 import com.s1gawron.rentalservice.user.exception.UserRegisterEmptyPropertiesException;
@@ -16,67 +16,67 @@ class UserDTOValidatorTest {
     @Test
     void shouldValidate() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest("test@test.pl", "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO("test@test.pl", "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
 
-        assertTrue(UserDTOValidator.I.validate(userRegisterRequest));
+        assertTrue(UserDTOValidator.I.validate(userRegisterDTO));
     }
 
     @Test
     void shouldThrowExceptionWhenEmailIsNull() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(null, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(null, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
 
-        assertThrows(UserRegisterEmptyPropertiesException.class, () -> UserDTOValidator.I.validate(userRegisterRequest), "User email cannot be empty!");
+        assertThrows(UserRegisterEmptyPropertiesException.class, () -> UserDTOValidator.I.validate(userRegisterDTO), "User email cannot be empty!");
     }
 
     @Test
     void shouldThrowExceptionWhenPasswordIsNull() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest("test@test.pl", null, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO("test@test.pl", null, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
 
-        assertThrows(UserRegisterEmptyPropertiesException.class, () -> UserDTOValidator.I.validate(userRegisterRequest), "User password cannot be empty!");
+        assertThrows(UserRegisterEmptyPropertiesException.class, () -> UserDTOValidator.I.validate(userRegisterDTO), "User password cannot be empty!");
     }
 
     @Test
     void shouldThrowExceptionWhenFirstNameIsNull() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest("test@test.pl", "Start00!", null, "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO("test@test.pl", "Start00!", null, "Kowalski", UserRole.CUSTOMER, addressDTO);
 
-        assertThrows(UserRegisterEmptyPropertiesException.class, () -> UserDTOValidator.I.validate(userRegisterRequest), "User first name cannot be empty!");
+        assertThrows(UserRegisterEmptyPropertiesException.class, () -> UserDTOValidator.I.validate(userRegisterDTO), "User first name cannot be empty!");
     }
 
     @Test
     void shouldThrowExceptionWhenLastNameIsNull() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest("test@test.pl", "Start00!", "John", null, UserRole.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO("test@test.pl", "Start00!", "John", null, UserRole.CUSTOMER, addressDTO);
 
-        assertThrows(UserRegisterEmptyPropertiesException.class, () -> UserDTOValidator.I.validate(userRegisterRequest), "User last name cannot be empty!");
+        assertThrows(UserRegisterEmptyPropertiesException.class, () -> UserDTOValidator.I.validate(userRegisterDTO), "User last name cannot be empty!");
     }
 
     @Test
     void shouldThrowExceptionWhenUserRoleIsNull() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest("test@test.pl", "Start00!", "John", "Kowalski", null, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO("test@test.pl", "Start00!", "John", "Kowalski", null, addressDTO);
 
-        assertThrows(UserRegisterEmptyPropertiesException.class, () -> UserDTOValidator.I.validate(userRegisterRequest), "User type cannot be empty!");
+        assertThrows(UserRegisterEmptyPropertiesException.class, () -> UserDTOValidator.I.validate(userRegisterDTO), "User type cannot be empty!");
     }
 
     @Test
     void shouldThrowExceptionWhenEmailDoesNotMatchPattern() {
         final String email = "test-test.pl";
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(email, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(email, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
 
-        assertThrows(UserEmailPatternViolationException.class, () -> UserDTOValidator.I.validate(userRegisterRequest),
+        assertThrows(UserEmailPatternViolationException.class, () -> UserDTOValidator.I.validate(userRegisterDTO),
                 "Email: " + email + ", does not match validation pattern. If this is proper email please contact me for a fix.");
     }
 
     @Test
     void shouldThrowExceptionWhenPasswordIsTooWeak() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest("test@test.pl", "password", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO("test@test.pl", "password", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
 
-        assertThrows(UserPasswordTooWeakException.class, () -> UserDTOValidator.I.validate(userRegisterRequest),
+        assertThrows(UserPasswordTooWeakException.class, () -> UserDTOValidator.I.validate(userRegisterDTO),
                 "Provided password is too weak! The password must be minimum 8 characters long and contain upper and lower case letters, a number and one of the characters !, @, #, $, *");
     }
 

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
-import com.s1gawron.rentalservice.user.dto.UserLoginRequest;
-import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
+import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import com.s1gawron.rentalservice.user.service.UserService;
@@ -55,8 +55,8 @@ abstract class AbstractUserControllerIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
-        userService.validateAndRegisterUser(userRegisterRequest);
+        final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        userService.validateAndRegisterUser(userRegisterDTO);
         commandLineRunner.run();
     }
 
@@ -65,16 +65,16 @@ abstract class AbstractUserControllerIntegrationTest {
         userRepository.deleteAll();
     }
 
-    protected MvcResult performLoginAction(final UserLoginRequest userLoginRequest) throws Exception {
-        final String userLoginJson = objectMapper.writeValueAsString(userLoginRequest);
+    protected MvcResult performLoginAction(final UserLoginDTO userLoginDTO) throws Exception {
+        final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson).contentType(MediaType.APPLICATION_JSON);
 
         return mockMvc.perform(request).andReturn();
     }
 
     protected String getAuthorizationTokenForAdmin() throws Exception {
-        final UserLoginRequest userLoginRequest = new UserLoginRequest(ADMIN_EMAIL, ADMIN_PASSWORD);
-        final String userLoginJson = objectMapper.writeValueAsString(userLoginRequest);
+        final UserLoginDTO userLoginDTO = new UserLoginDTO(ADMIN_EMAIL, ADMIN_PASSWORD);
+        final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson).contentType(MediaType.APPLICATION_JSON);
         final MockHttpServletResponse response = mockMvc.perform(request).andReturn().getResponse();
         final AuthenticationResponse authResponse = objectMapper.readValue(response.getContentAsString(), AuthenticationResponse.class);

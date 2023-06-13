@@ -5,7 +5,7 @@ import com.s1gawron.rentalservice.address.exception.AddressRegisterEmptyProperti
 import com.s1gawron.rentalservice.address.exception.PostCodePatternViolationException;
 import com.s1gawron.rentalservice.user.controller.UserController;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.*;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
         final UserDTO userDTO = new UserDTO("John", "Kowalski", "test@test.pl", UserRole.CUSTOMER.name(), addressDTO);
 
-        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenReturn(userDTO);
+        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenReturn(userDTO);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
             .contentType(MediaType.APPLICATION_JSON);
@@ -57,7 +57,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     void shouldReturnForbiddenResponseWhenWorkerIsNotRegisteredByAdmin() throws Exception {
         final WorkerRegisteredByNonAdminUserException expectedException = WorkerRegisteredByNonAdminUserException.create();
 
-        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
+        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
             .contentType(MediaType.APPLICATION_JSON);
@@ -71,7 +71,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     void shouldReturnConflictResponseWhenUserEmailAlreadyExistsWhileRegisteringUser() throws Exception {
         final UserEmailExistsException expectedException = UserEmailExistsException.create();
 
-        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
+        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
             .contentType(MediaType.APPLICATION_JSON);
@@ -85,7 +85,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     void shouldReturnBadRequestResponseWhenAddressRegisterPropertiesAreEmptyWhileRegisteringUser() throws Exception {
         final AddressRegisterEmptyPropertiesException expectedException = AddressRegisterEmptyPropertiesException.create();
 
-        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
+        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
             .contentType(MediaType.APPLICATION_JSON);
@@ -99,7 +99,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     void shouldReturnBadRequestResponseWhenRegisterPropertiesAreEmptyWhileRegisteringUser() throws Exception {
         final UserRegisterEmptyPropertiesException expectedException = UserRegisterEmptyPropertiesException.createForPassword();
 
-        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
+        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
             .contentType(MediaType.APPLICATION_JSON);
@@ -113,7 +113,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     void shouldReturnBadRequestResponseWhenEmailPatternDoesNotMatchWhileRegisteringUser() throws Exception {
         final UserEmailPatternViolationException expectedException = UserEmailPatternViolationException.create("test-test.pl");
 
-        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
+        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
             .contentType(MediaType.APPLICATION_JSON);
@@ -127,7 +127,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     void shouldReturnBadRequestResponseWhenPasswordIsTooWeakWhileRegisteringUser() throws Exception {
         final UserPasswordTooWeakException expectedException = UserPasswordTooWeakException.create();
 
-        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
+        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
             .contentType(MediaType.APPLICATION_JSON);
@@ -141,7 +141,7 @@ class UserRegisterControllerTest extends AbstractUserControllerTest {
     void shouldReturnBadRequestResponseWhenPostCodePatternDoesNotMatchWhileRegisteringUser() throws Exception {
         final PostCodePatternViolationException expectedException = PostCodePatternViolationException.create("00000");
 
-        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterRequest.class))).thenThrow(expectedException);
+        Mockito.when(userServiceMock.validateAndRegisterUser(Mockito.any(UserRegisterDTO.class))).thenThrow(expectedException);
 
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).with(csrf()).content(userRegisterJson)
             .contentType(MediaType.APPLICATION_JSON);

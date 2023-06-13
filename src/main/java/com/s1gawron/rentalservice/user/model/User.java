@@ -4,7 +4,7 @@ import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.address.model.Address;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -60,9 +60,9 @@ public class User implements UserDetails {
         this.userRole = userRole;
     }
 
-    public static User createUser(final UserRegisterRequest userRegisterRequest, final String encryptedPassword) {
-        return new User(true, userRegisterRequest.email(), encryptedPassword, userRegisterRequest.firstName(), userRegisterRequest.lastName(),
-            userRegisterRequest.userRole());
+    public static User createUser(final UserRegisterDTO userRegisterDTO, final String encryptedPassword) {
+        return new User(true, userRegisterDTO.email(), encryptedPassword, userRegisterDTO.firstName(), userRegisterDTO.lastName(),
+            userRegisterDTO.userRole());
     }
 
     public UserDTO toUserDTO() {

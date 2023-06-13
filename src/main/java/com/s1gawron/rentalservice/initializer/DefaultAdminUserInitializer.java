@@ -1,6 +1,6 @@
 package com.s1gawron.rentalservice.initializer;
 
-import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.UserService;
@@ -31,9 +31,9 @@ public class DefaultAdminUserInitializer implements CommandLineRunner {
     @Override
     public void run(final String... args) {
         if (userService.getUserByEmail(adminEmail).isEmpty()) {
-            final UserRegisterRequest adminRegisterRequest = new UserRegisterRequest(adminEmail, adminPassword, "admin", "admin", UserRole.ADMIN, null);
+            final UserRegisterDTO adminRegisterDTO = new UserRegisterDTO(adminEmail, adminPassword, "admin", "admin", UserRole.ADMIN, null);
             final String encryptedPassword = passwordEncoder.encode(adminPassword);
-            final User adminUser = User.createUser(adminRegisterRequest, encryptedPassword);
+            final User adminUser = User.createUser(adminRegisterDTO, encryptedPassword);
 
             userService.saveUser(adminUser);
         }

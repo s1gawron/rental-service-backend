@@ -1,6 +1,6 @@
 package com.s1gawron.rentalservice.user.dto.validator;
 
-import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.UserEmailPatternViolationException;
 import com.s1gawron.rentalservice.user.exception.UserPasswordTooWeakException;
 import com.s1gawron.rentalservice.user.exception.UserRegisterEmptyPropertiesException;
@@ -22,40 +22,40 @@ public enum UserDTOValidator {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
 
-    public boolean validate(final UserRegisterRequest userRegisterRequest) {
-        if (userRegisterRequest.email() == null) {
+    public boolean validate(final UserRegisterDTO userRegisterDTO) {
+        if (userRegisterDTO.email() == null) {
             log.error("Email" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForEmail();
         }
 
-        if (userRegisterRequest.password() == null) {
+        if (userRegisterDTO.password() == null) {
             log.error("Password" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForPassword();
         }
 
-        if (userRegisterRequest.firstName() == null) {
+        if (userRegisterDTO.firstName() == null) {
             log.error("First name" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForFirstName();
         }
 
-        if (userRegisterRequest.lastName() == null) {
+        if (userRegisterDTO.lastName() == null) {
             log.error("Last name" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForLastName();
         }
 
-        if (userRegisterRequest.userRole() == null) {
+        if (userRegisterDTO.userRole() == null) {
             log.error("User type" + MESSAGE);
             throw UserRegisterEmptyPropertiesException.createForUserRole();
         }
 
-        final Matcher emailMatcher = EMAIL_PATTERN.matcher(userRegisterRequest.email());
+        final Matcher emailMatcher = EMAIL_PATTERN.matcher(userRegisterDTO.email());
 
         if (!emailMatcher.matches()) {
-            log.error("Provided email: {}, does not match pattern in registration process", userRegisterRequest.email());
-            throw UserEmailPatternViolationException.create(userRegisterRequest.email());
+            log.error("Provided email: {}, does not match pattern in registration process", userRegisterDTO.email());
+            throw UserEmailPatternViolationException.create(userRegisterDTO.email());
         }
 
-        final Matcher passwordMatcher = PASSWORD_PATTERN.matcher(userRegisterRequest.password());
+        final Matcher passwordMatcher = PASSWORD_PATTERN.matcher(userRegisterDTO.password());
 
         if (!passwordMatcher.matches()) {
             log.error("Password does not meet security policy in registration process");

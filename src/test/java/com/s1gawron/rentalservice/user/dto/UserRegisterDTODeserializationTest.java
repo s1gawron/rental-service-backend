@@ -11,14 +11,14 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class UserRegisterRequestDeserializationTest {
+class UserRegisterDTODeserializationTest {
 
     private final ObjectMapper mapper = ObjectMapperCreator.I.getMapper();
 
     @Test
     void shouldDeserialize() throws IOException {
         final String userRegisterJson = Files.readString(Path.of("src/test/resources/user-register.json"));
-        final UserRegisterRequest result = mapper.readValue(userRegisterJson, UserRegisterRequest.class);
+        final UserRegisterDTO result = mapper.readValue(userRegisterJson, UserRegisterDTO.class);
 
         assertEquals("test@test.pl", result.email());
         assertEquals("Start00!", result.password());

@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.user.service;
 import com.s1gawron.rentalservice.configuration.jwt.JwtService;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
-import com.s1gawron.rentalservice.user.dto.UserLoginRequest;
+import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,11 +27,11 @@ public class AuthenticationService {
         this.jwtService = jwtService;
     }
 
-    public AuthenticationResponse loginUser(final UserLoginRequest userLoginRequest) {
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(userLoginRequest.email(), userLoginRequest.password()));
+    public AuthenticationResponse loginUser(final UserLoginDTO userLoginDTO) {
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(userLoginDTO.email(), userLoginDTO.password()));
 
-        final User user = userRepository.findByEmail(userLoginRequest.email())
-            .orElseThrow(() -> UserNotFoundException.create(userLoginRequest.email()));
+        final User user = userRepository.findByEmail(userLoginDTO.email())
+            .orElseThrow(() -> UserNotFoundException.create(userLoginDTO.email()));
         final String token = jwtService.generateToken(Map.of(), user);
 
         return new AuthenticationResponse(token);

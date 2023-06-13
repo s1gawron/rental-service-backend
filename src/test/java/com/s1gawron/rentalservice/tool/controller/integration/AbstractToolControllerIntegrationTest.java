@@ -8,8 +8,8 @@ import com.s1gawron.rentalservice.tool.repository.ToolRepository;
 import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
-import com.s1gawron.rentalservice.user.dto.UserLoginRequest;
-import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
+import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
@@ -68,10 +68,10 @@ abstract class AbstractToolControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterRequest customerRegisterDTO = new UserRegisterRequest(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
+        final UserRegisterDTO customerRegisterDTO = new UserRegisterDTO(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
         userService.validateAndRegisterUser(customerRegisterDTO);
 
-        final UserRegisterRequest workerRegisterDTO = new UserRegisterRequest(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER, null);
+        final UserRegisterDTO workerRegisterDTO = new UserRegisterDTO(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER, null);
         final String workerEncodedPassword = passwordEncoder.encode(PASSWORD);
         final User workerUser = User.createUser(workerRegisterDTO, workerEncodedPassword);
         userService.saveUser(workerUser);
@@ -102,8 +102,8 @@ abstract class AbstractToolControllerIntegrationTest {
     }
 
     private String getTokenFor(final String email) throws Exception {
-        final UserLoginRequest userLoginRequest = new UserLoginRequest(email, PASSWORD);
-        final String userLoginJson = objectMapper.writeValueAsString(userLoginRequest);
+        final UserLoginDTO userLoginDTO = new UserLoginDTO(email, PASSWORD);
+        final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
         final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson).contentType(MediaType.APPLICATION_JSON);
         final MockHttpServletResponse response = mockMvc.perform(request).andReturn().getResponse();
         final AuthenticationResponse authResponse = objectMapper.readValue(response.getContentAsString(), AuthenticationResponse.class);

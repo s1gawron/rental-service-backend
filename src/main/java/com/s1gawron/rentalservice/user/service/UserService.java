@@ -4,7 +4,7 @@ import com.s1gawron.rentalservice.address.service.AddressService;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
 import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.dto.validator.UserDTOValidator;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
 import com.s1gawron.rentalservice.user.exception.WorkerRegisteredByNonAdminUserException;
@@ -33,23 +33,23 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO validateAndRegisterUser(final UserRegisterRequest userRegisterRequest) {
-        UserDTOValidator.I.validate(userRegisterRequest);
+    public UserDTO validateAndRegisterUser(final UserRegisterDTO userRegisterDTO) {
+        UserDTOValidator.I.validate(userRegisterDTO);
 
-        if (userRegisterRequest.userRole().equals(UserRole.WORKER) && isNotInvokedByAdmin()) {
+        if (userRegisterDTO.userRole().equals(UserRole.WORKER) && isNotInvokedByAdmin()) {
             throw WorkerRegisteredByNonAdminUserException.create();
         }
 
-        final Optional<User> userEmailExistOptional = getUserByEmail(userRegisterRequest.email());
+        final Optional<User> userEmailExistOptional = getUserByEmail(userRegisterDTO.email());
 
         if (userEmailExistOptional.isPresent()) {
             throw UserEmailExistsException.create();
         }
 
-        final String encryptedPassword = passwordEncoder.encode(userRegisterRequest.password());
-        final User user = User.createUser(userRegisterRequest, encryptedPassword);
+        final String encryptedPassword = passwordEncoder.encode(userRegisterDTO.password());
+        final User user = User.createUser(userRegisterDTO, encryptedPassword);
 
-        addressService.validateAndSaveAddress(userRegisterRequest.address(), userRegisterRequest.userRole()).ifPresent(user::setCustomerAddress);
+        addressService.validateAndSaveAddress(userRegisterDTO.address(), userRegisterDTO.userRole()).ifPresent(user::setCustomerAddress);
         userRepository.save(user);
 
         return user.toUserDTO();
