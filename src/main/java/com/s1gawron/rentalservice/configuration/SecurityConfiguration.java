@@ -1,9 +1,6 @@
 package com.s1gawron.rentalservice.configuration;
 
 import com.s1gawron.rentalservice.configuration.jwt.JwtAuthFilter;
-import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
-import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,9 +8,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -28,29 +22,13 @@ public class SecurityConfiguration {
 
     private final JwtAuthFilter jwtAuthFilter;
 
-    private final PasswordEncoder passwordEncoder;
-
-    private final String adminPassword;
-
     private final String frontendUrl;
 
-    public SecurityConfiguration(final AuthenticationProvider authenticationProvider, final JwtAuthFilter jwtAuthFilter, final PasswordEncoder passwordEncoder,
-        @Value("${application.admin.password}") final String adminPassword, @Value("${frontend.url}") final String frontendUrl) {
+    public SecurityConfiguration(final AuthenticationProvider authenticationProvider, final JwtAuthFilter jwtAuthFilter,
+        @Value("${frontend.url}") final String frontendUrl) {
         this.authenticationProvider = authenticationProvider;
         this.jwtAuthFilter = jwtAuthFilter;
-        this.passwordEncoder = passwordEncoder;
-        this.adminPassword = adminPassword;
         this.frontendUrl = frontendUrl;
-    }
-
-    @Bean
-    public UserDetailsService inMemoryUserDetailsService() {
-        final UserRegisterRequest adminRegisterRequest = new UserRegisterRequest("admin@rentalService.com", adminPassword, "admin", "admin", UserRole.ADMIN,
-            null);
-        final String encryptedPassword = passwordEncoder.encode(adminPassword);
-        final User adminUser = User.createUser(adminRegisterRequest, encryptedPassword);
-
-        return new InMemoryUserDetailsManager(adminUser);
     }
 
     @Bean

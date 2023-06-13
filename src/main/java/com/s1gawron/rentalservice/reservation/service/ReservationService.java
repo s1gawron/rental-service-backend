@@ -10,7 +10,7 @@ import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
 import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
-import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
+import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.service.ToolService;
@@ -19,7 +19,6 @@ import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -155,8 +153,7 @@ public class ReservationService {
     }
 
     private User getAndCheckIfUserIsCustomer() {
-        final Optional<Object> principal = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        final User user = principal.map(p -> (User) p).orElseThrow(UserUnauthenticatedException::create);
+        final User user = UserContextProvider.I.getLoggedInUser();
 
         if (user.getUserRole().equals(UserRole.WORKER)) {
             throw NoAccessForUserRoleException.create(ELEMENT_NAME);

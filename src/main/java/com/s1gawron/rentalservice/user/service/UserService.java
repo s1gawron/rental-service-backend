@@ -2,14 +2,15 @@ package com.s1gawron.rentalservice.user.service;
 
 import com.s1gawron.rentalservice.address.service.AddressService;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
-import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
+import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
 import com.s1gawron.rentalservice.user.dto.validator.UserDTOValidator;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
+import com.s1gawron.rentalservice.user.exception.WorkerRegisteredByNonAdminUserException;
 import com.s1gawron.rentalservice.user.model.User;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,10 @@ public class UserService {
     public UserDTO validateAndRegisterUser(final UserRegisterRequest userRegisterRequest) {
         UserDTOValidator.I.validate(userRegisterRequest);
 
+        if (userRegisterRequest.userRole().equals(UserRole.WORKER) && isNotInvokedByAdmin()) {
+            throw WorkerRegisteredByNonAdminUserException.create();
+        }
+
         final Optional<User> userEmailExistOptional = getUserByEmail(userRegisterRequest.email());
 
         if (userEmailExistOptional.isPresent()) {
@@ -50,6 +55,11 @@ public class UserService {
         return user.toUserDTO();
     }
 
+    @Transactional
+    public void saveUser(final User user) {
+        userRepository.save(user);
+    }
+
     @Transactional(readOnly = true)
     public Optional<User> getUserByEmail(final String email) {
         return userRepository.findByEmail(email);
@@ -57,9 +67,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserDTO getUserDetails() {
-        final Optional<Object> principal = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        final User principalToUser = principal.map(p -> (User) p).orElseThrow(UserUnauthenticatedException::create);
-        final User user = getUserByEmail(principalToUser.getEmail()).orElseThrow(() -> UserNotFoundException.create(principalToUser.getEmail()));
+        final User loggedInUser = UserContextProvider.I.getLoggedInUser();
+        final User user = getUserByEmail(loggedInUser.getEmail()).orElseThrow(() -> UserNotFoundException.create(loggedInUser.getEmail()));
 
         return user.toUserDTO();
     }
@@ -68,4 +77,9 @@ public class UserService {
     public void saveCustomerWithReservation(final User customer) {
         userRepository.save(customer);
     }
+
+    private boolean isNotInvokedByAdmin() {
+        return !UserContextProvider.I.hasUserRole(UserRole.ADMIN);
+    }
+
 }

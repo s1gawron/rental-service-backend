@@ -6,7 +6,6 @@ import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
 import jakarta.persistence.*;
-import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,7 +15,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "user")
-@DynamicUpdate
 public class User implements UserDetails {
 
     @Id

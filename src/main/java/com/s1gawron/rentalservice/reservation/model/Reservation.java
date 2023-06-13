@@ -5,9 +5,9 @@ import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.user.model.User;
-import org.hibernate.annotations.DynamicUpdate;
 
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,7 +15,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "reservation")
-@DynamicUpdate
 public class Reservation {
 
     @Id
@@ -124,20 +123,8 @@ public class Reservation {
         return canceled;
     }
 
-    public LocalDate getDateFrom() {
-        return dateFrom;
-    }
-
     public LocalDate getDateTo() {
         return dateTo;
-    }
-
-    public String getAdditionalComment() {
-        return additionalComment;
-    }
-
-    public User getCustomer() {
-        return customer;
     }
 
     public List<ReservationHasTool> getReservationHasTools() {

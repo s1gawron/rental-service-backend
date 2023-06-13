@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.tool.service;
 
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
+import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
@@ -16,12 +17,11 @@ import com.s1gawron.rentalservice.tool.model.ToolState;
 import com.s1gawron.rentalservice.tool.repository.ToolRepository;
 import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ToolService {
@@ -185,13 +185,12 @@ public class ToolService {
     }
 
     private boolean isUserCustomerOrUnauthenticated() {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final Set<UserRole> userRoles = UserContextProvider.I.getCurrentUserRoles();
 
-        if (authentication == null || authentication.getAuthorities().isEmpty()) {
+        if (userRoles.isEmpty()) {
             return true;
         }
 
-        return authentication.getAuthorities().contains(UserRole.ANONYMOUS.toSimpleGrantedAuthority()) ||
-            authentication.getAuthorities().contains(UserRole.CUSTOMER.toSimpleGrantedAuthority());
+        return userRoles.contains(UserRole.ANONYMOUS) || userRoles.contains(UserRole.CUSTOMER);
     }
 }

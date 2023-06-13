@@ -9,12 +9,22 @@ public enum UserRole {
     WORKER,
     ADMIN;
 
+    private static final String ANONYMOUS_ROLE_NAME = "ROLE_ANONYMOUS";
+
     public SimpleGrantedAuthority toSimpleGrantedAuthority() {
         if (this.equals(ANONYMOUS)) {
-            return new SimpleGrantedAuthority("ROLE_ANONYMOUS");
+            return new SimpleGrantedAuthority(ANONYMOUS_ROLE_NAME);
         }
 
         return new SimpleGrantedAuthority(this.name());
+    }
+
+    public static UserRole getUserRole(final String name) {
+        if (name.equals(ANONYMOUS_ROLE_NAME)) {
+            return ANONYMOUS;
+        }
+
+        return valueOf(name);
     }
 
 }

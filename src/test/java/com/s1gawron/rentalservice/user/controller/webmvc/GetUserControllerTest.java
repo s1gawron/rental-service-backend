@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.user.controller.webmvc;
 
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.user.controller.UserManagementController;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.model.UserRole;
@@ -44,6 +45,20 @@ class GetUserControllerTest extends AbstractUserControllerTest {
         assertEquals(userDTO.email(), userDTOResult.email());
         assertEquals(userDTO.customerAddress().country(), userDTOResult.customerAddress().country());
         assertEquals(userDTO.customerAddress().postCode(), userDTOResult.customerAddress().postCode());
+    }
+
+    @Test
+    void shouldReturnUnauthorizedResponseWhenUserIsNotLoggedInWhileGettingUserDetails() throws Exception {
+        final UserUnauthenticatedException expectedException = UserUnauthenticatedException.create();
+        final String endpoint = USER_DETAILS_ENDPOINT + "details";
+
+        Mockito.when(userServiceMock.getUserDetails()).thenThrow(expectedException);
+
+        final RequestBuilder request = MockMvcRequestBuilders.get(endpoint).content(userRegisterJson);
+
+        mockMvc.perform(request)
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test

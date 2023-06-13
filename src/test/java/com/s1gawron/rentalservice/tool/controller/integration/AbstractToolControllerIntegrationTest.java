@@ -10,6 +10,7 @@ import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginRequest;
 import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
+import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import com.s1gawron.rentalservice.user.service.UserService;
@@ -20,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -60,14 +62,19 @@ abstract class AbstractToolControllerIntegrationTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @BeforeEach
     void setUp() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
         final UserRegisterRequest customerRegisterDTO = new UserRegisterRequest(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
-        final UserRegisterRequest workerRegisterDTO = new UserRegisterRequest(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER, null);
-
         userService.validateAndRegisterUser(customerRegisterDTO);
-        userService.validateAndRegisterUser(workerRegisterDTO);
+
+        final UserRegisterRequest workerRegisterDTO = new UserRegisterRequest(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER, null);
+        final String workerEncodedPassword = passwordEncoder.encode(PASSWORD);
+        final User workerUser = User.createUser(workerRegisterDTO, workerEncodedPassword);
+        userService.saveUser(workerUser);
     }
 
     @AfterEach

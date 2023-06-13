@@ -5,7 +5,6 @@ import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
 import jakarta.persistence.*;
-import org.hibernate.annotations.DynamicUpdate;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,7 +13,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "tool")
-@DynamicUpdate
 public class Tool {
 
     @Id

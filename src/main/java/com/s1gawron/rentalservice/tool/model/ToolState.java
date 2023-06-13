@@ -1,13 +1,11 @@
 package com.s1gawron.rentalservice.tool.model;
 
 import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
-import org.hibernate.annotations.DynamicUpdate;
 
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "tool_state")
-@DynamicUpdate
 public class ToolState {
 
     @Id

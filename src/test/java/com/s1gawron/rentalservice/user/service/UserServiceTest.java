@@ -8,6 +8,7 @@ import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterRequest;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
+import com.s1gawron.rentalservice.user.exception.WorkerRegisteredByNonAdminUserException;
 import com.s1gawron.rentalservice.user.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
@@ -88,6 +89,13 @@ class UserServiceTest {
         assertEquals("Kowalski", result.lastName());
         assertEquals("Poland", result.customerAddress().country());
         assertEquals("01-000", result.customerAddress().postCode());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenWorkerIsNotRegisteredByAdmin() {
+        final UserRegisterRequest userRegisterRequest = new UserRegisterRequest(EMAIL, "Start00!", "John", "Kowalski", UserRole.WORKER, null);
+
+        assertThrows(WorkerRegisteredByNonAdminUserException.class, () -> userService.validateAndRegisterUser(userRegisterRequest));
     }
 
     @Test
