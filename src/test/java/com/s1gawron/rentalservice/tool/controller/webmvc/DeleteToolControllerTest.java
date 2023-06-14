@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.tool.controller.webmvc;
 
-import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
-import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
+import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;

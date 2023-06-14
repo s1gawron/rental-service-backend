@@ -1,8 +1,8 @@
 package com.s1gawron.rentalservice.user.controller.webmvc;
 
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
-import com.s1gawron.rentalservice.shared.UserNotFoundException;
-import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
+import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
+import com.s1gawron.rentalservice.shared.exception.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.user.controller.UserManagementController;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.model.UserRole;

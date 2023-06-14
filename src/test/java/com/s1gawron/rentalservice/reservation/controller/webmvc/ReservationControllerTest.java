@@ -11,7 +11,7 @@ import com.s1gawron.rentalservice.reservation.exception.ReservationEmptyProperti
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
-import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
+import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.exception.ToolRemovedException;

@@ -9,7 +9,7 @@ import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
 import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
-import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
+import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;

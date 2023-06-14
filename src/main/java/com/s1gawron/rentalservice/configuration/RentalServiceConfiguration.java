@@ -1,6 +1,6 @@
 package com.s1gawron.rentalservice.configuration;
 
-import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
 import com.s1gawron.rentalservice.user.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

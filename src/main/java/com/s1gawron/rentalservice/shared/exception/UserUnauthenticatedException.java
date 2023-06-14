@@ -1,4 +1,4 @@
-package com.s1gawron.rentalservice.shared;
+package com.s1gawron.rentalservice.shared.exception;
 
 public class UserUnauthenticatedException extends RuntimeException {
 

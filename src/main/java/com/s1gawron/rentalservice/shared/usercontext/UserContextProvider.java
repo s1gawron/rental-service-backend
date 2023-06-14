@@ -1,6 +1,6 @@
 package com.s1gawron.rentalservice.shared.usercontext;
 
-import com.s1gawron.rentalservice.shared.UserUnauthenticatedException;
+import com.s1gawron.rentalservice.shared.exception.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import org.springframework.security.core.Authentication;

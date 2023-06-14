@@ -1,5 +1,8 @@
 package com.s1gawron.rentalservice.shared;
 
+import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
+import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
+import com.s1gawron.rentalservice.shared.exception.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;

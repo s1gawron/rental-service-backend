@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.tool.service;
 import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
-import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
+import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;

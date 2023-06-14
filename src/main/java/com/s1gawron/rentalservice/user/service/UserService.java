@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.user.service;
 
 import com.s1gawron.rentalservice.address.service.AddressService;
-import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
 import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;

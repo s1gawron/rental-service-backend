@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.user.service;
 
 import com.s1gawron.rentalservice.configuration.jwt.JwtService;
-import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import com.s1gawron.rentalservice.user.model.User;
