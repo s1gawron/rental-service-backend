@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.tool.controller.webmvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.s1gawron.rentalservice.configuration.jwt.JwtService;
+import com.s1gawron.rentalservice.security.JwtService;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;

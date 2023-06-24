@@ -3,11 +3,11 @@ package com.s1gawron.rentalservice.user.controller.webmvc;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
-import com.s1gawron.rentalservice.configuration.jwt.JwtService;
+import com.s1gawron.rentalservice.security.JwtService;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import com.s1gawron.rentalservice.user.service.AuthenticationService;
+import com.s1gawron.rentalservice.user.service.UserAuthenticationService;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,8 @@ abstract class AbstractUserControllerTest {
 
     private static final AddressDTO ADDRESS_DTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
 
-    private static final UserRegisterDTO USER_REGISTER_DTO = new UserRegisterDTO("test@test.pl", "Start00!", "John", "Kowalski", UserRole.CUSTOMER, ADDRESS_DTO);
+    private static final UserRegisterDTO USER_REGISTER_DTO = new UserRegisterDTO("test@test.pl", "Start00!", "John", "Kowalski", UserRole.CUSTOMER,
+        ADDRESS_DTO);
 
     protected static final String ERROR_RESPONSE_MESSAGE_PLACEHOLDER = "$.message";
 
@@ -32,7 +33,7 @@ abstract class AbstractUserControllerTest {
     protected JwtService jwtServiceMock;
 
     @MockBean
-    protected AuthenticationService authenticationService;
+    protected UserAuthenticationService userAuthenticationService;
 
     protected final ObjectMapper objectMapper = ObjectMapperCreator.I.getMapper();
 

@@ -12,12 +12,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Clock;
+
 @Configuration
-public class RentalServiceConfiguration {
+public class RentalServiceApplicationConfiguration {
 
     private final UserRepository userRepository;
 
-    public RentalServiceConfiguration(final UserRepository userRepository) {
+    public RentalServiceApplicationConfiguration(final UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -43,6 +45,11 @@ public class RentalServiceConfiguration {
     @Bean
     public AuthenticationManager authenticationManager(final AuthenticationConfiguration authConfiguration) throws Exception {
         return authConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public Clock clock() {
+        return Clock.systemDefaultZone();
     }
 
 }
