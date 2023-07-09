@@ -7,7 +7,7 @@ import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import com.s1gawron.rentalservice.user.repository.UserRepository;
+import com.s1gawron.rentalservice.user.repository.UserDAO;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +45,7 @@ abstract class AbstractUserControllerIntegrationTest {
     protected UserService userService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDAO userDAO;
 
     @Autowired
     private CommandLineRunner commandLineRunner;
@@ -62,7 +62,7 @@ abstract class AbstractUserControllerIntegrationTest {
 
     @AfterEach
     void cleanUp() {
-        userRepository.deleteAll();
+        userDAO.deleteAll();
     }
 
     protected MvcResult performLoginAction(final UserLoginDTO userLoginDTO) throws Exception {

@@ -7,14 +7,13 @@ import com.s1gawron.rentalservice.reservation.dto.validator.ReservationDTOValida
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
-import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
-import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
+import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
+import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolDAO;
 import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,26 +30,23 @@ public class ReservationService {
 
     private static final Logger log = LoggerFactory.getLogger(ReservationService.class);
 
-    private final ReservationRepository reservationRepository;
+    private final ReservationDAO reservationDAO;
 
-    private final ReservationHasToolRepository reservationHasToolRepository;
-
-    private final UserService userService;
+    private final ReservationHasToolDAO reservationHasToolDAO;
 
     private final ToolService toolService;
 
-    public ReservationService(final ReservationRepository reservationRepository, final ReservationHasToolRepository reservationHasToolRepository,
-        final UserService userService, final ToolService toolService) {
-        this.reservationRepository = reservationRepository;
-        this.reservationHasToolRepository = reservationHasToolRepository;
-        this.userService = userService;
+    public ReservationService(final ReservationDAO reservationDAO, final ReservationHasToolDAO reservationHasToolDAO,
+        final ToolService toolService) {
+        this.reservationDAO = reservationDAO;
+        this.reservationHasToolDAO = reservationHasToolDAO;
         this.toolService = toolService;
     }
 
     @Transactional(readOnly = true)
     public ReservationListingDTO getUserReservations() {
         final User customer = UserContextProvider.I.getLoggedInUser();
-        final List<ReservationDetailsDTO> userReservations = reservationRepository.findAllByCustomer(customer).stream()
+        final List<ReservationDetailsDTO> userReservations = reservationDAO.findAllByCustomer(customer).stream()
             .map(reservation -> {
                 final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
                 return reservation.toReservationDetailsDTO(toolDetails);
@@ -63,7 +59,7 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public ReservationDetailsDTO getReservationDetails(final Long reservationId) {
         final User customer = UserContextProvider.I.getLoggedInUser();
-        final Reservation reservationByIdAndCustomer = reservationRepository.findByReservationIdAndCustomer(reservationId, customer)
+        final Reservation reservationByIdAndCustomer = reservationDAO.findByReservationIdAndCustomer(reservationId, customer)
             .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
         final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservationByIdAndCustomer.getReservationHasTools());
 
@@ -86,9 +82,8 @@ public class ReservationService {
         reservationDTO.toolIds().forEach(toolId -> {
             final Tool tool = toolService.getToolById(toolId);
             final ReservationHasTool reservationHasTool = reservation.addTool(tool);
-            final ReservationHasTool savedReservationHasTool = reservationHasToolRepository.save(reservationHasTool);
 
-            tool.addReservation(savedReservationHasTool);
+            reservationHasToolDAO.save(reservationHasTool);
             toolService.makeToolUnavailableAndSave(tool);
 
             toolDetails.add(tool.toToolDetailsDTO());
@@ -97,10 +92,7 @@ public class ReservationService {
 
         reservation.setReservationFinalPrice(reservationFinalPrice.get());
 
-        final Reservation savedReservation = reservationRepository.save(reservation);
-
-        reservationRepository.findAllByCustomer(customer).add(savedReservation);
-        userService.saveCustomerWithReservation(customer);
+        final Reservation savedReservation = reservationDAO.save(reservation);
 
         return savedReservation.toReservationDetailsDTO(toolDetails);
     }
@@ -108,7 +100,7 @@ public class ReservationService {
     @Transactional
     public ReservationDetailsDTO cancelReservation(final Long reservationId) {
         final User customer = UserContextProvider.I.getLoggedInUser();
-        final Reservation reservationByIdAndCustomer = reservationRepository.findByReservationIdAndCustomer(reservationId, customer)
+        final Reservation reservationByIdAndCustomer = reservationDAO.findByReservationIdAndCustomer(reservationId, customer)
             .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
         final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservationByIdAndCustomer.getReservationHasTools());
         final List<ToolDetailsDTO> toolDetails = new ArrayList<>();
@@ -118,19 +110,19 @@ public class ReservationService {
             toolDetails.add(tool.toToolDetailsDTO());
         });
         reservationByIdAndCustomer.cancelReservation();
-        reservationRepository.save(reservationByIdAndCustomer);
+        reservationDAO.save(reservationByIdAndCustomer);
 
         return reservationByIdAndCustomer.toReservationDetailsDTO(toolDetails);
     }
 
     @Transactional(readOnly = true)
     public List<Long> getReservationIds() {
-        return reservationRepository.getAllIds();
+        return reservationDAO.getAllIds();
     }
 
     @Transactional
     public void checkReservationsExpiryStatus(final List<Long> reservationIds) {
-        final List<Reservation> reservationsById = reservationRepository.findAllById(reservationIds);
+        final List<Reservation> reservationsById = reservationDAO.findAllById(reservationIds);
 
         reservationsById.forEach(reservation -> {
             final LocalDate today = LocalDate.now();
@@ -141,7 +133,7 @@ public class ReservationService {
                 final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservation.getReservationHasTools());
                 toolsFromReservation.forEach(toolService::makeToolAvailableAndSave);
                 reservation.expireReservation();
-                reservationRepository.save(reservation);
+                reservationDAO.save(reservation);
 
                 log.info("Clean job for reservation#{} finished successfully", reservation.getReservationId());
             }
