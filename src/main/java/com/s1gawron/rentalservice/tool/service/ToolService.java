@@ -13,8 +13,8 @@ import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.model.ToolState;
-import com.s1gawron.rentalservice.tool.repository.ToolRepository;
-import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
+import com.s1gawron.rentalservice.tool.repository.ToolDAO;
+import com.s1gawron.rentalservice.tool.repository.ToolStateDAO;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,28 +25,28 @@ import java.util.Set;
 @Service
 public class ToolService {
 
-    private final ToolRepository toolRepository;
+    private final ToolDAO toolDAO;
 
-    private final ToolStateRepository toolStateRepository;
+    private final ToolStateDAO toolStateDAO;
 
-    public ToolService(final ToolRepository toolRepository, final ToolStateRepository toolStateRepository) {
-        this.toolRepository = toolRepository;
-        this.toolStateRepository = toolStateRepository;
+    public ToolService(final ToolDAO toolDAO, final ToolStateDAO toolStateDAO) {
+        this.toolDAO = toolDAO;
+        this.toolStateDAO = toolStateDAO;
     }
 
     @Transactional(readOnly = true)
     public ToolListingDTO getToolsByCategory(final ToolCategory toolCategory) {
         if (isUserCustomerOrUnauthenticated()) {
-            final List<Tool> notRemovedToolsByCategory = toolRepository.findAllByToolCategory(toolCategory.name(), false);
+            final List<Tool> notRemovedToolsByCategory = toolDAO.findAllByToolCategory(toolCategory.name(), false);
             return toToolListingDTO(notRemovedToolsByCategory);
         }
 
-        return toToolListingDTO(toolRepository.findAllByToolCategory(toolCategory.name()));
+        return toToolListingDTO(toolDAO.findAllByToolCategory(toolCategory.name()));
     }
 
     @Transactional(readOnly = true)
     public List<ToolDetailsDTO> getNewTools() {
-        return toolRepository.findNewTools()
+        return toolDAO.findNewTools()
             .stream()
             .map(Tool::toToolDetailsDTO)
             .toList();
@@ -59,18 +59,18 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public Tool getToolById(final Long toolId) {
-        return toolRepository.findById(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
+        return toolDAO.findById(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
     }
 
     @Transactional(readOnly = true)
     public List<ToolDetailsDTO> getToolsByName(final ToolSearchDTO toolSearchDTO) {
         if (isUserCustomerOrUnauthenticated()) {
-            return toolRepository.findNotRemovedToolsByName(toolSearchDTO.toolName()).stream()
+            return toolDAO.findNotRemovedToolsByName(toolSearchDTO.toolName()).stream()
                 .map(Tool::toToolDetailsDTO)
                 .toList();
         }
 
-        return toolRepository.findByName(toolSearchDTO.toolName()).stream()
+        return toolDAO.findByName(toolSearchDTO.toolName()).stream()
             .map(Tool::toToolDetailsDTO)
             .toList();
     }
@@ -82,8 +82,8 @@ public class ToolService {
         final ToolState toolState = ToolState.from(toolDTO.toolState());
         final Tool tool = Tool.from(toolDTO, toolState);
 
-        toolStateRepository.save(toolState);
-        toolRepository.save(tool);
+        toolStateDAO.save(toolState);
+        toolDAO.save(tool);
 
         return tool.toToolDetailsDTO();
     }
@@ -96,9 +96,9 @@ public class ToolService {
         final ToolState toolState = tool.getToolState();
 
         toolState.edit(toolDetailsDTO.toolState());
-        toolStateRepository.save(toolState);
+        toolStateDAO.save(toolState);
         tool.edit(toolDetailsDTO);
-        toolRepository.save(tool);
+        toolDAO.save(tool);
 
         return tool.toToolDetailsDTO();
     }
@@ -108,7 +108,7 @@ public class ToolService {
         final Tool tool = getToolById(toolId);
         tool.remove();
 
-        toolRepository.save(tool);
+        toolDAO.save(tool);
 
         return true;
     }
@@ -122,13 +122,13 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public void isToolAvailableOrRemoved(final long toolId) {
-        final boolean isNotAvailable = !toolRepository.isToolAvailable(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
+        final boolean isNotAvailable = !toolDAO.isToolAvailable(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
 
         if (isNotAvailable) {
             throw ToolUnavailableException.create(toolId);
         }
 
-        final boolean isRemoved = toolRepository.isToolRemoved(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
+        final boolean isRemoved = toolDAO.isToolRemoved(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
 
         if (isRemoved) {
             throw ToolRemovedException.create(toolId);
@@ -138,27 +138,27 @@ public class ToolService {
     @Transactional
     public void makeToolUnavailableAndSave(final Tool tool) {
         tool.makeToolUnavailable();
-        toolRepository.save(tool);
+        toolDAO.save(tool);
     }
 
     @Transactional(readOnly = true)
     public List<Tool> getToolsByReservationHasTools(final List<ReservationHasTool> reservationHasTools) {
-        return toolRepository.findAllByReservationHasToolsIn(reservationHasTools);
+        return toolDAO.findAllByReservationHasToolsIn(reservationHasTools);
     }
 
     @Transactional
     public void makeToolAvailableAndSave(final Tool tool) {
         tool.makeToolAvailable();
-        toolRepository.save(tool);
+        toolDAO.save(tool);
     }
 
     @Transactional(readOnly = true)
     public ToolListingDTO getAllTools() {
         if (isUserCustomerOrUnauthenticated()) {
-            return toToolListingDTO(toolRepository.findAll(false));
+            return toToolListingDTO(toolDAO.findAll(false));
         }
 
-        return toToolListingDTO(toolRepository.findAllWithLimit());
+        return toToolListingDTO(toolDAO.findAllWithLimit());
     }
 
     private ToolListingDTO toToolListingDTO(final List<Tool> tools) {

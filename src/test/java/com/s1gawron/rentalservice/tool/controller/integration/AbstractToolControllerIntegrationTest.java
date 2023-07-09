@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.model.Tool;
-import com.s1gawron.rentalservice.tool.repository.ToolRepository;
-import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
+import com.s1gawron.rentalservice.tool.repository.ToolDAO;
+import com.s1gawron.rentalservice.tool.repository.ToolStateDAO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
@@ -51,10 +51,10 @@ abstract class AbstractToolControllerIntegrationTest {
     protected ToolService toolService;
 
     @Autowired
-    protected ToolRepository toolRepository;
+    protected ToolDAO toolDAO;
 
     @Autowired
-    protected ToolStateRepository toolStateRepository;
+    protected ToolStateDAO toolStateDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -79,8 +79,8 @@ abstract class AbstractToolControllerIntegrationTest {
 
     @AfterEach
     void cleanUp() {
-        toolRepository.deleteAll();
-        toolStateRepository.deleteAll();
+        toolDAO.deleteAll();
+        toolStateDAO.deleteAll();
         userDAO.deleteAll();
     }
 
@@ -97,8 +97,8 @@ abstract class AbstractToolControllerIntegrationTest {
     }
 
     protected void saveToolForTest(final Tool tool) {
-        toolStateRepository.save(tool.getToolState());
-        toolRepository.save(tool);
+        toolStateDAO.save(tool.getToolState());
+        toolDAO.save(tool);
     }
 
     private String getTokenFor(final String email) throws Exception {

@@ -15,14 +15,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AddressServiceTest {
 
-    private AddressDAO addressDAO;
+    private AddressDAO addressDAOMock;
 
     private AddressService addressService;
 
     @BeforeEach
     void setUp() {
-        addressDAO = Mockito.mock(AddressDAO.class);
-        addressService = new AddressService(addressDAO);
+        addressDAOMock = Mockito.mock(AddressDAO.class);
+        addressService = new AddressService(addressDAOMock);
     }
 
     @Test
@@ -45,11 +45,11 @@ class AddressServiceTest {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
         final Address address = Address.from(addressDTO);
 
-        Mockito.when(addressDAO.save(Mockito.any(Address.class))).thenReturn(address);
+        Mockito.when(addressDAOMock.save(Mockito.any(Address.class))).thenReturn(address);
 
         final Optional<Address> result = addressService.validateAndSaveAddress(addressDTO, UserRole.CUSTOMER);
 
-        Mockito.verify(addressDAO, Mockito.times(1)).save(Mockito.any(Address.class));
+        Mockito.verify(addressDAOMock, Mockito.times(1)).save(Mockito.any(Address.class));
         assertTrue(result.isPresent());
         assertEquals("Poland", result.get().getCountry());
         assertEquals("Warsaw", result.get().getCity());

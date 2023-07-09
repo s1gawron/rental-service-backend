@@ -1,17 +1,15 @@
-package com.s1gawron.rentalservice.tool.repository;
+package com.s1gawron.rentalservice.tool.repository.impl;
 
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
-public interface ToolRepository extends JpaRepository<Tool, Long> {
+public interface ToolJpaRepository extends JpaRepository<Tool, Long> {
 
     @Query(value = "SELECT * FROM tool WHERE tool_category = :toolCategory LIMIT 500", nativeQuery = true)
     List<Tool> findAllByToolCategory(@Param(value = "toolCategory") final String toolCategory);

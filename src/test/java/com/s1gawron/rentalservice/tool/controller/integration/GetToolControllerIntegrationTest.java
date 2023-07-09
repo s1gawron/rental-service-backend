@@ -137,7 +137,7 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         saveToolsForTest(ToolCreatorHelper.I.createHeavyTools());
         saveToolsForTest(ToolCreatorHelper.I.createLightTools());
 
-        final Optional<Tool> toolById = toolRepository.findById(99L);
+        final Optional<Tool> toolById = toolDAO.findById(99L);
 
         if (toolById.isPresent()) {
             throw new IllegalStateException("Tool cannot be in database, because it was not added!");

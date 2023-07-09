@@ -11,8 +11,8 @@ import com.s1gawron.rentalservice.reservation.service.ReservationService;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
-import com.s1gawron.rentalservice.tool.repository.ToolRepository;
-import com.s1gawron.rentalservice.tool.repository.ToolStateRepository;
+import com.s1gawron.rentalservice.tool.repository.ToolDAO;
+import com.s1gawron.rentalservice.tool.repository.ToolStateDAO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
@@ -70,10 +70,10 @@ abstract class AbstractReservationControllerIntegrationTest {
     protected UserService userService;
 
     @Autowired
-    protected ToolRepository toolRepository;
+    protected ToolDAO toolDAO;
 
     @Autowired
-    protected ToolStateRepository toolStateRepository;
+    protected ToolStateDAO toolStateDAO;
 
     @Autowired
     protected ToolService toolService;
@@ -138,8 +138,8 @@ abstract class AbstractReservationControllerIntegrationTest {
     void cleanUp() {
         reservationHasToolJpaRepository.deleteAll();
         reservationJpaRepository.deleteAll();
-        toolRepository.deleteAll();
-        toolStateRepository.deleteAll();
+        toolDAO.deleteAll();
+        toolStateDAO.deleteAll();
         userDAO.deleteAll();
     }
 
@@ -198,8 +198,8 @@ abstract class AbstractReservationControllerIntegrationTest {
     }
 
     private void saveToolForTest(final Tool tool) {
-        toolStateRepository.save(tool.getToolState());
-        toolRepository.save(tool);
+        toolStateDAO.save(tool.getToolState());
+        toolDAO.save(tool);
     }
 
 }

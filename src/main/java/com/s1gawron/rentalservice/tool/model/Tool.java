@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -96,13 +95,6 @@ public class Tool {
         this.toolCategory = ToolCategory.findByValue(toolDetailsDTO.toolCategory());
         this.price = toolDetailsDTO.price();
         this.imageUrl = toolDetailsDTO.imageUrl();
-    }
-
-    public void addReservation(final ReservationHasTool reservationHasTool) {
-        if (this.reservationHasTools == null) {
-            this.reservationHasTools = new ArrayList<>();
-        }
-        this.reservationHasTools.add(reservationHasTool);
     }
 
     public void remove() {

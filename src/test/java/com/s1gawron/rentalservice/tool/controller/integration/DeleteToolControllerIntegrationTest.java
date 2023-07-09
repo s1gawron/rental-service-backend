@@ -39,7 +39,7 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertEquals("true", result.getResponse().getContentAsString());
 
-        final Optional<Tool> removedTool = toolRepository.findById(currentToolId);
+        final Optional<Tool> removedTool = toolDAO.findById(currentToolId);
         assertTrue(removedTool.isPresent());
         assertTrue(removedTool.get().isRemoved());
     }
@@ -51,12 +51,12 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(currentToolId).isPresent());
+        assertTrue(toolDAO.findById(currentToolId).isPresent());
     }
 
     @Test
     void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileDeletingTool() throws Exception {
-        final Optional<Tool> noToolInDb = toolRepository.findById(99L);
+        final Optional<Tool> noToolInDb = toolDAO.findById(99L);
 
         if (noToolInDb.isPresent()) {
             throw new IllegalStateException("Tool cannot be in database, because it was not added!");
@@ -67,7 +67,7 @@ class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrat
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(99L).isEmpty());
+        assertTrue(toolDAO.findById(99L).isEmpty());
     }
 
 }

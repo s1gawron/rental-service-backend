@@ -37,7 +37,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final ToolDetailsDTO resultObject = objectMapper.readValue(resultJson, ToolDetailsDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(1, toolRepository.findAll().size());
+        assertEquals(1, toolDAO.findAll().size());
         assertToolDetailsDTO(expectedObject, resultObject, true);
     }
 
@@ -60,7 +60,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -81,7 +81,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -102,7 +102,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -123,7 +123,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -144,7 +144,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -166,7 +166,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -187,7 +187,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -205,7 +205,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -226,7 +226,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -248,7 +248,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -269,7 +269,7 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool, final boolean isAvailable) {

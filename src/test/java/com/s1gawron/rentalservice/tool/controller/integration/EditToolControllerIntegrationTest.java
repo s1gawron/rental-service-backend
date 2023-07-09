@@ -59,7 +59,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
         final ToolDetailsDTO resultObject = objectMapper.readValue(resultJson, ToolDetailsDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(currentToolId).isPresent());
+        assertTrue(toolDAO.findById(currentToolId).isPresent());
         assertToolDetailsDTO(expectedObject, resultObject);
     }
 
@@ -89,7 +89,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
 
     @Test
     void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileEditingTool() throws Exception {
-        final Optional<Tool> noToolInDb = toolRepository.findById(99L);
+        final Optional<Tool> noToolInDb = toolDAO.findById(99L);
 
         if (noToolInDb.isPresent()) {
             throw new IllegalStateException("Tool cannot be in database, because it was not added!");
@@ -115,7 +115,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
-        assertTrue(toolRepository.findById(99L).isEmpty());
+        assertTrue(toolDAO.findById(99L).isEmpty());
     }
 
     @Test
@@ -357,7 +357,7 @@ class EditToolControllerIntegrationTest extends AbstractToolControllerIntegratio
     }
 
     private void assertThatToolHasNotBeenEdited() {
-        final Optional<Tool> toolById = toolRepository.findById(currentToolId);
+        final Optional<Tool> toolById = toolDAO.findById(currentToolId);
         assertTrue(toolById.isPresent());
         assertToolDetailsDTO(currentToolFirstState, toolById.get().toToolDetailsDTO());
     }
