@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.address.service;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.address.exception.AddressRegisterEmptyPropertiesException;
 import com.s1gawron.rentalservice.address.model.Address;
-import com.s1gawron.rentalservice.address.repository.AddressRepository;
+import com.s1gawron.rentalservice.address.repository.AddressDAO;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,14 +15,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AddressServiceTest {
 
-    private AddressRepository addressRepositoryMock;
+    private AddressDAO addressDAO;
 
     private AddressService addressService;
 
     @BeforeEach
     void setUp() {
-        addressRepositoryMock = Mockito.mock(AddressRepository.class);
-        addressService = new AddressService(addressRepositoryMock);
+        addressDAO = Mockito.mock(AddressDAO.class);
+        addressService = new AddressService(addressDAO);
     }
 
     @Test
@@ -45,11 +45,11 @@ class AddressServiceTest {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
         final Address address = Address.from(addressDTO);
 
-        Mockito.when(addressRepositoryMock.save(Mockito.any(Address.class))).thenReturn(address);
+        Mockito.when(addressDAO.save(Mockito.any(Address.class))).thenReturn(address);
 
         final Optional<Address> result = addressService.validateAndSaveAddress(addressDTO, UserRole.CUSTOMER);
 
-        Mockito.verify(addressRepositoryMock, Mockito.times(1)).save(Mockito.any(Address.class));
+        Mockito.verify(addressDAO, Mockito.times(1)).save(Mockito.any(Address.class));
         assertTrue(result.isPresent());
         assertEquals("Poland", result.get().getCountry());
         assertEquals("Warsaw", result.get().getCity());
