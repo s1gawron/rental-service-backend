@@ -5,8 +5,8 @@ import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
-import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
-import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
+import com.s1gawron.rentalservice.reservation.repository.impl.ReservationHasToolJpaRepository;
+import com.s1gawron.rentalservice.reservation.repository.impl.ReservationJpaRepository;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
@@ -19,7 +19,7 @@ import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import com.s1gawron.rentalservice.user.repository.UserRepository;
+import com.s1gawron.rentalservice.user.repository.UserDAO;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,7 +64,7 @@ abstract class AbstractReservationControllerIntegrationTest {
     protected final ObjectMapper objectMapper = ObjectMapperCreator.I.getMapper();
 
     @Autowired
-    protected UserRepository userRepository;
+    protected UserDAO userDAO;
 
     @Autowired
     protected UserService userService;
@@ -79,10 +79,10 @@ abstract class AbstractReservationControllerIntegrationTest {
     protected ToolService toolService;
 
     @Autowired
-    protected ReservationRepository reservationRepository;
+    protected ReservationJpaRepository reservationJpaRepository;
 
     @Autowired
-    protected ReservationHasToolRepository reservationHasToolRepository;
+    protected ReservationHasToolJpaRepository reservationHasToolJpaRepository;
 
     @Autowired
     protected ReservationService reservationService;
@@ -136,11 +136,11 @@ abstract class AbstractReservationControllerIntegrationTest {
     @AfterEach
     @Transactional
     void cleanUp() {
-        reservationHasToolRepository.deleteAll();
-        reservationRepository.deleteAll();
+        reservationHasToolJpaRepository.deleteAll();
+        reservationJpaRepository.deleteAll();
         toolRepository.deleteAll();
         toolStateRepository.deleteAll();
-        userRepository.deleteAll();
+        userDAO.deleteAll();
     }
 
     protected void performMakeReservationRequests() throws Exception {
@@ -194,7 +194,7 @@ abstract class AbstractReservationControllerIntegrationTest {
     }
 
     protected Reservation getReservationDetails(final long reservationId) {
-        return reservationRepository.findByReservationId(reservationId).orElseThrow(() -> ReservationNotFoundException.create(reservationId));
+        return reservationJpaRepository.findByReservationId(reservationId).orElseThrow(() -> ReservationNotFoundException.create(reservationId));
     }
 
     private void saveToolForTest(final Tool tool) {

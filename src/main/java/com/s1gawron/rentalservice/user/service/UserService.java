@@ -10,7 +10,7 @@ import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
 import com.s1gawron.rentalservice.user.exception.WorkerRegisteredByNonAdminUserException;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import com.s1gawron.rentalservice.user.repository.UserRepository;
+import com.s1gawron.rentalservice.user.repository.UserDAO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,14 +20,14 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final UserDAO userDAO;
 
     private final AddressService addressService;
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(final UserRepository userRepository, final AddressService addressService, final PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+    public UserService(final UserDAO userDAO, final AddressService addressService, final PasswordEncoder passwordEncoder) {
+        this.userDAO = userDAO;
         this.addressService = addressService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -50,19 +50,19 @@ public class UserService {
         final User user = User.createUser(userRegisterDTO, encryptedPassword);
 
         addressService.validateAndSaveAddress(userRegisterDTO.address(), userRegisterDTO.userRole()).ifPresent(user::setCustomerAddress);
-        userRepository.save(user);
+        userDAO.save(user);
 
         return user.toUserDTO();
     }
 
     @Transactional
     public void saveUser(final User user) {
-        userRepository.save(user);
+        userDAO.save(user);
     }
 
     @Transactional(readOnly = true)
     public Optional<User> getUserByEmail(final String email) {
-        return userRepository.findByEmail(email);
+        return userDAO.findByEmail(email);
     }
 
     @Transactional(readOnly = true)
@@ -71,11 +71,6 @@ public class UserService {
         final User user = getUserByEmail(loggedInUser.getEmail()).orElseThrow(() -> UserNotFoundException.create(loggedInUser.getEmail()));
 
         return user.toUserDTO();
-    }
-
-    @Transactional
-    public void saveCustomerWithReservation(final User customer) {
-        userRepository.save(customer);
     }
 
     private boolean isNotInvokedByAdmin() {

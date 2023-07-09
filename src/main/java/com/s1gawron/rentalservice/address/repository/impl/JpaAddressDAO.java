@@ -13,8 +13,8 @@ public class JpaAddressDAO implements AddressDAO {
         this.addressJpaRepository = addressJpaRepository;
     }
 
-    @Override
-    public Address save(final Address address) {
+    @Override public Address save(final Address address) {
         return addressJpaRepository.save(address);
     }
+
 }

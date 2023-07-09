@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.configuration;
 
 import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
-import com.s1gawron.rentalservice.user.repository.UserRepository;
+import com.s1gawron.rentalservice.user.repository.UserDAO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,15 +17,15 @@ import java.time.Clock;
 @Configuration
 public class RentalServiceApplicationConfiguration {
 
-    private final UserRepository userRepository;
+    private final UserDAO userDAO;
 
-    public RentalServiceApplicationConfiguration(final UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public RentalServiceApplicationConfiguration(final UserDAO userDAO) {
+        this.userDAO = userDAO;
     }
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username).orElseThrow(() -> UserNotFoundException.create(username));
+        return username -> userDAO.findByEmail(username).orElseThrow(() -> UserNotFoundException.create(username));
     }
 
     @Bean

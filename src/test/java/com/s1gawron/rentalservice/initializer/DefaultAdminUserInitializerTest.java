@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.initializer;
 
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.repository.UserRepository;
+import com.s1gawron.rentalservice.user.repository.UserDAO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,11 +20,11 @@ class DefaultAdminUserInitializerTest {
     private static final String ADMIN_EMAIL = "admin@rental-service.com";
 
     @Autowired
-    private UserRepository userRepository;
+    private UserDAO userDAO;
 
     @Test
     void shouldInitializeAdminUserOnApplicationStartup() {
-        final Optional<User> result = userRepository.findByEmail(ADMIN_EMAIL);
+        final Optional<User> result = userDAO.findByEmail(ADMIN_EMAIL);
 
         assertTrue(result.isPresent());
     }

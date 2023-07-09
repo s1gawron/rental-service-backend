@@ -9,8 +9,8 @@ import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundExcep
 import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
-import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
-import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
+import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
+import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolDAO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.exception.ToolRemovedException;
@@ -20,7 +20,6 @@ import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -39,11 +38,9 @@ class ReservationServiceTest {
 
     private Authentication authenticationMock;
 
-    private ReservationRepository reservationRepositoryMock;
+    private ReservationDAO reservationDAO;
 
-    private ReservationHasToolRepository reservationHasToolRepositoryMock;
-
-    private UserService userServiceMock;
+    private ReservationHasToolDAO reservationHasToolDAO;
 
     private ToolService toolServiceMock;
 
@@ -57,11 +54,10 @@ class ReservationServiceTest {
         Mockito.when(securityContextMock.getAuthentication()).thenReturn(authenticationMock);
         SecurityContextHolder.setContext(securityContextMock);
 
-        reservationRepositoryMock = Mockito.mock(ReservationRepository.class);
-        reservationHasToolRepositoryMock = Mockito.mock(ReservationHasToolRepository.class);
-        userServiceMock = Mockito.mock(UserService.class);
+        reservationDAO = Mockito.mock(ReservationDAO.class);
+        reservationHasToolDAO = Mockito.mock(ReservationHasToolDAO.class);
         toolServiceMock = Mockito.mock(ToolService.class);
-        reservationService = new ReservationService(reservationRepositoryMock, reservationHasToolRepositoryMock, userServiceMock, toolServiceMock);
+        reservationService = new ReservationService(reservationDAO, reservationHasToolDAO, toolServiceMock);
     }
 
     @Test
@@ -71,7 +67,7 @@ class ReservationServiceTest {
         final List<ToolDetailsDTO> toolDetails = ToolCreatorHelper.I.createToolDTOList();
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-        Mockito.when(reservationRepositoryMock.findAllByCustomer(customer)).thenReturn(reservations);
+        Mockito.when(reservationDAO.findAllByCustomer(customer)).thenReturn(reservations);
 
         for (int i = 0; i < toolDetails.size(); i++) {
             Mockito.when(toolServiceMock.getToolDetailsByReservationHasTools(reservations.get(i).getReservationHasTools()))
@@ -95,7 +91,7 @@ class ReservationServiceTest {
         final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-        Mockito.when(reservationRepositoryMock.findByReservationIdAndCustomer(1L, customer)).thenReturn(Optional.of(reservation));
+        Mockito.when(reservationDAO.findByReservationIdAndCustomer(1L, customer)).thenReturn(Optional.of(reservation));
         Mockito.when(toolServiceMock.getToolDetailsByReservationHasTools(reservation.getReservationHasTools())).thenReturn(List.of(toolDetailsDTO));
 
         final ReservationDetailsDTO result = reservationService.getReservationDetails(1L);
@@ -112,7 +108,7 @@ class ReservationServiceTest {
         final User customer = UserCreatorHelper.I.createCustomer();
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-        Mockito.when(reservationRepositoryMock.findByReservationIdAndCustomer(1L, customer)).thenThrow(ReservationNotFoundException.create(1L));
+        Mockito.when(reservationDAO.findByReservationIdAndCustomer(1L, customer)).thenThrow(ReservationNotFoundException.create(1L));
 
         assertThrows(ReservationNotFoundException.class, () -> reservationService.getReservationDetails(1L), "Reservation#1 was not found!");
     }
@@ -128,14 +124,13 @@ class ReservationServiceTest {
         Mockito.when(toolServiceMock.getToolById(2L)).thenReturn(tools.get(1));
         makeToolUnavailable(tools.get(0));
         makeToolUnavailable(tools.get(1));
-        Mockito.when(reservationRepositoryMock.save(Mockito.any(Reservation.class))).thenReturn(ReservationCreatorHelper.I.createDifferentReservation());
+        Mockito.when(reservationDAO.save(Mockito.any(Reservation.class))).thenReturn(ReservationCreatorHelper.I.createDifferentReservation());
 
         final ReservationDetailsDTO result = reservationService.makeReservation(reservationDTO);
 
-        Mockito.verify(reservationHasToolRepositoryMock, Mockito.times(2)).save(Mockito.any(ReservationHasTool.class));
+        Mockito.verify(reservationHasToolDAO, Mockito.times(2)).save(Mockito.any(ReservationHasTool.class));
         Mockito.verify(toolServiceMock, Mockito.times(2)).makeToolUnavailableAndSave(Mockito.any(Tool.class));
-        Mockito.verify(reservationRepositoryMock, Mockito.times(1)).save(Mockito.any(Reservation.class));
-        Mockito.verify(userServiceMock, Mockito.times(1)).saveCustomerWithReservation(Mockito.any(User.class));
+        Mockito.verify(reservationDAO, Mockito.times(1)).save(Mockito.any(Reservation.class));
         assertEquals(LocalDate.now(), result.dateFrom());
         assertEquals(LocalDate.now().plusDays(1L), result.dateTo());
         assertEquals(BigDecimal.valueOf(1011.98), result.reservationFinalPrice());
@@ -205,7 +200,7 @@ class ReservationServiceTest {
         final Tool unavailableTool = ToolCreatorHelper.I.createUnavailableTool();
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-        Mockito.when(reservationRepositoryMock.findByReservationIdAndCustomer(1L, customer)).thenReturn(Optional.of(reservation));
+        Mockito.when(reservationDAO.findByReservationIdAndCustomer(1L, customer)).thenReturn(Optional.of(reservation));
         Mockito.when(toolServiceMock.getToolsByReservationHasTools(reservation.getReservationHasTools())).thenReturn(List.of(unavailableTool));
         makeToolAvailable(unavailableTool);
 
@@ -231,7 +226,7 @@ class ReservationServiceTest {
         final User customer = UserCreatorHelper.I.createCustomer();
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-        Mockito.when(reservationRepositoryMock.findByReservationIdAndCustomer(1L, customer)).thenThrow(ReservationNotFoundException.create(1L));
+        Mockito.when(reservationDAO.findByReservationIdAndCustomer(1L, customer)).thenThrow(ReservationNotFoundException.create(1L));
 
         assertThrows(ReservationNotFoundException.class, () -> reservationService.cancelReservation(1L), "Reservation#1 was not found!");
     }
@@ -240,7 +235,7 @@ class ReservationServiceTest {
     void shouldGetReservationsIds() {
         final List<Long> reservationIds = List.of(1L, 2L, 3L);
 
-        Mockito.when(reservationRepositoryMock.getAllIds()).thenReturn(reservationIds);
+        Mockito.when(reservationDAO.getAllIds()).thenReturn(reservationIds);
 
         final List<Long> result = reservationService.getReservationIds();
 
@@ -252,7 +247,7 @@ class ReservationServiceTest {
         final Reservation reservation = ReservationCreatorHelper.I.createReservationForExpiry();
         final Tool tool = ToolCreatorHelper.I.createUnavailableTool();
 
-        Mockito.when(reservationRepositoryMock.findAllById(List.of(1L))).thenReturn(List.of(reservation));
+        Mockito.when(reservationDAO.findAllById(List.of(1L))).thenReturn(List.of(reservation));
         Mockito.when(toolServiceMock.getToolsByReservationHasTools(reservation.getReservationHasTools())).thenReturn(List.of(tool));
         makeToolAvailable(tool);
 

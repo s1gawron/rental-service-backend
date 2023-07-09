@@ -12,7 +12,7 @@ import com.s1gawron.rentalservice.user.exception.WorkerRegisteredByNonAdminUserE
 import com.s1gawron.rentalservice.user.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import com.s1gawron.rentalservice.user.repository.UserRepository;
+import com.s1gawron.rentalservice.user.repository.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,7 +31,7 @@ class UserServiceTest {
 
     private Authentication authenticationMock;
 
-    private UserRepository userRepositoryMock;
+    private UserDAO userDaoMock;
 
     private AddressService addressServiceMock;
 
@@ -45,16 +45,16 @@ class UserServiceTest {
         Mockito.when(securityContextMock.getAuthentication()).thenReturn(authenticationMock);
         SecurityContextHolder.setContext(securityContextMock);
 
-        userRepositoryMock = Mockito.mock(UserRepository.class);
+        userDaoMock = Mockito.mock(UserDAO.class);
         addressServiceMock = Mockito.mock(AddressService.class);
-        userService = new UserService(userRepositoryMock, addressServiceMock, new BCryptPasswordEncoder());
+        userService = new UserService(userDaoMock, addressServiceMock, new BCryptPasswordEncoder());
     }
 
     @Test
     void shouldFindUserByEmail() {
         final User customer = UserCreatorHelper.I.createCustomer();
 
-        Mockito.when(userRepositoryMock.findByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
+        Mockito.when(userDaoMock.findByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
 
         final Optional<User> result = userService.getUserByEmail(EMAIL);
 
@@ -83,7 +83,7 @@ class UserServiceTest {
 
         final UserDTO result = userService.validateAndRegisterUser(userRegisterDTO);
 
-        Mockito.verify(userRepositoryMock, Mockito.times(1)).save(Mockito.any(User.class));
+        Mockito.verify(userDaoMock, Mockito.times(1)).save(Mockito.any(User.class));
         assertEquals(EMAIL, result.email());
         assertEquals("John", result.firstName());
         assertEquals("Kowalski", result.lastName());
@@ -104,7 +104,7 @@ class UserServiceTest {
         final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
         final User user = User.createUser(userRegisterDTO, "encryptedPassword");
 
-        Mockito.when(userRepositoryMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+        Mockito.when(userDaoMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
 
         assertThrows(UserEmailExistsException.class, () -> userService.validateAndRegisterUser(userRegisterDTO));
     }
@@ -114,7 +114,7 @@ class UserServiceTest {
         final User customer = UserCreatorHelper.I.createCustomer();
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-        Mockito.when(userRepositoryMock.findByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
+        Mockito.when(userDaoMock.findByEmail(customer.getEmail())).thenReturn(Optional.of(customer));
 
         final UserDTO result = userService.getUserDetails();
 
