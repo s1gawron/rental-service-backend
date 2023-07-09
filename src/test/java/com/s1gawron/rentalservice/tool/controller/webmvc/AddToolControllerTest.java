@@ -1,6 +1,5 @@
 package com.s1gawron.rentalservice.tool.controller.webmvc;
 
-import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
@@ -61,22 +60,6 @@ class AddToolControllerTest extends ToolManagementControllerTest {
 
         mockMvc.perform(request)
             .andExpect(status().isNotFound())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
-    }
-
-    @Test
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToAddTool() throws Exception {
-        final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("TOOL MANAGEMENT");
-        final ToolDTO toolDTO = ToolCreatorHelper.I.createToolDTO();
-        final String expectedJson = objectMapper.writeValueAsString(toolDTO);
-
-        Mockito.when(toolServiceMock.validateAndAddTool(Mockito.any(ToolDTO.class))).thenThrow(expectedException);
-
-        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).with(csrf()).content(expectedJson)
-            .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-            .andExpect(status().isForbidden())
             .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 

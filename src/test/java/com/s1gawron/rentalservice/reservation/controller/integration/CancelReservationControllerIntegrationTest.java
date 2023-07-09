@@ -45,9 +45,17 @@ class CancelReservationControllerIntegrationTest extends AbstractReservationCont
         final String endpoint = CANCEL_RESERVATION_ENDPOINT + currentReservationId;
         final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).header("Authorization", getAuthorizationToken(WORKER_EMAIL));
 
-        mockMvc.perform(request)
-            .andExpect(status().isForbidden())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(NO_ACCESS_FOR_USER_ROLE_EXCEPTION.getMessage()));
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnForbiddenResponseWhenUserIsUnauthenticated() throws Exception {
+        performMakeReservationRequests();
+
+        final String endpoint = CANCEL_RESERVATION_ENDPOINT + currentReservationId;
+        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint);
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
     }
 
     @Test

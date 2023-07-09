@@ -1,6 +1,5 @@
 package com.s1gawron.rentalservice.tool.controller.webmvc;
 
-import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
@@ -60,22 +59,6 @@ class EditToolControllerTest extends ToolManagementControllerTest {
 
         mockMvc.perform(request)
             .andExpect(status().isNotFound())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
-    }
-
-    @Test
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToEditTool() throws Exception {
-        final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("TOOL MANAGEMENT");
-        final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
-        final String expectedJson = objectMapper.writeValueAsString(toolDetailsDTO);
-
-        Mockito.when(toolServiceMock.validateAndEditTool(Mockito.any(ToolDetailsDTO.class))).thenThrow(expectedException);
-
-        final RequestBuilder request = MockMvcRequestBuilders.put(TOOL_EDIT_ENDPOINT).with(csrf()).content(expectedJson)
-            .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-            .andExpect(status().isForbidden())
             .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 

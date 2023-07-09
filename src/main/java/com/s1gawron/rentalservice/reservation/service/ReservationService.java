@@ -9,13 +9,11 @@ import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
 import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
-import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +30,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ReservationService {
 
     private static final Logger log = LoggerFactory.getLogger(ReservationService.class);
-
-    private static final String ELEMENT_NAME = "CUSTOMER RESERVATIONS";
 
     private final ReservationRepository reservationRepository;
 
@@ -53,7 +49,7 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public ReservationListingDTO getUserReservations() {
-        final User customer = getAndCheckIfUserIsCustomer();
+        final User customer = UserContextProvider.I.getLoggedInUser();
         final List<ReservationDetailsDTO> userReservations = reservationRepository.findAllByCustomer(customer).stream()
             .map(reservation -> {
                 final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
@@ -66,7 +62,7 @@ public class ReservationService {
 
     @Transactional(readOnly = true)
     public ReservationDetailsDTO getReservationDetails(final Long reservationId) {
-        final User customer = getAndCheckIfUserIsCustomer();
+        final User customer = UserContextProvider.I.getLoggedInUser();
         final Reservation reservationByIdAndCustomer = reservationRepository.findByReservationIdAndCustomer(reservationId, customer)
             .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
         final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservationByIdAndCustomer.getReservationHasTools());
@@ -78,7 +74,7 @@ public class ReservationService {
     public ReservationDetailsDTO makeReservation(final ReservationDTO reservationDTO) {
         ReservationDTOValidator.I.validate(reservationDTO);
 
-        final User customer = getAndCheckIfUserIsCustomer();
+        final User customer = UserContextProvider.I.getLoggedInUser();
         reservationDTO.toolIds().forEach(toolService::isToolAvailableOrRemoved);
 
         final Reservation reservation = Reservation.from(reservationDTO);
@@ -111,7 +107,7 @@ public class ReservationService {
 
     @Transactional
     public ReservationDetailsDTO cancelReservation(final Long reservationId) {
-        final User customer = getAndCheckIfUserIsCustomer();
+        final User customer = UserContextProvider.I.getLoggedInUser();
         final Reservation reservationByIdAndCustomer = reservationRepository.findByReservationIdAndCustomer(reservationId, customer)
             .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
         final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservationByIdAndCustomer.getReservationHasTools());
@@ -150,15 +146,5 @@ public class ReservationService {
                 log.info("Clean job for reservation#{} finished successfully", reservation.getReservationId());
             }
         });
-    }
-
-    private User getAndCheckIfUserIsCustomer() {
-        final User user = UserContextProvider.I.getLoggedInUser();
-
-        if (user.getUserRole().equals(UserRole.WORKER)) {
-            throw NoAccessForUserRoleException.create(ELEMENT_NAME);
-        }
-
-        return user;
     }
 }

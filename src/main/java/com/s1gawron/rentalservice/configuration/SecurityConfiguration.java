@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.configuration;
 
 import com.s1gawron.rentalservice.security.JwtAuthFilter;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +40,9 @@ public class SecurityConfiguration {
             .and()
             .authorizeHttpRequests()
             .requestMatchers("/api/public/**").permitAll()
+            .requestMatchers("/api/customer/**").hasAuthority(UserRole.CUSTOMER.name())
+            .requestMatchers("/api/management/**").hasAnyAuthority(UserRole.ADMIN.name(), UserRole.WORKER.name())
+            .requestMatchers("/api/user/**").hasAuthority(UserRole.CUSTOMER.name())
             .anyRequest().authenticated()
             .and()
             .sessionManagement()

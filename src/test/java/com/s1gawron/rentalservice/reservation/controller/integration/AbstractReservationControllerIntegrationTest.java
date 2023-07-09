@@ -8,7 +8,6 @@ import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
 import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
-import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
@@ -58,8 +57,6 @@ abstract class AbstractReservationControllerIntegrationTest {
     protected static final String WORKER_EMAIL = "worker@test.pl";
 
     protected static final String PASSWORD = "Start00!";
-
-    protected static final NoAccessForUserRoleException NO_ACCESS_FOR_USER_ROLE_EXCEPTION = NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
 
     @Autowired
     protected MockMvc mockMvc;

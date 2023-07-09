@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/user")
-public class UserManagementController extends UserErrorHandlerController {
+public class UserDetailsController extends UserErrorHandlerController {
 
     private final UserService userService;
 
-    public UserManagementController(final UserService userService) {
+    public UserDetailsController(final UserService userService) {
         this.userService = userService;
     }
 

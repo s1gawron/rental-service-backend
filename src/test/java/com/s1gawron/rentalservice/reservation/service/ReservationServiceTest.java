@@ -11,7 +11,6 @@ import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
 import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
-import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.exception.ToolRemovedException;
@@ -90,16 +89,6 @@ class ReservationServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUserIsWorkerWhileGettingUserReservations() {
-        final User worker = UserCreatorHelper.I.createWorker();
-
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
-
-        assertThrows(NoAccessForUserRoleException.class, () -> reservationService.getUserReservations(),
-            "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
-    }
-
-    @Test
     void shouldGetReservationDetails() {
         final User customer = UserCreatorHelper.I.createCustomer();
         final Reservation reservation = ReservationCreatorHelper.I.createReservation();
@@ -119,19 +108,8 @@ class ReservationServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUserIsWorkerWhileGettingReservationDetails() {
-        final User worker = UserCreatorHelper.I.createWorker();
-
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
-
-        assertThrows(NoAccessForUserRoleException.class, () -> reservationService.getReservationDetails(1L),
-            "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
-    }
-
-    @Test
     void shouldThrowExceptionWhenReservationIsNotFound() {
         final User customer = UserCreatorHelper.I.createCustomer();
-        final Reservation reservation = ReservationCreatorHelper.I.createReservation();
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
         Mockito.when(reservationRepositoryMock.findByReservationIdAndCustomer(1L, customer)).thenThrow(ReservationNotFoundException.create(1L));
@@ -185,17 +163,6 @@ class ReservationServiceTest {
         final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().minusDays(3L), "Hammer and loader", List.of(1L, 2L));
 
         assertThrows(DateMismatchException.class, () -> reservationService.makeReservation(reservationDTO), "Due date cannot be before current date!");
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserIsWorkerWhileMakingReservation() {
-        final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(1L), "Hammer and loader", List.of(1L, 2L));
-        final User worker = UserCreatorHelper.I.createWorker();
-
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
-
-        assertThrows(NoAccessForUserRoleException.class, () -> reservationService.makeReservation(reservationDTO),
-            "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
     }
 
     @Test
@@ -257,16 +224,6 @@ class ReservationServiceTest {
             unavailableTool.makeToolAvailable();
             return null;
         }).when(toolServiceMock).makeToolAvailableAndSave(unavailableTool);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserIsWorkerWhileCancelingReservation() {
-        final User worker = UserCreatorHelper.I.createWorker();
-
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(worker);
-
-        assertThrows(NoAccessForUserRoleException.class, () -> reservationService.cancelReservation(1L),
-            "Current user role is not allowed to use module#CUSTOMER RESERVATIONS!");
     }
 
     @Test

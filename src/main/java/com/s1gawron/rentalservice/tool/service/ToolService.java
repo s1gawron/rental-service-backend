@@ -1,7 +1,6 @@
 package com.s1gawron.rentalservice.tool.service;
 
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
-import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
@@ -25,8 +24,6 @@ import java.util.Set;
 
 @Service
 public class ToolService {
-
-    private static final String ELEMENT_NAME = "TOOL MANAGEMENT";
 
     private final ToolRepository toolRepository;
 
@@ -80,10 +77,6 @@ public class ToolService {
 
     @Transactional
     public ToolDetailsDTO validateAndAddTool(final ToolDTO toolDTO) {
-        if (isUserCustomerOrUnauthenticated()) {
-            throw NoAccessForUserRoleException.create(ELEMENT_NAME);
-        }
-
         ToolDTOValidator.I.validate(toolDTO);
 
         final ToolState toolState = ToolState.from(toolDTO.toolState());
@@ -97,10 +90,6 @@ public class ToolService {
 
     @Transactional
     public ToolDetailsDTO validateAndEditTool(final ToolDetailsDTO toolDetailsDTO) {
-        if (isUserCustomerOrUnauthenticated()) {
-            throw NoAccessForUserRoleException.create(ELEMENT_NAME);
-        }
-
         ToolDTOValidator.I.validate(toolDetailsDTO);
 
         final Tool tool = getToolById(toolDetailsDTO.toolId());
@@ -116,10 +105,6 @@ public class ToolService {
 
     @Transactional
     public boolean deleteTool(final Long toolId) {
-        if (isUserCustomerOrUnauthenticated()) {
-            throw NoAccessForUserRoleException.create(ELEMENT_NAME);
-        }
-
         final Tool tool = getToolById(toolId);
         tool.remove();
 

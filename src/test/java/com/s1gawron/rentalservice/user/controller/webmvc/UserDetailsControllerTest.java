@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.user.controller.webmvc;
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
 import com.s1gawron.rentalservice.shared.exception.UserUnauthenticatedException;
-import com.s1gawron.rentalservice.user.controller.UserManagementController;
+import com.s1gawron.rentalservice.user.controller.UserDetailsController;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.Test;
@@ -20,10 +20,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserManagementController.class)
+@WebMvcTest(UserDetailsController.class)
 @ActiveProfiles("test")
 @WithMockUser
-class GetUserControllerTest extends AbstractUserControllerTest {
+class UserDetailsControllerTest extends AbstractUserControllerTest {
 
     private static final String USER_DETAILS_ENDPOINT = "/api/user/";
 

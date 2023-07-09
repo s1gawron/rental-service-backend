@@ -1,7 +1,6 @@
 package com.s1gawron.rentalservice.reservation.controller.webmvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.s1gawron.rentalservice.security.JwtService;
 import com.s1gawron.rentalservice.reservation.controller.ReservationController;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
@@ -11,7 +10,7 @@ import com.s1gawron.rentalservice.reservation.exception.ReservationEmptyProperti
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
-import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
+import com.s1gawron.rentalservice.security.JwtService;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.exception.ToolRemovedException;
@@ -48,8 +47,6 @@ class ReservationControllerTest {
 
     private static final String RESERVATION_ENDPOINT = "/api/customer/reservation/";
 
-    private static final String ELEMENT_NAME = "CUSTOMER RESERVATIONS";
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -79,20 +76,6 @@ class ReservationControllerTest {
     }
 
     @Test
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToGetUserReservations() throws Exception {
-        final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create(ELEMENT_NAME);
-
-        Mockito.when(reservationServiceMock.getUserReservations()).thenThrow(expectedException);
-
-        final String endpoint = RESERVATION_ENDPOINT + "get/all";
-        final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
-
-        mockMvc.perform(request)
-            .andExpect(status().isForbidden())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
-    }
-
-    @Test
     void shouldGetReservationById() throws Exception {
         final ReservationDetailsDTO reservationDetailsDTO = ReservationCreatorHelper.I.createReservationDetailsDTO();
 
@@ -107,20 +90,6 @@ class ReservationControllerTest {
         assertNotNull(reservationDetailsDTOResult);
         assertEquals("Hammer", reservationDetailsDTOResult.additionalComment());
         assertEquals("Hammer", reservationDetailsDTOResult.tools().get(0).name());
-    }
-
-    @Test
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToGetReservationDetails() throws Exception {
-        final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create(ELEMENT_NAME);
-
-        Mockito.when(reservationServiceMock.getReservationDetails(1L)).thenThrow(expectedException);
-
-        final String endpoint = RESERVATION_ENDPOINT + "get/id/1";
-        final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
-
-        mockMvc.perform(request)
-            .andExpect(status().isForbidden())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -192,22 +161,6 @@ class ReservationControllerTest {
     }
 
     @Test
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToMakeReservation() throws Exception {
-        final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create(ELEMENT_NAME);
-        final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(3L), "Hammer", List.of(1L));
-        final String reservationDTOJson = objectMapper.writeValueAsString(reservationDTO);
-
-        Mockito.when(reservationServiceMock.makeReservation(Mockito.any(ReservationDTO.class))).thenThrow(expectedException);
-
-        final String endpoint = RESERVATION_ENDPOINT + "make";
-        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).with(csrf()).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-            .andExpect(status().isForbidden())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
-    }
-
-    @Test
     void shouldReturnNotFoundResponseWhenToolIsNotFoundWhileMakingReservation() throws Exception {
         final ToolNotFoundException expectedException = ToolNotFoundException.create(1L);
         final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(3L), "Hammer", List.of(1L));
@@ -273,20 +226,6 @@ class ReservationControllerTest {
         assertTrue(reservationDetailsDTOResult.canceled());
         assertEquals("Hammer", reservationDetailsDTOResult.tools().get(0).name());
         assertTrue(reservationDetailsDTOResult.tools().get(0).available());
-    }
-
-    @Test
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToCancelReservation() throws Exception {
-        final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create(ELEMENT_NAME);
-
-        Mockito.when(reservationServiceMock.cancelReservation(1L)).thenThrow(expectedException);
-
-        final String endpoint = RESERVATION_ENDPOINT + "cancel/1";
-        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).with(csrf());
-
-        mockMvc.perform(request)
-            .andExpect(status().isForbidden())
-            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test

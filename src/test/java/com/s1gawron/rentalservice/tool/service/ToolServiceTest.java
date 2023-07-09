@@ -3,7 +3,6 @@ package com.s1gawron.rentalservice.tool.service;
 import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
-import com.s1gawron.rentalservice.shared.exception.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
@@ -34,12 +33,6 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ToolServiceTest {
-
-    private static final String ERROR_MESSAGE = "User: test@test.pl could not be found!";
-
-    private static final String UNAUTHENTICATED_ERROR_MESSAGE = "User is not authenticated!";
-
-    private static final String USER_NOT_ALLOWED_ERROR_MESSAGE = "Current user role is not allowed to use: TOOL MANAGEMENT module!";
 
     private Authentication authenticationMock;
 
@@ -167,32 +160,6 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenPrincipalIsNullWhileAddingTool() {
-        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
-
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndAddTool(expected), ERROR_MESSAGE);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserPrincipalIsAnonymousUserWhileAddingTool() {
-        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
-
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn("anonymousUser");
-
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndAddTool(expected), ERROR_MESSAGE);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserIsNotAllowedToAddTool() {
-        final User customer = UserCreatorHelper.I.createCustomer();
-        final ToolDTO expected = ToolCreatorHelper.I.createToolDTO();
-
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndAddTool(expected), USER_NOT_ALLOWED_ERROR_MESSAGE);
-    }
-
-    @Test
     void shouldValidateAndEditTool() {
         final Tool originalTool = ToolCreatorHelper.I.createTool();
         final ToolDetailsDTO editedTool = ToolCreatorHelper.I.createEditedToolDTO();
@@ -216,32 +183,6 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenPrincipalIsNullWhileEditingTool() {
-        final ToolDetailsDTO expected = ToolCreatorHelper.I.createToolDetailsDTO();
-
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndEditTool(expected), ERROR_MESSAGE);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenPrincipalIsAnonymousUserWhileEditingTool() {
-        final ToolDetailsDTO expected = ToolCreatorHelper.I.createToolDetailsDTO();
-
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn("anonymousUser");
-
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndEditTool(expected), ERROR_MESSAGE);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserIsNotAllowedToEditTool() {
-        final User customer = UserCreatorHelper.I.createCustomer();
-        final ToolDetailsDTO expected = ToolCreatorHelper.I.createToolDetailsDTO();
-
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.validateAndEditTool(expected), USER_NOT_ALLOWED_ERROR_MESSAGE);
-    }
-
-    @Test
     void shouldDeleteTool() {
         final Tool tool = ToolCreatorHelper.I.createTool();
 
@@ -253,27 +194,6 @@ class ToolServiceTest {
         assertTrue(result);
         assertTrue(tool.isRemoved());
         assertFalse(tool.isAvailable());
-    }
-
-    @Test
-    void shouldThrowExceptionWhenPrincipalIsNullWhileDeletingTools() {
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.deleteTool(1L), UNAUTHENTICATED_ERROR_MESSAGE);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserPrincipalIsAnonymousUserWhileDeletingTool() {
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn("anonymousUser");
-
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.deleteTool(1L), ERROR_MESSAGE);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserIsNotAllowedToDeleteTool() {
-        final User customer = UserCreatorHelper.I.createCustomer();
-
-        Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-
-        assertThrows(NoAccessForUserRoleException.class, () -> toolService.deleteTool(1L), USER_NOT_ALLOWED_ERROR_MESSAGE);
     }
 
     @Test

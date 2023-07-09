@@ -25,16 +25,16 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
     @Test
     void shouldMakeReservation() throws Exception {
         final String loaderReservationJson = "{\n"
-                + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
-                + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
-                + "  \"additionalComment\": \"Loader\",\n"
-                + "  \"toolIds\": [\n"
-                + "    " + loaderToolId + "\n"
-                + "  ]\n"
-                + "}";
+            + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
+            + "  \"additionalComment\": \"Loader\",\n"
+            + "  \"toolIds\": [\n"
+            + "    " + loaderToolId + "\n"
+            + "  ]\n"
+            + "}";
 
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
-                .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
+            .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
         final ReservationDetailsDTO resultObject = objectMapper.readValue(resultJson, ReservationDetailsDTO.class);
@@ -50,18 +50,18 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
     @Test
     void shouldMakeReservationWithMultipleTools() throws Exception {
         final String loaderReservationJson = "{\n"
-                + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
-                + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
-                + "  \"additionalComment\": \"Hammer, chainsaw and loader\",\n"
-                + "  \"toolIds\": [\n"
-                + "    " + loaderToolId + ",\n"
-                + "    " + currentToolId + ",\n"
-                + "    " + nextToolId + "\n"
-                + "  ]\n"
-                + "}";
+            + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
+            + "  \"additionalComment\": \"Hammer, chainsaw and loader\",\n"
+            + "  \"toolIds\": [\n"
+            + "    " + loaderToolId + ",\n"
+            + "    " + currentToolId + ",\n"
+            + "    " + nextToolId + "\n"
+            + "  ]\n"
+            + "}";
 
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
-                .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
+            .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
         final ReservationDetailsDTO resultObject = objectMapper.readValue(resultJson, ReservationDetailsDTO.class);
@@ -75,117 +75,141 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
     }
 
     @Test
+    void shouldReturnForbiddentResponseWhenUserIsWorkerWhileMakeReservation() throws Exception {
+        final String loaderReservationJson = "{\n"
+            + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
+            + "  \"additionalComment\": \"Loader\",\n"
+            + "  \"toolIds\": [\n"
+            + "    " + loaderToolId + "\n"
+            + "  ]\n"
+            + "}";
+
+        final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
+            .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(WORKER_EMAIL));
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnForbiddenResponseWhenUserIsUnauthenticated() throws Exception {
+        final String loaderReservationJson = "{\n"
+            + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
+            + "  \"additionalComment\": \"Loader\",\n"
+            + "  \"toolIds\": [\n"
+            + "    " + loaderToolId + "\n"
+            + "  ]\n"
+            + "}";
+
+        final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
+            .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    @Test
     void shouldReturnBadRequestResponseWhenReservationHasEmptyProperties() throws Exception {
         final String loaderReservationJson = "{\n"
-                + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
-                + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
-                + "  \"additionalComment\": \"Hammer, chainsaw and loader\"\n"
-                + "}";
+            + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
+            + "  \"additionalComment\": \"Hammer, chainsaw and loader\"\n"
+            + "}";
 
         final ReservationEmptyPropertiesException expectedException = ReservationEmptyPropertiesException.createForToolsList();
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
-                .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
+            .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
 
         mockMvc.perform(request)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
-    void shouldReturnBadRequestResponseWhenDateFromIsBeforeCurrentDate1() {
-        //this test loads first so whole spring context is set up fine, otherwise first test always fails while running all tests
-    }
-
-    @Test
-    void shouldReturnBadRequestResponseWhenDateFromIsBeforeCurrentDate2() throws Exception {
+    void shouldReturnBadRequestResponseWhenDateFromIsBeforeCurrentDate() throws Exception {
         final String loaderReservationJson = "{\n"
-                + "  \"dateFrom\": \"" + LocalDate.now().minusDays(3L) + "\",\n"
-                + "  \"dateTo\": \"" + LocalDate.now().plusDays(1L) + "\",\n"
-                + "  \"additionalComment\": \"Hammer, chainsaw and loader\",\n"
-                + "  \"toolIds\": [\n"
-                + "    " + loaderToolId + ",\n"
-                + "    " + currentToolId + ",\n"
-                + "    " + nextToolId + "\n"
-                + "  ]\n"
-                + "}";
+            + "  \"dateFrom\": \"" + LocalDate.now().minusDays(3L) + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now().plusDays(1L) + "\",\n"
+            + "  \"additionalComment\": \"Hammer, chainsaw and loader\",\n"
+            + "  \"toolIds\": [\n"
+            + "    " + loaderToolId + ",\n"
+            + "    " + currentToolId + ",\n"
+            + "    " + nextToolId + "\n"
+            + "  ]\n"
+            + "}";
 
         final DateMismatchException expectedException = DateMismatchException.createForDateFrom();
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
-                .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
+            .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
 
         mockMvc.perform(request)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
     void shouldReturnBadRequestResponseWhenDateFromIsAfterDueDate() throws Exception {
         final String loaderReservationJson = "{\n"
-                + "  \"dateFrom\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
-                + "  \"dateTo\": \"" + LocalDate.now() + "\",\n"
-                + "  \"additionalComment\": \"Hammer, chainsaw and loader\",\n"
-                + "  \"toolIds\": [\n"
-                + "    " + loaderToolId + ",\n"
-                + "    " + currentToolId + ",\n"
-                + "    " + nextToolId + "\n"
-                + "  ]\n"
-                + "}";
+            + "  \"dateFrom\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now() + "\",\n"
+            + "  \"additionalComment\": \"Hammer, chainsaw and loader\",\n"
+            + "  \"toolIds\": [\n"
+            + "    " + loaderToolId + ",\n"
+            + "    " + currentToolId + ",\n"
+            + "    " + nextToolId + "\n"
+            + "  ]\n"
+            + "}";
 
         final DateMismatchException expectedException = DateMismatchException.createForDateFromIsAfterDueDate();
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
-                .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
+            .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
 
         mockMvc.perform(request)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
-    void shouldReturnBadRequestResponseWhenToolIsNotAvailable1() {
-        //this test loads first so whole spring context is set up fine, otherwise first test always fails while running all tests
-    }
-
-    @Test
-    void shouldReturnBadRequestResponseWhenToolIsNotAvailable2() throws Exception {
+    void shouldReturnBadRequestResponseWhenToolIsNotAvailable() throws Exception {
         performMakeReservationRequests();
         final String loaderReservationJson = "{\n"
-                + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
-                + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
-                + "  \"additionalComment\": \"Hammer, chainsaw and loader\",\n"
-                + "  \"toolIds\": [\n"
-                + "    " + loaderToolId + ",\n"
-                + "    " + currentToolId + ",\n"
-                + "    " + nextToolId + "\n"
-                + "  ]\n"
-                + "}";
+            + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
+            + "  \"additionalComment\": \"Hammer, chainsaw and loader\",\n"
+            + "  \"toolIds\": [\n"
+            + "    " + loaderToolId + ",\n"
+            + "    " + currentToolId + ",\n"
+            + "    " + nextToolId + "\n"
+            + "  ]\n"
+            + "}";
 
         final ToolUnavailableException expectedException = ToolUnavailableException.create(currentToolId);
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
-                .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
+            .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
 
         mockMvc.perform(request)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
     void shouldReturnBadRequestResponseWhenToolIsRemoved() throws Exception {
         final String loaderReservationJson = "{\n"
-                + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
-                + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
-                + "  \"additionalComment\": \"Removed ha,,er\",\n"
-                + "  \"toolIds\": [\n"
-                + "    " + removedToolId + "\n"
-                + "  ]\n"
-                + "}";
+            + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
+            + "  \"additionalComment\": \"Removed ha,,er\",\n"
+            + "  \"toolIds\": [\n"
+            + "    " + removedToolId + "\n"
+            + "  ]\n"
+            + "}";
 
         final ToolRemovedException expectedException = ToolRemovedException.create(removedToolId);
         final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
-                .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
+            .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
 
         mockMvc.perform(request)
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
 }

@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class GetUserControllerIntegrationTest extends AbstractUserControllerIntegrationTest {
+class UserDetailsControllerIntegrationTest extends AbstractUserControllerIntegrationTest {
 
     private static final String USER_DETAILS_ENDPOINT = "/api/user/details";
 
