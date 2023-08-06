@@ -5,8 +5,8 @@ import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
-import com.s1gawron.rentalservice.reservation.repository.impl.ReservationHasToolJpaRepository;
-import com.s1gawron.rentalservice.reservation.repository.impl.ReservationJpaRepository;
+import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
+import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolDAO;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
@@ -27,9 +27,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -79,16 +81,19 @@ abstract class AbstractReservationControllerIntegrationTest {
     protected ToolService toolService;
 
     @Autowired
-    protected ReservationJpaRepository reservationJpaRepository;
+    protected ReservationDAO reservationDAO;
 
     @Autowired
-    protected ReservationHasToolJpaRepository reservationHasToolJpaRepository;
+    protected ReservationHasToolDAO reservationHasToolDAO;
 
     @Autowired
     protected ReservationService reservationService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     protected long currentToolId;
 
@@ -136,11 +141,7 @@ abstract class AbstractReservationControllerIntegrationTest {
     @AfterEach
     @Transactional
     void cleanUp() {
-        reservationHasToolJpaRepository.deleteAll();
-        reservationJpaRepository.deleteAll();
-        toolDAO.deleteAll();
-        toolStateDAO.deleteAll();
-        userDAO.deleteAll();
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "reservation_has_tool", "reservation", "tool", "tool_state", "user");
     }
 
     protected void performMakeReservationRequests() throws Exception {
@@ -194,7 +195,7 @@ abstract class AbstractReservationControllerIntegrationTest {
     }
 
     protected Reservation getReservationDetails(final long reservationId) {
-        return reservationJpaRepository.findByReservationId(reservationId).orElseThrow(() -> ReservationNotFoundException.create(reservationId));
+        return reservationDAO.findByReservationId(reservationId).orElseThrow(() -> ReservationNotFoundException.create(reservationId));
     }
 
     private void saveToolForTest(final Tool tool) {

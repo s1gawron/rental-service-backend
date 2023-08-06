@@ -34,6 +34,4 @@ public interface ToolDAO {
 
     Tool save(final Tool tool);
 
-    void deleteAll();
-
 }

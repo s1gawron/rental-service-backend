@@ -7,7 +7,6 @@ import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import com.s1gawron.rentalservice.user.repository.UserDAO;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +15,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -45,10 +46,10 @@ abstract class AbstractUserControllerIntegrationTest {
     protected UserService userService;
 
     @Autowired
-    private UserDAO userDAO;
+    private CommandLineRunner commandLineRunner;
 
     @Autowired
-    private CommandLineRunner commandLineRunner;
+    private JdbcTemplate jdbcTemplate;
 
     protected final ObjectMapper objectMapper = ObjectMapperCreator.I.getMapper();
 
@@ -62,7 +63,7 @@ abstract class AbstractUserControllerIntegrationTest {
 
     @AfterEach
     void cleanUp() {
-        userDAO.deleteAll();
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "user");
     }
 
     protected MvcResult performLoginAction(final UserLoginDTO userLoginDTO) throws Exception {

@@ -17,8 +17,4 @@ public class JpaToolStateDAO implements ToolStateDAO {
         return toolStateJpaRepository.save(toolState);
     }
 
-    @Override public void deleteAll() {
-        toolStateJpaRepository.deleteAll();
-    }
-
 }

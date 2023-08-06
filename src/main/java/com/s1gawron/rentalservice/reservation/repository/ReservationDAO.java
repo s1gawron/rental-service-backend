@@ -20,4 +20,6 @@ public interface ReservationDAO {
     @Query(value = "SELECT reservationId from Reservation")
     List<Long> getAllIds();
 
+    Optional<Reservation> findByReservationId(final long reservationId);
+
 }

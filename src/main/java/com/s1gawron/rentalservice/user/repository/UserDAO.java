@@ -10,6 +10,4 @@ public interface UserDAO {
 
     User save(final User user);
 
-    void deleteAll();
-    
 }

@@ -12,7 +12,6 @@ import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
-import com.s1gawron.rentalservice.user.repository.UserDAO;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,9 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -57,13 +58,13 @@ abstract class AbstractToolControllerIntegrationTest {
     protected ToolStateDAO toolStateDAO;
 
     @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     void setUp() {
@@ -79,9 +80,7 @@ abstract class AbstractToolControllerIntegrationTest {
 
     @AfterEach
     void cleanUp() {
-        toolDAO.deleteAll();
-        toolStateDAO.deleteAll();
-        userDAO.deleteAll();
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "tool", "tool_state", "user");
     }
 
     protected String getAuthorizationToken(final UserRole userRole) throws Exception {

@@ -6,6 +6,4 @@ public interface ToolStateDAO {
 
     ToolState save(final ToolState toolState);
 
-    void deleteAll();
-
 }

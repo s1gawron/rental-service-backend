@@ -69,8 +69,4 @@ public class JpaToolDAO implements ToolDAO {
         return toolJpaRepository.save(tool);
     }
 
-    @Override public void deleteAll() {
-        toolJpaRepository.deleteAll();
-    }
-
 }

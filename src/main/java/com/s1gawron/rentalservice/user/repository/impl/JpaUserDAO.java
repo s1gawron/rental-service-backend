@@ -23,8 +23,4 @@ public class JpaUserDAO implements UserDAO {
         return userJpaRepository.save(user);
     }
 
-    @Override public void deleteAll() {
-        userJpaRepository.deleteAll();
-    }
-
 }

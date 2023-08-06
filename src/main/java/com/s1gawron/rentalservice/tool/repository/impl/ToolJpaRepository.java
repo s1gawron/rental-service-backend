@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ToolJpaRepository extends JpaRepository<Tool, Long> {
+interface ToolJpaRepository extends JpaRepository<Tool, Long> {
 
     @Query(value = "SELECT * FROM tool WHERE tool_category = :toolCategory LIMIT 500", nativeQuery = true)
     List<Tool> findAllByToolCategory(@Param(value = "toolCategory") final String toolCategory);
