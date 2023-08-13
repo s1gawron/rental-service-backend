@@ -1,5 +1,8 @@
 package com.s1gawron.rentalservice.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
 import com.s1gawron.rentalservice.user.repository.UserDAO;
 import org.springframework.context.annotation.Bean;
@@ -50,6 +53,15 @@ public class RentalServiceApplicationConfiguration {
     @Bean
     public Clock clock() {
         return Clock.systemDefaultZone();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+        return objectMapper;
     }
 
 }

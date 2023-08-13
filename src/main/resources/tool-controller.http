@@ -1,4 +1,4 @@
-GET {{host}}/api/public/tool/get/category/heavy
+GET {{host}}/api/public/tool/get/category/HEAVY
 
 ###
 

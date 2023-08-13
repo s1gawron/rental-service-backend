@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class ToolService {
@@ -36,12 +35,8 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public ToolListingDTO getToolsByCategory(final ToolCategory toolCategory) {
-        if (isUserCustomerOrUnauthenticated()) {
-            final List<Tool> notRemovedToolsByCategory = toolDAO.findAllByToolCategory(toolCategory.name(), false);
-            return toToolListingDTO(notRemovedToolsByCategory);
-        }
-
-        return toToolListingDTO(toolDAO.findAllByToolCategory(toolCategory.name()));
+        final UserRole currentUserRole = UserContextProvider.I.getCurrentUserRoles().stream().findFirst().orElse(UserRole.ANONYMOUS);
+        return UserRoleGetToolStrategy.of(currentUserRole).getToolsByCategory(toolDAO, toolCategory);
     }
 
     @Transactional(readOnly = true)
@@ -64,15 +59,8 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public List<ToolDetailsDTO> getToolsByName(final ToolSearchDTO toolSearchDTO) {
-        if (isUserCustomerOrUnauthenticated()) {
-            return toolDAO.findNotRemovedToolsByName(toolSearchDTO.toolName()).stream()
-                .map(Tool::toToolDetailsDTO)
-                .toList();
-        }
-
-        return toolDAO.findByName(toolSearchDTO.toolName()).stream()
-            .map(Tool::toToolDetailsDTO)
-            .toList();
+        final UserRole currentUserRole = UserContextProvider.I.getCurrentUserRoles().stream().findFirst().orElse(UserRole.ANONYMOUS);
+        return UserRoleGetToolStrategy.of(currentUserRole).getToolsByName(toolDAO, toolSearchDTO);
     }
 
     @Transactional
@@ -154,28 +142,8 @@ public class ToolService {
 
     @Transactional(readOnly = true)
     public ToolListingDTO getAllTools() {
-        if (isUserCustomerOrUnauthenticated()) {
-            return toToolListingDTO(toolDAO.findAll(false));
-        }
-
-        return toToolListingDTO(toolDAO.findAllWithLimit());
+        final UserRole currentUserRole = UserContextProvider.I.getCurrentUserRoles().stream().findFirst().orElse(UserRole.ANONYMOUS);
+        return UserRoleGetToolStrategy.of(currentUserRole).getAllTools(toolDAO);
     }
 
-    private ToolListingDTO toToolListingDTO(final List<Tool> tools) {
-        final List<ToolDetailsDTO> toolDetailsDTOS = tools.stream()
-            .map(Tool::toToolDetailsDTO)
-            .toList();
-
-        return new ToolListingDTO(toolDetailsDTOS.size(), toolDetailsDTOS);
-    }
-
-    private boolean isUserCustomerOrUnauthenticated() {
-        final Set<UserRole> userRoles = UserContextProvider.I.getCurrentUserRoles();
-
-        if (userRoles.isEmpty()) {
-            return true;
-        }
-
-        return userRoles.contains(UserRole.ANONYMOUS) || userRoles.contains(UserRole.CUSTOMER);
-    }
 }
