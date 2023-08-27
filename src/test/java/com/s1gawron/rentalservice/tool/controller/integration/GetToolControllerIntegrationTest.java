@@ -37,7 +37,7 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final ToolListingDTO resultObject = objectMapper.readValue(resultJson, ToolListingDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(3, resultObject.count());
+        assertEquals(3, resultObject.totalNumberOfTools());
         assertEquals(3, resultObject.tools().size());
     }
 
@@ -55,7 +55,7 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final ToolListingDTO resultObject = objectMapper.readValue(resultJson, ToolListingDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(3, resultObject.count());
+        assertEquals(3, resultObject.totalNumberOfTools());
         assertEquals(3, resultObject.tools().size());
     }
 
@@ -73,7 +73,7 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final ToolListingDTO resultObject = objectMapper.readValue(resultJson, ToolListingDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(6, resultObject.count());
+        assertEquals(6, resultObject.totalNumberOfTools());
         assertEquals(6, resultObject.tools().size());
     }
 
@@ -165,14 +165,15 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
-        final List<ToolDetailsDTO> resultList = objectMapper.readValue(resultJson, new TypeReference<>() {
+        final ToolListingDTO resultList = objectMapper.readValue(resultJson, new TypeReference<>() {
 
         });
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(2, resultList.size());
+        assertEquals(1, resultList.numberOfPages());
+        assertEquals(2, resultList.totalNumberOfTools());
 
-        for (final ToolDetailsDTO details : resultList) {
+        for (final ToolDetailsDTO details : resultList.tools()) {
             assertTrue(details.name().toLowerCase().contains("hammer"));
         }
     }
@@ -194,14 +195,15 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
-        final List<ToolDetailsDTO> resultList = objectMapper.readValue(resultJson, new TypeReference<>() {
+        final ToolListingDTO resultList = objectMapper.readValue(resultJson, new TypeReference<>() {
 
         });
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(2, resultList.size());
+        assertEquals(1, resultList.numberOfPages());
+        assertEquals(2, resultList.totalNumberOfTools());
 
-        for (final ToolDetailsDTO details : resultList) {
+        for (final ToolDetailsDTO details : resultList.tools()) {
             assertTrue(details.name().toLowerCase().contains("hammer"));
         }
     }
@@ -223,16 +225,17 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
-        final List<ToolDetailsDTO> resultList = objectMapper.readValue(resultJson, new TypeReference<>() {
+        final ToolListingDTO resultList = objectMapper.readValue(resultJson, new TypeReference<>() {
 
         });
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(4, resultList.size());
-        assertEquals(2, resultList.stream().filter(tool -> !tool.removed()).count());
-        assertEquals(2, resultList.stream().filter(ToolDetailsDTO::removed).count());
+        assertEquals(1, resultList.numberOfPages());
+        assertEquals(4, resultList.totalNumberOfTools());
+        assertEquals(2, resultList.tools().stream().filter(tool -> !tool.removed()).count());
+        assertEquals(2, resultList.tools().stream().filter(ToolDetailsDTO::removed).count());
 
-        for (final ToolDetailsDTO details : resultList) {
+        for (final ToolDetailsDTO details : resultList.tools()) {
             assertTrue(details.name().toLowerCase().contains("hammer"));
         }
     }
@@ -250,11 +253,12 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_GET_ENDPOINT + "name").contentType(MediaType.APPLICATION_JSON).content(json);
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
-        final List<ToolDetailsDTO> resultList = objectMapper.readValue(resultJson, new TypeReference<>() {
+        final ToolListingDTO resultList = objectMapper.readValue(resultJson, new TypeReference<>() {
 
         });
 
-        assertEquals(0, resultList.size());
+        assertEquals(0, resultList.numberOfPages());
+        assertEquals(0, resultList.totalNumberOfTools());
     }
 
     @Test
@@ -269,7 +273,7 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final long notRemovedToolsCount = resultObject.tools().stream().filter(tool -> !tool.removed()).count();
 
         assertEquals(HttpStatus.OK.value(), result.getStatus());
-        assertEquals(3, resultObject.count());
+        assertEquals(3, resultObject.totalNumberOfTools());
         assertEquals(3, resultObject.tools().size());
         assertEquals(0, removedToolsCount);
         assertEquals(3, notRemovedToolsCount);
@@ -288,7 +292,7 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final long notRemovedToolsCount = resultObject.tools().stream().filter(tool -> !tool.removed()).count();
 
         assertEquals(HttpStatus.OK.value(), result.getStatus());
-        assertEquals(3, resultObject.count());
+        assertEquals(3, resultObject.totalNumberOfTools());
         assertEquals(3, resultObject.tools().size());
         assertEquals(0, removedToolsCount);
         assertEquals(3, notRemovedToolsCount);
@@ -307,7 +311,7 @@ class GetToolControllerIntegrationTest extends AbstractToolControllerIntegration
         final long notRemovedToolsCount = resultObject.tools().stream().filter(tool -> !tool.removed()).count();
 
         assertEquals(HttpStatus.OK.value(), result.getStatus());
-        assertEquals(9, resultObject.count());
+        assertEquals(9, resultObject.totalNumberOfTools());
         assertEquals(9, resultObject.tools().size());
         assertEquals(6, removedToolsCount);
         assertEquals(3, notRemovedToolsCount);

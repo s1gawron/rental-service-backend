@@ -2,21 +2,24 @@ package com.s1gawron.rentalservice.tool.repository;
 
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.model.Tool;
+import com.s1gawron.rentalservice.tool.model.ToolCategory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ToolDAO {
 
-    List<Tool> findAllByToolCategory(final String toolCategory);
+    Page<Tool> findAllByToolCategory(final ToolCategory toolCategory, final Pageable pageable);
 
-    List<Tool> findAllByToolCategory(final String toolCategory, final boolean removed);
+    Page<Tool> findAllByToolCategory(final ToolCategory toolCategory, final boolean removed, final Pageable pageable);
 
     List<Tool> findNewTools();
 
-    List<Tool> findByName(final String toolName);
+    Page<Tool> findByName(final String toolName, final Pageable pageable);
 
-    List<Tool> findNotRemovedToolsByName(final String toolName);
+    Page<Tool> findNotRemovedToolsByName(final String toolName, final Pageable pageable);
 
     Optional<Boolean> isToolAvailable(final long toolId);
 
@@ -26,9 +29,9 @@ public interface ToolDAO {
 
     List<Tool> findAll();
 
-    List<Tool> findAll(final boolean removed);
+    Page<Tool> findAll(final boolean removed, final Pageable pageable);
 
-    List<Tool> findAllWithLimit();
+    Page<Tool> findAllWithLimit(final Pageable pageable);
 
     Optional<Tool> findById(final Long toolId);
 

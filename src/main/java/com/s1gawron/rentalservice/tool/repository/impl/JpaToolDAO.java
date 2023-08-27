@@ -2,7 +2,10 @@ package com.s1gawron.rentalservice.tool.repository.impl;
 
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.model.Tool;
+import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,24 +20,24 @@ public class JpaToolDAO implements ToolDAO {
         this.toolJpaRepository = toolJpaRepository;
     }
 
-    @Override public List<Tool> findAllByToolCategory(final String toolCategory) {
-        return toolJpaRepository.findAllByToolCategory(toolCategory);
+    @Override public Page<Tool> findAllByToolCategory(final ToolCategory toolCategory, final Pageable pageable) {
+        return toolJpaRepository.findAllByToolCategory(toolCategory, pageable);
     }
 
-    @Override public List<Tool> findAllByToolCategory(final String toolCategory, final boolean removed) {
-        return toolJpaRepository.findAllByToolCategory(toolCategory, removed);
+    @Override public Page<Tool> findAllByToolCategory(final ToolCategory toolCategory, final boolean removed, final Pageable pageable) {
+        return toolJpaRepository.findAllByToolCategoryAndRemoved(toolCategory, removed, pageable);
     }
 
     @Override public List<Tool> findNewTools() {
         return toolJpaRepository.findNewTools();
     }
 
-    @Override public List<Tool> findByName(final String toolName) {
-        return toolJpaRepository.findByName(toolName);
+    @Override public Page<Tool> findByName(final String toolName, final Pageable pageable) {
+        return toolJpaRepository.findByName(toolName, pageable);
     }
 
-    @Override public List<Tool> findNotRemovedToolsByName(final String toolName) {
-        return toolJpaRepository.findNotRemovedToolsByName(toolName);
+    @Override public Page<Tool> findNotRemovedToolsByName(final String toolName, final Pageable pageable) {
+        return toolJpaRepository.findNotRemovedToolsByName(toolName, pageable);
     }
 
     @Override public Optional<Boolean> isToolAvailable(final long toolId) {
@@ -53,12 +56,12 @@ public class JpaToolDAO implements ToolDAO {
         return toolJpaRepository.findAll();
     }
 
-    @Override public List<Tool> findAll(final boolean removed) {
-        return toolJpaRepository.findAll(removed);
+    @Override public Page<Tool> findAll(final boolean removed, final Pageable pageable) {
+        return toolJpaRepository.findAll(removed, pageable);
     }
 
-    @Override public List<Tool> findAllWithLimit() {
-        return toolJpaRepository.findAllWithLimit();
+    @Override public Page<Tool> findAllWithLimit(final Pageable pageable) {
+        return toolJpaRepository.findAllWithLimit(pageable);
     }
 
     @Override public Optional<Tool> findById(final Long toolId) {

@@ -16,6 +16,7 @@ import com.s1gawron.rentalservice.tool.model.ToolState;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
 import com.s1gawron.rentalservice.tool.repository.ToolStateDAO;
 import com.s1gawron.rentalservice.user.model.UserRole;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,9 +35,9 @@ public class ToolService {
     }
 
     @Transactional(readOnly = true)
-    public ToolListingDTO getToolsByCategory(final ToolCategory toolCategory) {
+    public ToolListingDTO getToolsByCategory(final ToolCategory toolCategory, final Pageable pageable) {
         final UserRole currentUserRole = UserContextProvider.I.getCurrentUserRoles().stream().findFirst().orElse(UserRole.ANONYMOUS);
-        return UserRoleGetToolStrategy.of(currentUserRole).getToolsByCategory(toolDAO, toolCategory);
+        return UserRoleGetToolStrategy.of(currentUserRole).getToolsByCategory(toolDAO, toolCategory, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -58,9 +59,9 @@ public class ToolService {
     }
 
     @Transactional(readOnly = true)
-    public List<ToolDetailsDTO> getToolsByName(final ToolSearchDTO toolSearchDTO) {
+    public ToolListingDTO getToolsByName(final ToolSearchDTO toolSearchDTO, final Pageable pageable) {
         final UserRole currentUserRole = UserContextProvider.I.getCurrentUserRoles().stream().findFirst().orElse(UserRole.ANONYMOUS);
-        return UserRoleGetToolStrategy.of(currentUserRole).getToolsByName(toolDAO, toolSearchDTO);
+        return UserRoleGetToolStrategy.of(currentUserRole).getToolsByName(toolDAO, toolSearchDTO, pageable);
     }
 
     @Transactional
@@ -141,9 +142,9 @@ public class ToolService {
     }
 
     @Transactional(readOnly = true)
-    public ToolListingDTO getAllTools() {
+    public ToolListingDTO getAllTools(final Pageable pageable) {
         final UserRole currentUserRole = UserContextProvider.I.getCurrentUserRoles().stream().findFirst().orElse(UserRole.ANONYMOUS);
-        return UserRoleGetToolStrategy.of(currentUserRole).getAllTools(toolDAO);
+        return UserRoleGetToolStrategy.of(currentUserRole).getAllTools(toolDAO, pageable);
     }
 
 }

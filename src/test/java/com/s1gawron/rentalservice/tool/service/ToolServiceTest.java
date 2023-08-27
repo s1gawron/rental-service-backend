@@ -22,6 +22,10 @@ import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +37,8 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ToolServiceTest {
+
+    private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 25);
 
     private Authentication authenticationMock;
 
@@ -60,12 +66,13 @@ class ToolServiceTest {
         final List<Tool> heavyTools = ToolCreatorHelper.I.createToolList().stream()
             .filter(tool -> tool.getToolCategory().equals(ToolCategory.HEAVY))
             .toList();
+        final PageImpl<Tool> toolPage = new PageImpl<>(heavyTools);
 
-        Mockito.when(toolDAOMock.findAllByToolCategory(ToolCategory.HEAVY.name(), false)).thenReturn(heavyTools);
+        Mockito.when(toolDAOMock.findAllByToolCategory(ToolCategory.HEAVY, false, DEFAULT_PAGEABLE)).thenReturn(toolPage);
 
-        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.HEAVY);
+        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.HEAVY, DEFAULT_PAGEABLE);
 
-        assertEquals(2, result.count());
+        assertEquals(2, result.totalNumberOfTools());
         assertEquals(2, result.tools().size());
         result.tools().forEach(toolDTO -> assertEquals(ToolCategory.HEAVY.name(), toolDTO.toolCategory()));
     }
@@ -75,13 +82,14 @@ class ToolServiceTest {
         final List<Tool> heavyTools = ToolCreatorHelper.I.createToolList().stream()
             .filter(tool -> tool.getToolCategory().equals(ToolCategory.HEAVY))
             .toList();
+        final PageImpl<Tool> toolPage = new PageImpl<>(heavyTools);
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn("anonymousUser");
-        Mockito.when(toolDAOMock.findAllByToolCategory(ToolCategory.HEAVY.name(), false)).thenReturn(heavyTools);
+        Mockito.when(toolDAOMock.findAllByToolCategory(ToolCategory.HEAVY, false, DEFAULT_PAGEABLE)).thenReturn(toolPage);
 
-        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.HEAVY);
+        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.HEAVY, DEFAULT_PAGEABLE);
 
-        assertEquals(2, result.count());
+        assertEquals(2, result.totalNumberOfTools());
         assertEquals(2, result.tools().size());
         result.tools().forEach(toolDTO -> assertEquals(ToolCategory.HEAVY.name(), toolDTO.toolCategory()));
     }
@@ -91,13 +99,14 @@ class ToolServiceTest {
         final List<Tool> mixedHeavyTools = Stream.concat(ToolCreatorHelper.I.createToolList().stream(), ToolCreatorHelper.I.createRemovedTools().stream())
             .filter(tool -> tool.getToolCategory().equals(ToolCategory.HEAVY))
             .toList();
+        final PageImpl<Tool> toolPage = new PageImpl<>(mixedHeavyTools);
 
         Mockito.doReturn(List.of(UserRole.WORKER.toSimpleGrantedAuthority())).when(authenticationMock).getAuthorities();
-        Mockito.when(toolDAOMock.findAllByToolCategory(ToolCategory.HEAVY.name())).thenReturn(mixedHeavyTools);
+        Mockito.when(toolDAOMock.findAllByToolCategory(ToolCategory.HEAVY, DEFAULT_PAGEABLE)).thenReturn(toolPage);
 
-        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.HEAVY);
+        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.HEAVY, DEFAULT_PAGEABLE);
 
-        assertEquals(5, result.count());
+        assertEquals(5, result.totalNumberOfTools());
         assertEquals(5, result.tools().size());
         result.tools().forEach(toolDTO -> assertEquals(ToolCategory.HEAVY.name(), toolDTO.toolCategory()));
     }
@@ -107,12 +116,13 @@ class ToolServiceTest {
         final List<Tool> lightTools = ToolCreatorHelper.I.createHeavyTools().stream()
             .filter(tool -> tool.getToolCategory().equals(ToolCategory.LIGHT))
             .toList();
+        final PageImpl<Tool> toolPage = new PageImpl<>(lightTools);
 
-        Mockito.when(toolDAOMock.findAllByToolCategory(ToolCategory.LIGHT.name())).thenReturn(lightTools);
+        Mockito.when(toolDAOMock.findAllByToolCategory(ToolCategory.LIGHT, false, DEFAULT_PAGEABLE)).thenReturn(toolPage);
 
-        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.LIGHT);
+        final ToolListingDTO result = toolService.getToolsByCategory(ToolCategory.LIGHT, DEFAULT_PAGEABLE);
 
-        assertEquals(0, result.count());
+        assertEquals(0, result.totalNumberOfTools());
         assertEquals(0, result.tools().size());
     }
 
@@ -202,12 +212,13 @@ class ToolServiceTest {
         final List<Tool> tools = ToolCreatorHelper.I.createCommonNameToolList(false).stream()
             .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.toolName()))
             .toList();
+        final PageImpl<Tool> toolPage = new PageImpl<>(tools);
 
-        Mockito.when(toolDAOMock.findNotRemovedToolsByName(toolSearchDTO.toolName())).thenReturn(tools);
+        Mockito.when(toolDAOMock.findNotRemovedToolsByName(toolSearchDTO.toolName(), DEFAULT_PAGEABLE)).thenReturn(toolPage);
 
-        final List<ToolDetailsDTO> result = toolService.getToolsByName(toolSearchDTO);
+        final ToolListingDTO result = toolService.getToolsByName(toolSearchDTO, DEFAULT_PAGEABLE);
 
-        assertEquals(2, result.size());
+        assertEquals(2, result.totalNumberOfTools());
     }
 
     @Test
@@ -216,14 +227,15 @@ class ToolServiceTest {
         final List<Tool> tools = ToolCreatorHelper.I.createCommonNameToolList(false).stream()
             .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.toolName()))
             .toList();
+        final PageImpl<Tool> toolPage = new PageImpl<>(tools);
         final User customer = UserCreatorHelper.I.createCustomer();
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-        Mockito.when(toolDAOMock.findNotRemovedToolsByName(toolSearchDTO.toolName())).thenReturn(tools);
+        Mockito.when(toolDAOMock.findNotRemovedToolsByName(toolSearchDTO.toolName(), DEFAULT_PAGEABLE)).thenReturn(toolPage);
 
-        final List<ToolDetailsDTO> result = toolService.getToolsByName(toolSearchDTO);
+        final ToolListingDTO result = toolService.getToolsByName(toolSearchDTO, DEFAULT_PAGEABLE);
 
-        assertEquals(2, result.size());
+        assertEquals(2, result.totalNumberOfTools());
     }
 
     @Test
@@ -233,21 +245,25 @@ class ToolServiceTest {
             .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.toolName()));
         final Stream<Tool> removedTools = ToolCreatorHelper.I.createCommonNameToolList(true).stream()
             .filter(tool -> tool.getName().toLowerCase().contains(toolSearchDTO.toolName()));
+        final List<Tool> mergedTools = Stream.concat(tools, removedTools).toList();
+        final PageImpl<Tool> toolPage = new PageImpl<>(mergedTools);
 
         Mockito.doReturn(List.of(UserRole.WORKER.toSimpleGrantedAuthority())).when(authenticationMock).getAuthorities();
-        Mockito.when(toolDAOMock.findByName(toolSearchDTO.toolName())).thenReturn(Stream.concat(tools, removedTools).toList());
+        Mockito.when(toolDAOMock.findByName(toolSearchDTO.toolName(), DEFAULT_PAGEABLE)).thenReturn(toolPage);
 
-        final List<ToolDetailsDTO> result = toolService.getToolsByName(toolSearchDTO);
+        final ToolListingDTO result = toolService.getToolsByName(toolSearchDTO, DEFAULT_PAGEABLE);
 
-        assertEquals(4, result.size());
+        assertEquals(4, result.totalNumberOfTools());
     }
 
     @Test
     void shouldGetEmptyListWhenNoToolAreFoundByName() {
         final ToolSearchDTO toolSearchDTO = new ToolSearchDTO("hammer");
-        final List<ToolDetailsDTO> result = toolService.getToolsByName(toolSearchDTO);
 
-        assertEquals(0, result.size());
+        Mockito.when(toolDAOMock.findNotRemovedToolsByName(toolSearchDTO.toolName(), DEFAULT_PAGEABLE)).thenReturn(Page.empty());
+        final ToolListingDTO result = toolService.getToolsByName(toolSearchDTO, DEFAULT_PAGEABLE);
+
+        assertEquals(0, result.totalNumberOfTools());
     }
 
     @Test
@@ -351,12 +367,13 @@ class ToolServiceTest {
     @Test
     void shouldReturnNotRemovedToolsForUnauthenticatedUser() {
         final List<Tool> tools = ToolCreatorHelper.I.createToolList();
+        final PageImpl<Tool> toolPage = new PageImpl<>(tools);
 
-        Mockito.when(toolDAOMock.findAll(false)).thenReturn(tools);
+        Mockito.when(toolDAOMock.findAll(false, DEFAULT_PAGEABLE)).thenReturn(toolPage);
 
-        final ToolListingDTO result = toolService.getAllTools();
+        final ToolListingDTO result = toolService.getAllTools(DEFAULT_PAGEABLE);
 
-        assertEquals(3, result.count());
+        assertEquals(3, result.totalNumberOfTools());
         assertEquals(3, result.tools().size());
     }
 
@@ -364,26 +381,28 @@ class ToolServiceTest {
     void shouldReturnNotRemovedToolsForCustomer() {
         final User customer = UserCreatorHelper.I.createCustomer();
         final List<Tool> tools = ToolCreatorHelper.I.createToolList();
+        final PageImpl<Tool> toolPage = new PageImpl<>(tools);
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-        Mockito.when(toolDAOMock.findAll(false)).thenReturn(tools);
+        Mockito.when(toolDAOMock.findAll(false, DEFAULT_PAGEABLE)).thenReturn(toolPage);
 
-        final ToolListingDTO result = toolService.getAllTools();
+        final ToolListingDTO result = toolService.getAllTools(DEFAULT_PAGEABLE);
 
-        assertEquals(3, result.count());
+        assertEquals(3, result.totalNumberOfTools());
         assertEquals(3, result.tools().size());
     }
 
     @Test
     void shouldReturnAllToolsForWorker() {
         final List<Tool> mixedTools = Stream.concat(ToolCreatorHelper.I.createToolList().stream(), ToolCreatorHelper.I.createRemovedTools().stream()).toList();
+        final PageImpl<Tool> toolPage = new PageImpl<>(mixedTools);
 
         Mockito.doReturn(List.of(UserRole.WORKER.toSimpleGrantedAuthority())).when(authenticationMock).getAuthorities();
-        Mockito.when(toolDAOMock.findAllWithLimit()).thenReturn(mixedTools);
+        Mockito.when(toolDAOMock.findAllWithLimit(DEFAULT_PAGEABLE)).thenReturn(toolPage);
 
-        final ToolListingDTO result = toolService.getAllTools();
+        final ToolListingDTO result = toolService.getAllTools(DEFAULT_PAGEABLE);
 
-        assertEquals(9, result.count());
+        assertEquals(9, result.totalNumberOfTools());
         assertEquals(9, result.tools().size());
         assertEquals(6, result.tools().stream().filter(ToolDetailsDTO::removed).count());
         assertEquals(3, result.tools().stream().filter(tool -> !tool.removed()).count());

@@ -5,6 +5,7 @@ import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.service.ToolService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +21,11 @@ public class ToolController extends ToolErrorHandlerController {
     }
 
     @GetMapping("get/category/{category}")
-    public ToolListingDTO getToolsByCategory(@PathVariable ToolCategory category) {
-        return toolService.getToolsByCategory(category);
+    public ToolListingDTO getToolsByCategory(@PathVariable ToolCategory category,
+        @RequestParam(defaultValue = "0") final int pageNumber,
+        @RequestParam(defaultValue = "25") final int pageSize) {
+        final PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        return toolService.getToolsByCategory(category, pageRequest);
     }
 
     @GetMapping("get/new")
@@ -35,13 +39,16 @@ public class ToolController extends ToolErrorHandlerController {
     }
 
     @PostMapping("get/name")
-    public List<ToolDetailsDTO> getToolsByName(@RequestBody final ToolSearchDTO toolSearchDTO) {
-        return toolService.getToolsByName(toolSearchDTO);
+    public ToolListingDTO getToolsByName(@RequestBody final ToolSearchDTO toolSearchDTO, @RequestParam(defaultValue = "0") final int pageNumber,
+        @RequestParam(defaultValue = "25") final int pageSize) {
+        final PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        return toolService.getToolsByName(toolSearchDTO, pageRequest);
     }
 
     @GetMapping("get/all")
-    public ToolListingDTO getAllTools() {
-        return toolService.getAllTools();
+    public ToolListingDTO getAllTools(@RequestParam(defaultValue = "0") final int pageNumber, @RequestParam(defaultValue = "25") final int pageSize) {
+        final PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        return toolService.getAllTools(pageRequest);
     }
 
 }

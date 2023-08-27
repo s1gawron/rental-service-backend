@@ -7,6 +7,8 @@ import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
 import com.s1gawron.rentalservice.user.model.UserRole;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Map;
@@ -14,96 +16,91 @@ import java.util.Map;
 public enum UserRoleGetToolStrategy {
 
     ANONYMOUS {
-        @Override public ToolListingDTO getToolsByCategory(final ToolDAO toolDAO, final ToolCategory toolCategory) {
-            return getToolsByCategoryForAnonymousOrCustomer(toolDAO, toolCategory);
+        @Override public ToolListingDTO getToolsByCategory(final ToolDAO toolDAO, final ToolCategory toolCategory, final Pageable pageable) {
+            return getToolsByCategoryForAnonymousOrCustomer(toolDAO, toolCategory, pageable);
         }
 
-        @Override public List<ToolDetailsDTO> getToolsByName(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO) {
-            return getToolsByNameForAnonymousOrCustomer(toolDAO, toolSearchDTO);
+        @Override public ToolListingDTO getToolsByName(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO, final Pageable pageable) {
+            return getToolsByNameForAnonymousOrCustomer(toolDAO, toolSearchDTO, pageable);
         }
 
-        @Override public ToolListingDTO getAllTools(final ToolDAO toolDAO) {
-            return getAllToolsForAnonymousOrCustomer(toolDAO);
+        @Override public ToolListingDTO getAllTools(final ToolDAO toolDAO, final Pageable pageable) {
+            return getAllToolsForAnonymousOrCustomer(toolDAO, pageable);
         }
     },
     CUSTOMER {
-        @Override public ToolListingDTO getToolsByCategory(final ToolDAO toolDAO, final ToolCategory toolCategory) {
-            return getToolsByCategoryForAnonymousOrCustomer(toolDAO, toolCategory);
+        @Override public ToolListingDTO getToolsByCategory(final ToolDAO toolDAO, final ToolCategory toolCategory, final Pageable pageable) {
+            return getToolsByCategoryForAnonymousOrCustomer(toolDAO, toolCategory, pageable);
         }
 
-        @Override public List<ToolDetailsDTO> getToolsByName(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO) {
-            return getToolsByNameForAnonymousOrCustomer(toolDAO, toolSearchDTO);
+        @Override public ToolListingDTO getToolsByName(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO, final Pageable pageable) {
+            return getToolsByNameForAnonymousOrCustomer(toolDAO, toolSearchDTO, pageable);
         }
 
-        @Override public ToolListingDTO getAllTools(final ToolDAO toolDAO) {
-            return getAllToolsForAnonymousOrCustomer(toolDAO);
+        @Override public ToolListingDTO getAllTools(final ToolDAO toolDAO, final Pageable pageable) {
+            return getAllToolsForAnonymousOrCustomer(toolDAO, pageable);
         }
     },
     WORKER {
-        @Override public ToolListingDTO getToolsByCategory(final ToolDAO toolDAO, final ToolCategory toolCategory) {
-            return getToolsByCategoryForWorkerOrAdmin(toolDAO, toolCategory);
+        @Override public ToolListingDTO getToolsByCategory(final ToolDAO toolDAO, final ToolCategory toolCategory, final Pageable pageable) {
+            return getToolsByCategoryForWorkerOrAdmin(toolDAO, toolCategory, pageable);
         }
 
-        @Override public List<ToolDetailsDTO> getToolsByName(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO) {
-            return getToolsByNameForWorkerOrAdmin(toolDAO, toolSearchDTO);
+        @Override public ToolListingDTO getToolsByName(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO, final Pageable pageable) {
+            return getToolsByNameForWorkerOrAdmin(toolDAO, toolSearchDTO, pageable);
         }
 
-        @Override public ToolListingDTO getAllTools(final ToolDAO toolDAO) {
-            return getAllToolsForWorkerOrAdmin(toolDAO);
+        @Override public ToolListingDTO getAllTools(final ToolDAO toolDAO, final Pageable pageable) {
+            return getAllToolsForWorkerOrAdmin(toolDAO, pageable);
         }
     },
     ADMIN {
-        @Override public ToolListingDTO getToolsByCategory(final ToolDAO toolDAO, final ToolCategory toolCategory) {
-            return getToolsByCategoryForWorkerOrAdmin(toolDAO, toolCategory);
+        @Override public ToolListingDTO getToolsByCategory(final ToolDAO toolDAO, final ToolCategory toolCategory, final Pageable pageable) {
+            return getToolsByCategoryForWorkerOrAdmin(toolDAO, toolCategory, pageable);
         }
 
-        @Override public List<ToolDetailsDTO> getToolsByName(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO) {
-            return getToolsByNameForWorkerOrAdmin(toolDAO, toolSearchDTO);
+        @Override public ToolListingDTO getToolsByName(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO, final Pageable pageable) {
+            return getToolsByNameForWorkerOrAdmin(toolDAO, toolSearchDTO, pageable);
         }
 
-        @Override public ToolListingDTO getAllTools(final ToolDAO toolDAO) {
-            return getAllToolsForWorkerOrAdmin(toolDAO);
+        @Override public ToolListingDTO getAllTools(final ToolDAO toolDAO, final Pageable pageable) {
+            return getAllToolsForWorkerOrAdmin(toolDAO, pageable);
         }
     };
 
-    protected ToolListingDTO getToolsByCategoryForAnonymousOrCustomer(final ToolDAO toolDAO, final ToolCategory toolCategory) {
-        final List<Tool> allByToolCategory = toolDAO.findAllByToolCategory(toolCategory.name(), false);
+    protected ToolListingDTO getToolsByCategoryForAnonymousOrCustomer(final ToolDAO toolDAO, final ToolCategory toolCategory, final Pageable pageable) {
+        final Page<Tool> allByToolCategory = toolDAO.findAllByToolCategory(toolCategory, false, pageable);
         return toToolListingDTO(allByToolCategory);
     }
 
-    protected List<ToolDetailsDTO> getToolsByNameForAnonymousOrCustomer(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO) {
-        return toolDAO.findNotRemovedToolsByName(toolSearchDTO.toolName()).stream()
-            .map(Tool::toToolDetailsDTO)
-            .toList();
+    protected ToolListingDTO getToolsByNameForAnonymousOrCustomer(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO, final Pageable pageable) {
+        final Page<Tool> notRemovedToolsByName = toolDAO.findNotRemovedToolsByName(toolSearchDTO.toolName(), pageable);
+        return toToolListingDTO(notRemovedToolsByName);
     }
 
-    protected ToolListingDTO getAllToolsForAnonymousOrCustomer(final ToolDAO toolDAO) {
-        final List<Tool> allTools = toolDAO.findAll(false);
+    protected ToolListingDTO getAllToolsForAnonymousOrCustomer(final ToolDAO toolDAO, final Pageable pageable) {
+        final Page<Tool> allTools = toolDAO.findAll(false, pageable);
         return toToolListingDTO(allTools);
     }
 
-    protected ToolListingDTO getToolsByCategoryForWorkerOrAdmin(final ToolDAO toolDAO, final ToolCategory toolCategory) {
-        final List<Tool> allByToolCategory = toolDAO.findAllByToolCategory(toolCategory.name());
+    protected ToolListingDTO getToolsByCategoryForWorkerOrAdmin(final ToolDAO toolDAO, final ToolCategory toolCategory, final Pageable pageable) {
+        final Page<Tool> allByToolCategory = toolDAO.findAllByToolCategory(toolCategory, pageable);
         return toToolListingDTO(allByToolCategory);
     }
 
-    protected List<ToolDetailsDTO> getToolsByNameForWorkerOrAdmin(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO) {
-        return toolDAO.findByName(toolSearchDTO.toolName()).stream()
-            .map(Tool::toToolDetailsDTO)
-            .toList();
+    protected ToolListingDTO getToolsByNameForWorkerOrAdmin(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO, final Pageable pageable) {
+        final Page<Tool> allToolsByName = toolDAO.findByName(toolSearchDTO.toolName(), pageable);
+        return toToolListingDTO(allToolsByName);
     }
 
-    protected ToolListingDTO getAllToolsForWorkerOrAdmin(final ToolDAO toolDAO) {
-        final List<Tool> allTools = toolDAO.findAllWithLimit();
+    protected ToolListingDTO getAllToolsForWorkerOrAdmin(final ToolDAO toolDAO, final Pageable pageable) {
+        final Page<Tool> allTools = toolDAO.findAllWithLimit(pageable);
         return toToolListingDTO(allTools);
     }
 
-    private ToolListingDTO toToolListingDTO(final List<Tool> tools) {
-        final List<ToolDetailsDTO> toolDetailsDTOS = tools.stream()
-            .map(Tool::toToolDetailsDTO)
-            .toList();
-
-        return new ToolListingDTO(toolDetailsDTOS.size(), toolDetailsDTOS);
+    private ToolListingDTO toToolListingDTO(final Page<Tool> toolPage) {
+        final List<ToolDetailsDTO> toolList = toolPage.map(Tool::toToolDetailsDTO).toList();
+        return new ToolListingDTO(toolPage.getTotalPages(), (int) toolPage.getTotalElements(), toolList);
     }
 
     private static final Map<UserRole, UserRoleGetToolStrategy> STRATEGY_MAP = Map.of(UserRole.ANONYMOUS, UserRoleGetToolStrategy.ANONYMOUS,
@@ -111,11 +108,11 @@ public enum UserRoleGetToolStrategy {
         UserRole.WORKER, UserRoleGetToolStrategy.WORKER,
         UserRole.ADMIN, UserRoleGetToolStrategy.ADMIN);
 
-    public abstract ToolListingDTO getToolsByCategory(final ToolDAO toolDAO, final ToolCategory toolCategory);
+    public abstract ToolListingDTO getToolsByCategory(final ToolDAO toolDAO, final ToolCategory toolCategory, final Pageable pageable);
 
-    public abstract List<ToolDetailsDTO> getToolsByName(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO);
+    public abstract ToolListingDTO getToolsByName(final ToolDAO toolDAO, final ToolSearchDTO toolSearchDTO, final Pageable pageable);
 
-    public abstract ToolListingDTO getAllTools(final ToolDAO toolDAO);
+    public abstract ToolListingDTO getAllTools(final ToolDAO toolDAO, final Pageable pageable);
 
     public static UserRoleGetToolStrategy of(final UserRole userRole) {
         return STRATEGY_MAP.getOrDefault(userRole, UserRoleGetToolStrategy.ANONYMOUS);

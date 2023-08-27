@@ -2,6 +2,9 @@ package com.s1gawron.rentalservice.tool.repository.impl;
 
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.model.Tool;
+import com.s1gawron.rentalservice.tool.model.ToolCategory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,35 +12,33 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-interface ToolJpaRepository extends JpaRepository<Tool, Long> {
+public interface ToolJpaRepository extends JpaRepository<Tool, Long> {
 
-    @Query(value = "SELECT * FROM tool WHERE tool_category = :toolCategory LIMIT 500", nativeQuery = true)
-    List<Tool> findAllByToolCategory(@Param(value = "toolCategory") final String toolCategory);
+    Page<Tool> findAllByToolCategory(final ToolCategory toolCategory, final Pageable pageable);
 
-    @Query(value = "SELECT * FROM tool WHERE tool_category = :toolCategory AND is_removed = :removed LIMIT 500", nativeQuery = true)
-    List<Tool> findAllByToolCategory(@Param(value = "toolCategory") final String toolCategory, @Param(value = "removed") final boolean removed);
-
-    @Query(value = "SELECT * FROM tool WHERE is_removed = false ORDER BY date_added DESC LIMIT 3", nativeQuery = true)
-    List<Tool> findNewTools();
-
-    @Query(value = "SELECT * FROM tool WHERE UPPER(name) LIKE UPPER(concat('%', :toolName, '%')) LIMIT 500", nativeQuery = true)
-    List<Tool> findByName(final String toolName);
-
-    @Query(value = "SELECT * FROM tool WHERE UPPER(name) LIKE UPPER(concat('%', :toolName, '%')) AND is_removed = FALSE LIMIT 500", nativeQuery = true)
-    List<Tool> findNotRemovedToolsByName(@Param(value = "toolName") final String toolName);
-
-    @Query(value = "SELECT is_available FROM tool WHERE tool_id = :toolId", nativeQuery = true)
-    Optional<Boolean> isToolAvailable(@Param(value = "toolId") final long toolId);
-
-    @Query(value = "SELECT is_removed FROM tool WHERE tool_id = :toolId", nativeQuery = true)
-    Optional<Boolean> isToolRemoved(@Param(value = "toolId") final long toolId);
+    Page<Tool> findAllByToolCategoryAndRemoved(final ToolCategory toolCategory, final boolean removed, final Pageable pageable);
 
     List<Tool> findAllByReservationHasToolsIn(final List<ReservationHasTool> reservationHasTools);
 
-    @Query(value = "SELECT * FROM tool WHERE is_removed = :removed LIMIT 500", nativeQuery = true)
-    List<Tool> findAll(@Param(value = "removed") final boolean removed);
+    @Query(value = "SELECT t FROM Tool t WHERE t.removed = false ORDER BY t.dateAdded DESC LIMIT 3")
+    List<Tool> findNewTools();
 
-    @Query(value = "SELECT * FROM tool LIMIT 500", nativeQuery = true)
-    List<Tool> findAllWithLimit();
+    @Query(value = "SELECT t FROM Tool t WHERE UPPER(t.name) LIKE UPPER(concat('%', :toolName, '%'))")
+    Page<Tool> findByName(final String toolName, final Pageable pageable);
+
+    @Query(value = "SELECT t FROM Tool t WHERE UPPER(t.name) LIKE UPPER(concat('%', :toolName, '%')) AND t.removed = FALSE")
+    Page<Tool> findNotRemovedToolsByName(@Param(value = "toolName") final String toolName, final Pageable pageable);
+
+    @Query(value = "SELECT t.available FROM Tool t WHERE t.toolId = :toolId")
+    Optional<Boolean> isToolAvailable(@Param(value = "toolId") final long toolId);
+
+    @Query(value = "SELECT t.removed FROM Tool t WHERE t.toolId = :toolId")
+    Optional<Boolean> isToolRemoved(@Param(value = "toolId") final long toolId);
+
+    @Query(value = "SELECT t FROM Tool t WHERE t.removed = :removed")
+    Page<Tool> findAll(@Param(value = "removed") final boolean removed, final Pageable pageable);
+
+    @Query(value = "SELECT t FROM Tool t")
+    Page<Tool> findAllWithLimit(final Pageable pageable);
 
 }
