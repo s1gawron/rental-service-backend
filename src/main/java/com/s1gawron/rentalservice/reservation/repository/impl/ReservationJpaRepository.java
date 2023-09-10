@@ -18,9 +18,6 @@ public interface ReservationJpaRepository extends JpaRepository<Reservation, Lon
 
     Optional<Reservation> findByReservationIdAndCustomer(final Long reservationId, final User customer);
 
-    @Query(value = "SELECT reservationId FROM Reservation")
-    List<Long> getAllIds();
-
     @Query(value = "SELECT reservationId FROM Reservation WHERE dateTo < :dateTime")
     List<Long> getReservationIdsForDateToOlderThan(@Param(value = "dateTime") final LocalDateTime dateTime);
 

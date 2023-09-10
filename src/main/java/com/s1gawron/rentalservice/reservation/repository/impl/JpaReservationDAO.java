@@ -30,10 +30,6 @@ public class JpaReservationDAO implements ReservationDAO {
         return reservationJpaRepository.findByReservationIdAndCustomer(reservationId, customer);
     }
 
-    @Override public List<Long> getAllIds() {
-        return reservationJpaRepository.getAllIds();
-    }
-
     @Override public Optional<Reservation> findByReservationId(final long reservationId) {
         return reservationJpaRepository.findByReservationId(reservationId);
     }

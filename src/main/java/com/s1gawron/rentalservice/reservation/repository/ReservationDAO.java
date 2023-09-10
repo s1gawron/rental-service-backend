@@ -15,8 +15,6 @@ public interface ReservationDAO {
 
     Optional<Reservation> findByReservationIdAndCustomer(final Long reservationId, final User customer);
 
-    List<Long> getAllIds();
-
     Optional<Reservation> findByReservationId(final long reservationId);
 
     List<Long> getReservationIdsForDateToOlderThan(LocalDateTime dateTime);

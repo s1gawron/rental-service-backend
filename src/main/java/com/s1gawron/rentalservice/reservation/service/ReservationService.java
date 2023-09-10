@@ -111,11 +111,6 @@ public class ReservationService {
         return reservationByIdAndCustomer.toReservationDetailsDTO(toolDetails);
     }
 
-    @Transactional(readOnly = true)
-    public List<Long> getReservationIds() {
-        return reservationDAO.getAllIds();
-    }
-
     @Transactional
     public void expireReservation(final Long reservationIdToExpire) {
         final Reservation reservation = reservationDAO.findByReservationId(reservationIdToExpire)

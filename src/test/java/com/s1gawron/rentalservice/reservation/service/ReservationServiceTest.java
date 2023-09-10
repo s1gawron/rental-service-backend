@@ -232,17 +232,6 @@ class ReservationServiceTest {
     }
 
     @Test
-    void shouldGetReservationsIds() {
-        final List<Long> reservationIds = List.of(1L, 2L, 3L);
-
-        Mockito.when(reservationDAO.getAllIds()).thenReturn(reservationIds);
-
-        final List<Long> result = reservationService.getReservationIds();
-
-        assertEquals(3, result.size());
-    }
-
-    @Test
     void shouldExpireReservation() {
         final Reservation reservation = ReservationCreatorHelper.I.createReservationForExpiry();
         final Tool tool = ToolCreatorHelper.I.createUnavailableTool();
