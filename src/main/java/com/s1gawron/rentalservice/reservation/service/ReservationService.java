@@ -14,21 +14,17 @@ import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.model.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class ReservationService {
-
-    private static final Logger log = LoggerFactory.getLogger(ReservationService.class);
 
     private final ReservationDAO reservationDAO;
 
@@ -121,22 +117,18 @@ public class ReservationService {
     }
 
     @Transactional
-    public void checkReservationsExpiryStatus(final List<Long> reservationIds) {
-        final List<Reservation> reservationsById = reservationDAO.findAllById(reservationIds);
+    public void expireReservation(final Long reservationIdToExpire) {
+        final Reservation reservation = reservationDAO.findByReservationId(reservationIdToExpire)
+            .orElseThrow(() -> ReservationNotFoundException.create(reservationIdToExpire));
+        final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservation.getReservationHasTools());
 
-        reservationsById.forEach(reservation -> {
-            final LocalDate today = LocalDate.now();
+        toolsFromReservation.forEach(toolService::makeToolAvailableAndSave);
+        reservation.expireReservation();
+        reservationDAO.save(reservation);
+    }
 
-            if (today.isAfter(reservation.getDateTo())) {
-                log.info("Reservation#{} expired, performing clean job", reservation.getReservationId());
-
-                final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservation.getReservationHasTools());
-                toolsFromReservation.forEach(toolService::makeToolAvailableAndSave);
-                reservation.expireReservation();
-                reservationDAO.save(reservation);
-
-                log.info("Clean job for reservation#{} finished successfully", reservation.getReservationId());
-            }
-        });
+    @Transactional(readOnly = true)
+    public List<Long> getReservationIdsForDateToOlderThan(final LocalDateTime dateTime) {
+        return reservationDAO.getReservationIdsForDateToOlderThan(dateTime);
     }
 }

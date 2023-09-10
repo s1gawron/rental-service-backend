@@ -243,15 +243,15 @@ class ReservationServiceTest {
     }
 
     @Test
-    void shouldCheckReservationExpiryStatus() {
+    void shouldExpireReservation() {
         final Reservation reservation = ReservationCreatorHelper.I.createReservationForExpiry();
         final Tool tool = ToolCreatorHelper.I.createUnavailableTool();
 
-        Mockito.when(reservationDAO.findAllById(List.of(1L))).thenReturn(List.of(reservation));
+        Mockito.when(reservationDAO.findByReservationId(1L)).thenReturn(Optional.of(reservation));
         Mockito.when(toolServiceMock.getToolsByReservationHasTools(reservation.getReservationHasTools())).thenReturn(List.of(tool));
         makeToolAvailable(tool);
 
-        reservationService.checkReservationsExpiryStatus(List.of(1L));
+        reservationService.expireReservation(1L);
 
         assertTrue(tool.isAvailable());
         assertTrue(reservation.isExpired());

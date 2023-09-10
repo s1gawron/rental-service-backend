@@ -5,6 +5,7 @@ import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
 import com.s1gawron.rentalservice.user.model.User;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,10 +20,6 @@ public class JpaReservationDAO implements ReservationDAO {
 
     @Override public Reservation save(final Reservation reservation) {
         return reservationJpaRepository.save(reservation);
-    }
-
-    @Override public List<Reservation> findAllById(final List<Long> reservationIds) {
-        return reservationJpaRepository.findAllById(reservationIds);
     }
 
     @Override public List<Reservation> findAllByCustomer(final User customer) {
@@ -41,4 +38,7 @@ public class JpaReservationDAO implements ReservationDAO {
         return reservationJpaRepository.findByReservationId(reservationId);
     }
 
+    @Override public List<Long> getReservationIdsForDateToOlderThan(final LocalDateTime dateTime) {
+        return reservationJpaRepository.getReservationIdsForDateToOlderThan(dateTime);
+    }
 }

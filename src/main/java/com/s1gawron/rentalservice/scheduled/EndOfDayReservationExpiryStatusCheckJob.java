@@ -1,35 +1,33 @@
 package com.s1gawron.rentalservice.scheduled;
 
+import com.s1gawron.rentalservice.configuration.RabbitConfiguration;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Component
 public class EndOfDayReservationExpiryStatusCheckJob {
 
     private static final String EVERY_DAY_AT_MIDNIGHT = "0 0 0 * * *";
 
-    private static final int BATCH_SIZE = 500;
-
     private final ReservationService reservationService;
 
-    public EndOfDayReservationExpiryStatusCheckJob(final ReservationService reservationService) {
+    private final RabbitTemplate rabbitTemplate;
+
+    public EndOfDayReservationExpiryStatusCheckJob(final ReservationService reservationService, final RabbitTemplate rabbitTemplate) {
         this.reservationService = reservationService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Scheduled(cron = EVERY_DAY_AT_MIDNIGHT)
     public void checkReservationExpiryStatusJob() {
-        partitionList(reservationService.getReservationIds()).forEach(reservationService::checkReservationsExpiryStatus);
-    }
+        final LocalDateTime now = LocalDateTime.now();
 
-    public Collection<List<Long>> partitionList(final List<Long> listToPartition) {
-        return listToPartition.stream()
-            .collect(Collectors.groupingBy(s -> s / BATCH_SIZE))
-            .values();
+        reservationService.getReservationIdsForDateToOlderThan(now)
+            .forEach(id -> rabbitTemplate.convertAndSend(RabbitConfiguration.RESERVATION_EXPIRY_EXCHANGE, RabbitConfiguration.RESERVATION_EXPIRY_QUEUE, id));
     }
 
 }
