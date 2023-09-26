@@ -1,5 +1,6 @@
 {
-  "count": 3,
+  "numberOfPages": 1,
+  "totalNumberOfReservations": 3,
   "reservations": [
     {
       "reservationId": 1,

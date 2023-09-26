@@ -23,6 +23,9 @@ import com.s1gawron.rentalservice.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,6 +38,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReservationServiceTest {
+
+    private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 25);
 
     private Authentication authenticationMock;
 
@@ -64,20 +69,22 @@ class ReservationServiceTest {
     void shouldGetUserReservations() {
         final User customer = UserCreatorHelper.I.createCustomer();
         final List<Reservation> reservations = ReservationCreatorHelper.I.createReservations();
+        final PageImpl<Reservation> reservationPage = new PageImpl<>(reservations);
         final List<ToolDetailsDTO> toolDetails = ToolCreatorHelper.I.createToolDTOList();
 
         Mockito.when(authenticationMock.getPrincipal()).thenReturn(customer);
-        Mockito.when(reservationDAO.findAllByCustomer(customer)).thenReturn(reservations);
+        Mockito.when(reservationDAO.findAllByCustomer(customer, DEFAULT_PAGEABLE)).thenReturn(reservationPage);
 
         for (int i = 0; i < toolDetails.size(); i++) {
             Mockito.when(toolServiceMock.getToolDetailsByReservationHasTools(reservations.get(i).getReservationHasTools()))
                 .thenReturn(List.of(toolDetails.get(i)));
         }
 
-        final ReservationListingDTO result = reservationService.getUserReservations();
+        final ReservationListingDTO result = reservationService.getUserReservations(DEFAULT_PAGEABLE);
 
         assertNotNull(result);
-        assertEquals(3, result.count());
+        assertEquals(1, result.numberOfPages());
+        assertEquals(3, result.totalNumberOfReservations());
 
         for (ReservationDetailsDTO reservationDetailsDTO : result.reservations()) {
             assertEquals(1, reservationDetailsDTO.tools().size());

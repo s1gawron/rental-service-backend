@@ -14,6 +14,8 @@ import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,16 +42,17 @@ public class ReservationService {
     }
 
     @Transactional(readOnly = true)
-    public ReservationListingDTO getUserReservations() {
+    public ReservationListingDTO getUserReservations(final Pageable pageable) {
         final User customer = UserContextProvider.I.getLoggedInUser();
-        final List<ReservationDetailsDTO> userReservations = reservationDAO.findAllByCustomer(customer).stream()
+        final Page<Reservation> allReservations = reservationDAO.findAllByCustomer(customer, pageable);
+        final List<ReservationDetailsDTO> userReservations = allReservations.stream()
             .map(reservation -> {
                 final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
                 return reservation.toReservationDetailsDTO(toolDetails);
             })
             .toList();
 
-        return new ReservationListingDTO(userReservations.size(), userReservations);
+        return new ReservationListingDTO(allReservations.getTotalPages(), (int) allReservations.getTotalElements(), userReservations);
     }
 
     @Transactional(readOnly = true)

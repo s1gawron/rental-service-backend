@@ -20,6 +20,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -47,6 +49,8 @@ class ReservationControllerTest {
 
     private static final String RESERVATION_ENDPOINT = "/api/customer/reservation/";
 
+    private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 25);
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -61,9 +65,9 @@ class ReservationControllerTest {
     @Test
     void shouldGetUserReservations() throws Exception {
         final List<ReservationDetailsDTO> reservationDetailsList = ReservationCreatorHelper.I.createReservationDetailsList();
-        final ReservationListingDTO reservationListingDTO = new ReservationListingDTO(reservationDetailsList.size(), reservationDetailsList);
+        final ReservationListingDTO reservationListingDTO = new ReservationListingDTO(1, reservationDetailsList.size(), reservationDetailsList);
 
-        Mockito.when(reservationServiceMock.getUserReservations()).thenReturn(reservationListingDTO);
+        Mockito.when(reservationServiceMock.getUserReservations(DEFAULT_PAGEABLE)).thenReturn(reservationListingDTO);
 
         final RequestBuilder request = MockMvcRequestBuilders.get(RESERVATION_ENDPOINT + "get/all");
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -72,7 +76,8 @@ class ReservationControllerTest {
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(reservationDetailsListResult);
-        assertEquals(3, reservationDetailsListResult.count());
+        assertEquals(1, reservationDetailsListResult.numberOfPages());
+        assertEquals(3, reservationDetailsListResult.totalNumberOfReservations());
     }
 
     @Test

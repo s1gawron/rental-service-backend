@@ -19,7 +19,7 @@ class ReservationListingDTOSerializationTest {
     @Test
     void shouldSerialize() throws IOException {
         final List<ReservationDetailsDTO> reservationDetailsList = ReservationCreatorHelper.I.createReservationDetailsListWithFixedDate();
-        final ReservationListingDTO reservationListingDTO = new ReservationListingDTO(reservationDetailsList.size(), reservationDetailsList);
+        final ReservationListingDTO reservationListingDTO = new ReservationListingDTO(1, reservationDetailsList.size(), reservationDetailsList);
 
         final String reservationListingDTOJsonResult = mapper.writeValueAsString(reservationListingDTO);
         final String expectedReservationListingDTOJsonResult = Files.readString(Path.of("src/test/resources/reservation-listing-dto.json"));

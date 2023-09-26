@@ -28,7 +28,8 @@ class GetReservationControllerIntegrationTest extends AbstractReservationControl
         final ReservationListingDTO resultObject = objectMapper.readValue(resultJson, ReservationListingDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(2, resultObject.count());
+        assertEquals(1, resultObject.numberOfPages());
+        assertEquals(2, resultObject.totalNumberOfReservations());
 
         for (final ReservationDetailsDTO reservationDetailsDTO : resultObject.reservations()) {
             assertEquals(1, reservationDetailsDTO.tools().size());
