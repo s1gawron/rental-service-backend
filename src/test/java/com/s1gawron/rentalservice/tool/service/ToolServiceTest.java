@@ -13,9 +13,7 @@ import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
-import com.s1gawron.rentalservice.tool.model.ToolState;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
-import com.s1gawron.rentalservice.tool.repository.ToolStateDAO;
 import com.s1gawron.rentalservice.user.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
@@ -44,8 +42,6 @@ class ToolServiceTest {
 
     private ToolDAO toolDAOMock;
 
-    private ToolStateDAO toolStateDAOMock;
-
     private ToolService toolService;
 
     @BeforeEach
@@ -57,8 +53,7 @@ class ToolServiceTest {
         SecurityContextHolder.setContext(securityContextMock);
 
         toolDAOMock = Mockito.mock(ToolDAO.class);
-        toolStateDAOMock = Mockito.mock(ToolStateDAO.class);
-        toolService = new ToolService(toolDAOMock, toolStateDAOMock);
+        toolService = new ToolService(toolDAOMock);
     }
 
     @Test
@@ -164,7 +159,6 @@ class ToolServiceTest {
 
         final ToolDetailsDTO result = toolService.validateAndAddTool(expected);
 
-        Mockito.verify(toolStateDAOMock, Mockito.times(1)).save(Mockito.any(ToolState.class));
         Mockito.verify(toolDAOMock, Mockito.times(1)).save(Mockito.any(Tool.class));
         assertToolDTO(expected, result);
     }
@@ -179,9 +173,8 @@ class ToolServiceTest {
 
         final ToolDetailsDTO result = toolService.validateAndEditTool(editedTool);
 
-        Mockito.verify(toolStateDAOMock, Mockito.times(1)).save(Mockito.any(ToolState.class));
         Mockito.verify(toolDAOMock, Mockito.times(1)).save(Mockito.any(Tool.class));
-        assertTool(originalTool, Tool.from(result, ToolState.from(result.toolState())));
+        assertTool(originalTool, Tool.from(result));
     }
 
     private void assertTool(final Tool originalTool, final Tool resultTool) {

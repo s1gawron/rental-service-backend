@@ -12,9 +12,7 @@ import com.s1gawron.rentalservice.tool.exception.ToolRemovedException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
-import com.s1gawron.rentalservice.tool.model.ToolState;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
-import com.s1gawron.rentalservice.tool.repository.ToolStateDAO;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,11 +25,8 @@ public class ToolService {
 
     private final ToolDAO toolDAO;
 
-    private final ToolStateDAO toolStateDAO;
-
-    public ToolService(final ToolDAO toolDAO, final ToolStateDAO toolStateDAO) {
+    public ToolService(final ToolDAO toolDAO) {
         this.toolDAO = toolDAO;
-        this.toolStateDAO = toolStateDAO;
     }
 
     @Transactional(readOnly = true)
@@ -68,10 +63,7 @@ public class ToolService {
     public ToolDetailsDTO validateAndAddTool(final ToolDTO toolDTO) {
         ToolDTOValidator.I.validate(toolDTO);
 
-        final ToolState toolState = ToolState.from(toolDTO.toolState());
-        final Tool tool = Tool.from(toolDTO, toolState);
-
-        toolStateDAO.save(toolState);
+        final Tool tool = Tool.from(toolDTO);
         toolDAO.save(tool);
 
         return tool.toToolDetailsDTO();
@@ -82,10 +74,6 @@ public class ToolService {
         ToolDTOValidator.I.validate(toolDetailsDTO);
 
         final Tool tool = getToolById(toolDetailsDTO.toolId());
-        final ToolState toolState = tool.getToolState();
-
-        toolState.edit(toolDetailsDTO.toolState());
-        toolStateDAO.save(toolState);
         tool.edit(toolDetailsDTO);
         toolDAO.save(tool);
 

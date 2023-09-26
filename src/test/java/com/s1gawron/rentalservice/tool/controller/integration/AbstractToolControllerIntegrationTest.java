@@ -5,7 +5,6 @@ import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
-import com.s1gawron.rentalservice.tool.repository.ToolStateDAO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
@@ -55,9 +54,6 @@ abstract class AbstractToolControllerIntegrationTest {
     protected ToolDAO toolDAO;
 
     @Autowired
-    protected ToolStateDAO toolStateDAO;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
@@ -80,7 +76,7 @@ abstract class AbstractToolControllerIntegrationTest {
 
     @AfterEach
     void cleanUp() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "tool", "tool_state", "user");
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "tool", "user");
     }
 
     protected String getAuthorizationToken(final UserRole userRole) throws Exception {
@@ -96,7 +92,6 @@ abstract class AbstractToolControllerIntegrationTest {
     }
 
     protected void saveToolForTest(final Tool tool) {
-        toolStateDAO.save(tool.getToolState());
         toolDAO.save(tool);
     }
 

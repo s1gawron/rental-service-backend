@@ -12,7 +12,6 @@ import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
-import com.s1gawron.rentalservice.tool.repository.ToolStateDAO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
@@ -75,9 +74,6 @@ abstract class AbstractReservationControllerIntegrationTest {
     protected ToolDAO toolDAO;
 
     @Autowired
-    protected ToolStateDAO toolStateDAO;
-
-    @Autowired
     protected ToolService toolService;
 
     @Autowired
@@ -122,26 +118,22 @@ abstract class AbstractReservationControllerIntegrationTest {
         userService.saveUser(workerUser);
 
         final Tool hammer = ToolCreatorHelper.I.createTool();
-        saveToolForTest(hammer);
-        currentToolId = hammer.getToolId();
+        currentToolId = toolDAO.save(hammer).getToolId();
 
         final Tool chainsaw = ToolCreatorHelper.I.createChainsaw();
-        saveToolForTest(chainsaw);
-        nextToolId = chainsaw.getToolId();
+        nextToolId = toolDAO.save(chainsaw).getToolId();
 
         final Tool loader = ToolCreatorHelper.I.createLoader();
-        saveToolForTest(loader);
-        loaderToolId = loader.getToolId();
+        loaderToolId = toolDAO.save(loader).getToolId();
 
         final Tool removedHammer = ToolCreatorHelper.I.createRemovedHammerWithAvailability();
-        saveToolForTest(removedHammer);
-        removedToolId = removedHammer.getToolId();
+        removedToolId = toolDAO.save(removedHammer).getToolId();
     }
 
     @AfterEach
     @Transactional
     void cleanUp() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "reservation_has_tool", "reservation", "tool", "tool_state", "user");
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "reservation_has_tool", "reservation", "tool", "user");
     }
 
     protected void performMakeReservationRequests() throws Exception {
@@ -196,11 +188,6 @@ abstract class AbstractReservationControllerIntegrationTest {
 
     protected Reservation getReservationDetails(final long reservationId) {
         return reservationDAO.findByReservationId(reservationId).orElseThrow(() -> ReservationNotFoundException.create(reservationId));
-    }
-
-    private void saveToolForTest(final Tool tool) {
-        toolStateDAO.save(tool.getToolState());
-        toolDAO.save(tool);
     }
 
 }
