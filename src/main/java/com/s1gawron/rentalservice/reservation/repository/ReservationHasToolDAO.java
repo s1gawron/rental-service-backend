@@ -2,8 +2,10 @@ package com.s1gawron.rentalservice.reservation.repository;
 
 import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 
+import java.util.List;
+
 public interface ReservationHasToolDAO {
 
-    ReservationHasTool save(final ReservationHasTool reservationHasTool);
+    void saveAll(final List<ReservationHasTool> reservationHasTools);
 
 }

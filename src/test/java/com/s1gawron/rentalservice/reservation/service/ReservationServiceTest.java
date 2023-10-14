@@ -8,7 +8,6 @@ import com.s1gawron.rentalservice.reservation.exception.ReservationEmptyProperti
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
-import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
 import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolDAO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
@@ -135,7 +134,7 @@ class ReservationServiceTest {
 
         final ReservationDetailsDTO result = reservationService.makeReservation(reservationDTO);
 
-        Mockito.verify(reservationHasToolDAO, Mockito.times(2)).save(Mockito.any(ReservationHasTool.class));
+        Mockito.verify(reservationHasToolDAO, Mockito.times(1)).saveAll(Mockito.any(List.class));
         Mockito.verify(toolServiceMock, Mockito.times(2)).makeToolUnavailableAndSave(Mockito.any(Tool.class));
         Mockito.verify(reservationDAO, Mockito.times(1)).save(Mockito.any(Reservation.class));
         assertEquals(LocalDate.now(), result.dateFrom());

@@ -77,12 +77,13 @@ public class ReservationService {
 
         final AtomicReference<BigDecimal> reservationFinalPrice = new AtomicReference<>(BigDecimal.valueOf(0.00));
         final List<ToolDetailsDTO> toolDetails = new ArrayList<>();
+        final ArrayList<ReservationHasTool> reservationHasTools = new ArrayList<>();
 
         reservationDTO.toolIds().forEach(toolId -> {
             final Tool tool = toolService.getToolById(toolId);
-            final ReservationHasTool reservationHasTool = reservation.addTool(tool);
+            final ReservationHasTool reservationWithTool = reservation.addTool(tool);
 
-            reservationHasToolDAO.save(reservationHasTool);
+            reservationHasTools.add(reservationWithTool);
             toolService.makeToolUnavailableAndSave(tool);
 
             toolDetails.add(tool.toToolDetailsDTO());
@@ -92,6 +93,7 @@ public class ReservationService {
         reservation.setReservationFinalPrice(reservationFinalPrice.get());
 
         final Reservation savedReservation = reservationDAO.save(reservation);
+        reservationHasToolDAO.saveAll(reservationHasTools);
 
         return savedReservation.toReservationDetailsDTO(toolDetails);
     }

@@ -19,22 +19,22 @@ public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reservation_id")
+    @Column(name = "reservation_id", nullable = false, unique = true)
     private Long reservationId;
 
-    @Column(name = "is_expired")
+    @Column(name = "is_expired", nullable = false)
     private boolean expired;
 
-    @Column(name = "is_canceled")
+    @Column(name = "is_canceled", nullable = false)
     private boolean canceled;
 
-    @Column(name = "date_from")
+    @Column(name = "date_from", nullable = false)
     private LocalDate dateFrom;
 
-    @Column(name = "date_to")
+    @Column(name = "date_to", nullable = false)
     private LocalDate dateTo;
 
-    @Column(name = "reservation_final_price")
+    @Column(name = "reservation_final_price", nullable = false)
     private BigDecimal reservationFinalPrice;
 
     @Column(name = "reservation_additional_comment")

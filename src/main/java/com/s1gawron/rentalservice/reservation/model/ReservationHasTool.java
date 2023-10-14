@@ -10,7 +10,7 @@ public class ReservationHasTool {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reservation_has_tool")
+    @Column(name = "reservation_has_tool", nullable = false, unique = true)
     private Long reservationHasToolId;
 
     @ManyToOne
@@ -18,7 +18,7 @@ public class ReservationHasTool {
     private Tool tool;
 
     @ManyToOne
-    @JoinColumn(name = "reservation_id")
+    @JoinColumn(name = "reservation_id", nullable = false)
     private Reservation reservation;
 
     public ReservationHasTool() {

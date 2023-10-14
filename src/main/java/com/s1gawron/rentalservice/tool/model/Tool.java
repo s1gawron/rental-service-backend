@@ -16,34 +16,38 @@ public class Tool {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "tool_id")
+    @Column(name = "tool_id", nullable = false, unique = true)
     private Long toolId;
 
-    @Column(name = "is_available")
+    @Column(name = "is_available", nullable = false)
     private boolean available;
 
-    @Column(name = "is_removed")
+    @Column(name = "is_removed", nullable = false)
     private boolean removed;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @Column(name = "description")
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tool_category")
+    @Column(name = "tool_category", nullable = false)
     private ToolCategory toolCategory;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false)
     private BigDecimal price;
 
     @Embedded
-    @AttributeOverride(name = "stateType", column = @Column(name = "state_type"))
-    @AttributeOverride(name = "stateDescription", column = @Column(name = "state_description"))
+    @AttributeOverride(name = "stateType",
+                       column = @Column(name = "state_type", nullable = false)
+    )
+    @AttributeOverride(name = "stateDescription",
+                       column = @Column(name = "state_description")
+    )
     private ToolState toolState;
 
-    @Column(name = "date_added")
+    @Column(name = "date_added", nullable = false)
     private LocalDate dateAdded;
 
     @OneToMany(mappedBy = "tool")
