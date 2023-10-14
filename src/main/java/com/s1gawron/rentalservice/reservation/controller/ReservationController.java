@@ -8,7 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/customer/reservation")
+@RequestMapping("api/customer/reservation/v1")
 public class ReservationController extends ReservationErrorHandlerController {
 
     private final ReservationService reservationService;

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserRegisterControllerIntegrationTest extends AbstractUserControllerIntegrationTest {
 
-    private static final String USER_REGISTER_ENDPOINT = "/api/public/user/register";
+    private static final String USER_REGISTER_ENDPOINT = "/api/public/user/v1/register";
 
     @Test
     void shouldRegisterUser() throws Exception {

@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class EditToolControllerTest extends ToolManagementControllerTest {
 
-    private static final String TOOL_EDIT_ENDPOINT = "/api/management/tool/edit";
+    private static final String TOOL_EDIT_ENDPOINT = "/api/management/tool/v1/edit";
 
     @Test
     void shouldValidateAndEditTool() throws Exception {

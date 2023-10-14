@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GetToolControllerIntegrationTest extends AbstractToolControllerIntegrationTest {
 
-    private static final String TOOL_GET_ENDPOINT = "/api/public/tool/get/";
+    private static final String TOOL_GET_ENDPOINT = "/api/public/tool/v1/get/";
 
     @Test
     void shouldGetNotRemovedToolsByCategoryWhenUserIsUnauthenticated() throws Exception {

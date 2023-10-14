@@ -12,9 +12,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class UserDetailsControllerIntegrationTest extends AbstractUserControllerIntegrationTest {
+class UserManagementControllerIntegrationTest extends AbstractUserControllerIntegrationTest {
 
-    private static final String USER_DETAILS_ENDPOINT = "/api/user/details";
+    private static final String USER_DETAILS_ENDPOINT = "/api/management/user/v1/details";
 
     @Test
     void shouldGetUserDetails() throws Exception {

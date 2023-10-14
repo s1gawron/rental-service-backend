@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WithMockUser
 class UserRegisterControllerTest extends AbstractUserControllerTest {
 
-    private static final String USER_REGISTER_ENDPOINT = "/api/public/user/register";
+    private static final String USER_REGISTER_ENDPOINT = "/api/public/user/v1/register";
 
     @Test
     void shouldRegisterUser() throws Exception {

@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @ActiveProfiles("test")
 abstract class AbstractUserControllerIntegrationTest {
 
-    private static final String USER_LOGIN_ENDPOINT = "/api/public/user/login";
+    private static final String USER_LOGIN_ENDPOINT = "/api/public/user/v1/login";
 
     protected static final String EMAIL = "test@test.pl";
 

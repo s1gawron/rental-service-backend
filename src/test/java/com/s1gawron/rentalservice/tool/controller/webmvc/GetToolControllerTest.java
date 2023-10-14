@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class GetToolControllerTest extends ToolControllerTest {
 
-    private static final String TOOL_GET_ENDPOINT = "/api/public/tool/get/";
+    private static final String TOOL_GET_ENDPOINT = "/api/public/tool/v1/get/";
 
     private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 25);
 

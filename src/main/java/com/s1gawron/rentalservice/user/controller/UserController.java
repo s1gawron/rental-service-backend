@@ -9,7 +9,7 @@ import com.s1gawron.rentalservice.user.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/public/user")
+@RequestMapping("api/public/user/v1")
 public class UserController extends UserErrorHandlerController {
 
     private final UserService userService;

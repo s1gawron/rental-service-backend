@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/public/tool")
+@RequestMapping("api/public/tool/v1")
 public class ToolController extends ToolErrorHandlerController {
 
     private final ToolService toolService;

@@ -34,7 +34,7 @@ import java.util.List;
 @ActiveProfiles("test")
 abstract class AbstractToolControllerIntegrationTest {
 
-    private static final String USER_LOGIN_ENDPOINT = "/api/public/user/login";
+    private static final String USER_LOGIN_ENDPOINT = "/api/public/user/v1/login";
 
     private static final String CUSTOMER_EMAIL = "customer@test.pl";
 

@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/user")
-public class UserDetailsController extends UserErrorHandlerController {
+@RequestMapping("api/management/user/v1")
+public class UserManagementController extends UserErrorHandlerController {
 
     private final UserService userService;
 
-    public UserDetailsController(final UserService userService) {
+    public UserManagementController(final UserService userService) {
         this.userService = userService;
     }
 

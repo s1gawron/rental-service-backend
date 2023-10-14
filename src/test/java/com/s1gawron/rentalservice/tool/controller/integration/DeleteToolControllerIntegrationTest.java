@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DeleteToolControllerIntegrationTest extends AbstractToolControllerIntegrationTest {
 
-    private static final String TOOL_DELETE_ENDPOINT = "/api/management/tool/delete/";
+    private static final String TOOL_DELETE_ENDPOINT = "/api/management/tool/v1/delete/";
 
     private long currentToolId;
 

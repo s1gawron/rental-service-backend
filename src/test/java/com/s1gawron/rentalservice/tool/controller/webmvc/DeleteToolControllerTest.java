@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class DeleteToolControllerTest extends ToolManagementControllerTest {
 
-    private static final String TOOL_DELETE_ENDPOINT = "/api/management/tool/delete/1";
+    private static final String TOOL_DELETE_ENDPOINT = "/api/management/tool/v1/delete/1";
 
     @Test
     void shouldDeleteTool() throws Exception {

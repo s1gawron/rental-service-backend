@@ -45,9 +45,9 @@ abstract class AbstractReservationControllerIntegrationTest {
 
     protected static final String ERROR_RESPONSE_MESSAGE_PLACEHOLDER = "$.message";
 
-    protected static final String USER_LOGIN_ENDPOINT = "/api/public/user/login";
+    protected static final String USER_LOGIN_ENDPOINT = "/api/public/user/v1/login";
 
-    protected static final String RESERVATION_ENDPOINT = "/api/customer/reservation/";
+    protected static final String RESERVATION_ENDPOINT = "/api/customer/reservation/v1/";
 
     protected static final String MAKE_RESERVATION_ENDPOINT = RESERVATION_ENDPOINT + "make";
 

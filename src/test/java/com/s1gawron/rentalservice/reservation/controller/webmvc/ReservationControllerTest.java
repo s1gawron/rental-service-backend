@@ -47,7 +47,7 @@ class ReservationControllerTest {
 
     private static final String ERROR_RESPONSE_MESSAGE_PLACEHOLDER = "$.message";
 
-    private static final String RESERVATION_ENDPOINT = "/api/customer/reservation/";
+    private static final String RESERVATION_ENDPOINT = "/api/customer/reservation/v1/";
 
     private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 25);
 

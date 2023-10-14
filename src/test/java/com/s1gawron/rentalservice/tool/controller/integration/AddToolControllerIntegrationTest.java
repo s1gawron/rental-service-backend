@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AddToolControllerIntegrationTest extends AbstractToolControllerIntegrationTest {
 
-    private static final String TOOL_ADD_ENDPOINT = "/api/management/tool/add";
+    private static final String TOOL_ADD_ENDPOINT = "/api/management/tool/v1/add";
 
     @Test
     void shouldValidateAndAddTool() throws Exception {

@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class CancelReservationControllerIntegrationTest extends AbstractReservationControllerIntegrationTest {
 
-    private static final String CANCEL_RESERVATION_ENDPOINT = "/api/customer/reservation/cancel/";
+    private static final String CANCEL_RESERVATION_ENDPOINT = "/api/customer/reservation/v1/cancel/";
 
     @Test
     void shouldCancelReservation() throws Exception {

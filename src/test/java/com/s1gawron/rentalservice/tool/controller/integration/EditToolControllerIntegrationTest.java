@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EditToolControllerIntegrationTest extends AbstractToolControllerIntegrationTest {
 
-    private static final String TOOL_EDIT_ENDPOINT = "/api/management/tool/edit";
+    private static final String TOOL_EDIT_ENDPOINT = "/api/management/tool/v1/edit";
 
     private long currentToolId;
 
