@@ -39,7 +39,7 @@ public class SecurityConfiguration {
             .cors().configurationSource(request -> getCorsConfiguration())
             .and()
             .authorizeHttpRequests()
-            .requestMatchers("/api/public/**").permitAll()
+            .requestMatchers("/api/public/**", "/api-docs/**", "swagger-ui/**").permitAll()
             .requestMatchers("/api/customer/**").hasAuthority(UserRole.CUSTOMER.name())
             .requestMatchers("/api/management/tool/**").hasAnyAuthority(UserRole.ADMIN.name(), UserRole.WORKER.name())
             .requestMatchers("/api/management/user/**").hasAuthority(UserRole.CUSTOMER.name())
