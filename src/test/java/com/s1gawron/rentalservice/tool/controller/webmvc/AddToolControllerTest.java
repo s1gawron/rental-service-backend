@@ -7,7 +7,7 @@ import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolCategoryDoesNotExistException;
 import com.s1gawron.rentalservice.tool.exception.ToolEmptyPropertiesException;
 import com.s1gawron.rentalservice.tool.exception.ToolStateTypeDoesNotExistException;
-import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;

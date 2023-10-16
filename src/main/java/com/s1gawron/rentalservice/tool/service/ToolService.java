@@ -1,6 +1,5 @@
 package com.s1gawron.rentalservice.tool.service;
 
-import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
@@ -91,13 +90,6 @@ public class ToolService {
     }
 
     @Transactional(readOnly = true)
-    public List<ToolDetailsDTO> getToolDetailsByReservationHasTools(final List<ReservationHasTool> reservationHasTools) {
-        return getToolsByReservationHasTools(reservationHasTools).stream()
-            .map(Tool::toToolDetailsDTO)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
     public void isToolAvailableOrRemoved(final long toolId) {
         final boolean isNotAvailable = !toolDAO.isToolAvailable(toolId).orElseThrow(() -> ToolNotFoundException.create(toolId));
 
@@ -116,11 +108,6 @@ public class ToolService {
     public void makeToolUnavailableAndSave(final Tool tool) {
         tool.makeToolUnavailable();
         toolDAO.save(tool);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Tool> getToolsByReservationHasTools(final List<ReservationHasTool> reservationHasTools) {
-        return toolDAO.findAllByReservationHasToolsIn(reservationHasTools);
     }
 
     @Transactional

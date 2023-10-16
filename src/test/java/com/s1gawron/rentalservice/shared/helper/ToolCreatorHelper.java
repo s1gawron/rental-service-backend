@@ -1,4 +1,4 @@
-package com.s1gawron.rentalservice.tool.helper;
+package com.s1gawron.rentalservice.shared.helper;
 
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;

@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.reservation.model;
 
 import com.s1gawron.rentalservice.reservation.dto.ReservationDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
+import com.s1gawron.rentalservice.reservationtool.model.ReservationTool;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.user.model.User;
@@ -45,7 +46,7 @@ public class Reservation {
     private User customer;
 
     @OneToMany(mappedBy = "reservation")
-    private List<ReservationHasTool> reservationHasTools;
+    private List<ReservationTool> reservationTools;
 
     public Reservation() {
     }
@@ -78,16 +79,16 @@ public class Reservation {
             reservationDetailsDTO.additionalComment());
     }
 
-    public ReservationHasTool addTool(final Tool tool) {
-        final ReservationHasTool reservationHasTool = new ReservationHasTool(tool, this);
+    public ReservationTool addTool(final Tool tool) {
+        final ReservationTool reservationTool = new ReservationTool(this, tool);
 
-        if (this.reservationHasTools == null) {
-            this.reservationHasTools = new ArrayList<>();
+        if (this.reservationTools == null) {
+            this.reservationTools = new ArrayList<>();
         }
 
-        this.reservationHasTools.add(reservationHasTool);
+        this.reservationTools.add(reservationTool);
 
-        return reservationHasTool;
+        return reservationTool;
     }
 
     public void addCustomer(final User customer) {
@@ -127,7 +128,7 @@ public class Reservation {
         return dateTo;
     }
 
-    public List<ReservationHasTool> getReservationHasTools() {
-        return reservationHasTools;
+    public List<ReservationTool> getReservationTools() {
+        return reservationTools;
     }
 }

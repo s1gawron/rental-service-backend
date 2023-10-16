@@ -1,7 +1,7 @@
 package com.s1gawron.rentalservice.tool.controller.integration;
 
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
-import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.BeforeEach;

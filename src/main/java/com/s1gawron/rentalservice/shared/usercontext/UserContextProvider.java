@@ -3,6 +3,7 @@ package com.s1gawron.rentalservice.shared.usercontext;
 import com.s1gawron.rentalservice.shared.exception.UserUnauthenticatedException;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -33,5 +34,14 @@ public enum UserContextProvider {
 
     public boolean hasUserRole(final UserRole userRole) {
         return !getCurrentUserRoles().stream().filter(userRole::equals).toList().isEmpty();
+    }
+
+    public void setLoggedInUser(final User user) {
+        final TestingAuthenticationToken testingAuthenticationToken = new TestingAuthenticationToken(user, null, String.valueOf(user.getAuthorities()));
+        SecurityContextHolder.getContext().setAuthentication(testingAuthenticationToken);
+    }
+
+    public void clearLoggedInUser() {
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 }

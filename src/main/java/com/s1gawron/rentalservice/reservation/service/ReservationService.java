@@ -6,9 +6,9 @@ import com.s1gawron.rentalservice.reservation.dto.ReservationListingDTO;
 import com.s1gawron.rentalservice.reservation.dto.validator.ReservationDTOValidator;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
-import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
-import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolDAO;
+import com.s1gawron.rentalservice.reservationtool.model.ReservationTool;
+import com.s1gawron.rentalservice.reservationtool.service.ReservationToolService;
 import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
@@ -30,14 +30,13 @@ public class ReservationService {
 
     private final ReservationDAO reservationDAO;
 
-    private final ReservationHasToolDAO reservationHasToolDAO;
+    private final ReservationToolService reservationToolService;
 
     private final ToolService toolService;
 
-    public ReservationService(final ReservationDAO reservationDAO, final ReservationHasToolDAO reservationHasToolDAO,
-        final ToolService toolService) {
+    public ReservationService(final ReservationDAO reservationDAO, final ReservationToolService reservationToolService, final ToolService toolService) {
         this.reservationDAO = reservationDAO;
-        this.reservationHasToolDAO = reservationHasToolDAO;
+        this.reservationToolService = reservationToolService;
         this.toolService = toolService;
     }
 
@@ -47,7 +46,9 @@ public class ReservationService {
         final Page<Reservation> allReservations = reservationDAO.findAllByCustomer(customer, pageable);
         final List<ReservationDetailsDTO> userReservations = allReservations.stream()
             .map(reservation -> {
-                final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
+                final List<ToolDetailsDTO> toolDetails = reservation.getReservationTools().stream()
+                    .map(ReservationTool::toToolDetailsDTO)
+                    .toList();
                 return reservation.toReservationDetailsDTO(toolDetails);
             })
             .toList();
@@ -60,7 +61,9 @@ public class ReservationService {
         final User customer = UserContextProvider.I.getLoggedInUser();
         final Reservation reservationByIdAndCustomer = reservationDAO.findByReservationIdAndCustomer(reservationId, customer)
             .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
-        final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservationByIdAndCustomer.getReservationHasTools());
+        final List<ToolDetailsDTO> toolDetails = reservationByIdAndCustomer.getReservationTools().stream()
+            .map(ReservationTool::toToolDetailsDTO)
+            .toList();
 
         return reservationByIdAndCustomer.toReservationDetailsDTO(toolDetails);
     }
@@ -77,23 +80,23 @@ public class ReservationService {
 
         final AtomicReference<BigDecimal> reservationFinalPrice = new AtomicReference<>(BigDecimal.valueOf(0.00));
         final List<ToolDetailsDTO> toolDetails = new ArrayList<>();
-        final ArrayList<ReservationHasTool> reservationHasTools = new ArrayList<>();
+        final ArrayList<ReservationTool> reservationTools = new ArrayList<>();
 
         reservationDTO.toolIds().forEach(toolId -> {
             final Tool tool = toolService.getToolById(toolId);
-            final ReservationHasTool reservationWithTool = reservation.addTool(tool);
+            final ReservationTool reservationTool = reservation.addTool(tool);
 
-            reservationHasTools.add(reservationWithTool);
+            reservationTools.add(reservationTool);
             toolService.makeToolUnavailableAndSave(tool);
 
-            toolDetails.add(tool.toToolDetailsDTO());
+            toolDetails.add(reservationTool.toToolDetailsDTO());
             reservationFinalPrice.getAndUpdate(currentValue -> currentValue.add(tool.getPrice()));
         });
 
         reservation.setReservationFinalPrice(reservationFinalPrice.get());
 
         final Reservation savedReservation = reservationDAO.save(reservation);
-        reservationHasToolDAO.saveAll(reservationHasTools);
+        reservationToolService.saveAll(reservationTools);
 
         return savedReservation.toReservationDetailsDTO(toolDetails);
     }
@@ -103,13 +106,13 @@ public class ReservationService {
         final User customer = UserContextProvider.I.getLoggedInUser();
         final Reservation reservationByIdAndCustomer = reservationDAO.findByReservationIdAndCustomer(reservationId, customer)
             .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
-        final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservationByIdAndCustomer.getReservationHasTools());
         final List<ToolDetailsDTO> toolDetails = new ArrayList<>();
 
-        toolsFromReservation.forEach(tool -> {
-            toolService.makeToolAvailableAndSave(tool);
-            toolDetails.add(tool.toToolDetailsDTO());
+        reservationByIdAndCustomer.getReservationTools().forEach(reservationTool -> {
+            toolService.makeToolAvailableAndSave(reservationTool.getTool());
+            toolDetails.add(reservationTool.toToolDetailsDTO());
         });
+
         reservationByIdAndCustomer.cancelReservation();
         reservationDAO.save(reservationByIdAndCustomer);
 
@@ -120,9 +123,8 @@ public class ReservationService {
     public void expireReservation(final Long reservationIdToExpire) {
         final Reservation reservation = reservationDAO.findByReservationId(reservationIdToExpire)
             .orElseThrow(() -> ReservationNotFoundException.create(reservationIdToExpire));
-        final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservation.getReservationHasTools());
 
-        toolsFromReservation.forEach(toolService::makeToolAvailableAndSave);
+        reservation.getReservationTools().forEach(reservationTool -> toolService.makeToolAvailableAndSave(reservationTool.getTool()));
         reservation.expireReservation();
         reservationDAO.save(reservation);
     }

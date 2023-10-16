@@ -1,6 +1,5 @@
 package com.s1gawron.rentalservice.tool.repository.impl;
 
-import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
@@ -46,10 +45,6 @@ public class JpaToolDAO implements ToolDAO {
 
     @Override public Optional<Boolean> isToolRemoved(final long toolId) {
         return toolJpaRepository.isToolRemoved(toolId);
-    }
-
-    @Override public List<Tool> findAllByReservationHasToolsIn(final List<ReservationHasTool> reservationHasTools) {
-        return toolJpaRepository.findAllByReservationHasToolsIn(reservationHasTools);
     }
 
     @Override public List<Tool> findAll() {

@@ -1,6 +1,5 @@
 package com.s1gawron.rentalservice.tool.repository;
 
-import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import org.springframework.data.domain.Page;
@@ -24,8 +23,6 @@ public interface ToolDAO {
     Optional<Boolean> isToolAvailable(final long toolId);
 
     Optional<Boolean> isToolRemoved(final long toolId);
-
-    List<Tool> findAllByReservationHasToolsIn(final List<ReservationHasTool> reservationHasTools);
 
     List<Tool> findAll();
 

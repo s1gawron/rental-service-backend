@@ -1,6 +1,5 @@
 package com.s1gawron.rentalservice.tool.repository.impl;
 
-import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import org.springframework.data.domain.Page;
@@ -17,8 +16,6 @@ public interface ToolJpaRepository extends JpaRepository<Tool, Long> {
     Page<Tool> findAllByToolCategory(final ToolCategory toolCategory, final Pageable pageable);
 
     Page<Tool> findAllByToolCategoryAndRemoved(final ToolCategory toolCategory, final boolean removed, final Pageable pageable);
-
-    List<Tool> findAllByReservationHasToolsIn(final List<ReservationHasTool> reservationHasTools);
 
     @Query(value = "SELECT t FROM Tool t WHERE t.removed = false ORDER BY t.dateAdded DESC LIMIT 3")
     List<Tool> findNewTools();

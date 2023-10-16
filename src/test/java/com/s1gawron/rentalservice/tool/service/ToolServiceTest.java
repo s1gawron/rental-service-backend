@@ -1,8 +1,5 @@
 package com.s1gawron.rentalservice.tool.service;
 
-import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
-import com.s1gawron.rentalservice.reservation.model.Reservation;
-import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
@@ -10,7 +7,7 @@ import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.exception.ToolRemovedException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
-import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
@@ -260,31 +257,6 @@ class ToolServiceTest {
     }
 
     @Test
-    void shouldGetToolDetailsByReservationHasTool() {
-        final ToolDetailsDTO toolDetailsDTO = ToolCreatorHelper.I.createToolDetailsDTO();
-        final Tool tool = ToolCreatorHelper.I.createTool();
-        final Reservation reservation = ReservationCreatorHelper.I.createReservation();
-
-        Mockito.when(toolDAOMock.findAllByReservationHasToolsIn(reservation.getReservationHasTools())).thenReturn(List.of(tool));
-
-        final List<ToolDetailsDTO> result = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
-
-        assertEquals(1, result.size());
-        assertToolDetailsDTO(toolDetailsDTO, result.get(0));
-    }
-
-    @Test
-    void shouldNotGetToolDetailsByReservationHasTool() {
-        final Reservation reservation = ReservationCreatorHelper.I.createReservation();
-
-        Mockito.when(toolDAOMock.findAllByReservationHasToolsIn(reservation.getReservationHasTools())).thenReturn(List.of());
-
-        final List<ToolDetailsDTO> result = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
-
-        assertEquals(0, result.size());
-    }
-
-    @Test
     void shouldNotThrowExceptionWhenToolIsAvailableAndNotRemoved() {
         Mockito.when(toolDAOMock.isToolAvailable(1L)).thenReturn(Optional.of(true));
         Mockito.when(toolDAOMock.isToolRemoved(1L)).thenReturn(Optional.of(false));
@@ -329,23 +301,6 @@ class ToolServiceTest {
         toolService.makeToolUnavailableAndSave(tool);
 
         assertFalse(tool.isAvailable());
-    }
-
-    @Test
-    void shouldGetToolsByReservationHasTools() {
-        final List<Tool> tools = ToolCreatorHelper.I.createToolList();
-        final Reservation reservation = ReservationCreatorHelper.I.createReservation();
-        final List<ReservationHasTool> reservationHasTools = List.of(new ReservationHasTool(tools.get(0), reservation),
-            new ReservationHasTool(tools.get(1), reservation), new ReservationHasTool(tools.get(2), reservation));
-
-        Mockito.when(toolDAOMock.findAllByReservationHasToolsIn(reservationHasTools)).thenReturn(tools);
-
-        final List<Tool> result = toolService.getToolsByReservationHasTools(reservationHasTools);
-
-        assertEquals(3, result.size());
-        assertEquals("Hammer", result.get(0).getName());
-        assertEquals("Loader", result.get(1).getName());
-        assertEquals("Crane", result.get(2).getName());
     }
 
     @Test

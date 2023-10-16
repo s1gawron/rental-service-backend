@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.tool.dto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
-import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.model.ToolStateType;
 import org.junit.jupiter.api.Assertions;

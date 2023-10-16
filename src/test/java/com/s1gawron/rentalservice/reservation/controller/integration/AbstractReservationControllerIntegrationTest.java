@@ -6,10 +6,9 @@ import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
-import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolDAO;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
-import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
@@ -80,9 +79,6 @@ abstract class AbstractReservationControllerIntegrationTest {
     protected ReservationDAO reservationDAO;
 
     @Autowired
-    protected ReservationHasToolDAO reservationHasToolDAO;
-
-    @Autowired
     protected ReservationService reservationService;
 
     @Autowired
@@ -133,7 +129,7 @@ abstract class AbstractReservationControllerIntegrationTest {
     @AfterEach
     @Transactional
     void cleanUp() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, "reservation_has_tool", "reservation", "tool", "user");
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "reservation_tool", "reservation", "tool", "user");
     }
 
     protected void performMakeReservationRequests() throws Exception {

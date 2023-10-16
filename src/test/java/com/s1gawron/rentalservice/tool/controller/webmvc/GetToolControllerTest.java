@@ -6,7 +6,7 @@ import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
 import com.s1gawron.rentalservice.tool.dto.validator.ToolDTOValidator;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
-import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

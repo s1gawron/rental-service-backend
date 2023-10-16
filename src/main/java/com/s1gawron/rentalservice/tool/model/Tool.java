@@ -1,6 +1,5 @@
 package com.s1gawron.rentalservice.tool.model;
 
-import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolStateDTO;
@@ -8,7 +7,6 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Table(name = "tool")
@@ -49,9 +47,6 @@ public class Tool {
 
     @Column(name = "date_added", nullable = false)
     private LocalDate dateAdded;
-
-    @OneToMany(mappedBy = "tool")
-    private List<ReservationHasTool> reservationHasTools;
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -149,4 +144,7 @@ public class Tool {
         return removed;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
 }

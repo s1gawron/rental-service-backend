@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.reservation.helper;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
-import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 
 import java.math.BigDecimal;
