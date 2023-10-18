@@ -37,4 +37,9 @@ public class AddressService {
         return Optional.of(address);
     }
 
+    @Transactional
+    public void saveAddress(final Address address) {
+        addressDAO.save(address);
+    }
+
 }

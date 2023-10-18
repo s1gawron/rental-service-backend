@@ -47,7 +47,7 @@ public class UserService {
         }
 
         final String encryptedPassword = passwordEncoder.encode(userRegisterDTO.password());
-        final User user = User.createUser(userRegisterDTO, encryptedPassword);
+        final User user = User.createFrom(userRegisterDTO, encryptedPassword);
 
         addressService.validateAndSaveAddress(userRegisterDTO.address(), userRegisterDTO.userRole()).ifPresent(user::setCustomerAddress);
         userDAO.save(user);
@@ -57,6 +57,7 @@ public class UserService {
 
     @Transactional
     public void saveUser(final User user) {
+        Optional.ofNullable(user.getCustomerAddress()).ifPresent(addressService::saveAddress);
         userDAO.save(user);
     }
 

@@ -1,9 +1,7 @@
 package com.s1gawron.rentalservice.security;
 
-import com.s1gawron.rentalservice.address.dto.AddressDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
+import com.s1gawron.rentalservice.shared.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,12 +18,6 @@ class JwtServiceTest {
 
     private static final String JWT_SECRET_KEY = "11111111111111111111111111111111";
 
-    private static final String CUSTOMER_EMAIL = "customer@test.pl";
-
-    private static final String DIFFERENT_CUSTOMER_EMAIL = "customer2@test.pl";
-
-    private static final String PASSWORD = "Start00!";
-
     private JwtService jwtService;
 
     @BeforeEach
@@ -36,7 +28,7 @@ class JwtServiceTest {
 
     @Test
     void shouldGenerateToken() {
-        final String result = jwtService.generateToken(Map.of(), createUser(CUSTOMER_EMAIL, "John", "Kowalski"));
+        final String result = jwtService.generateToken(Map.of(), UserCreatorHelper.I.createCustomer());
         final String[] splitResult = result.split("\\.");
 
         assertTrue(isStringNotEmpty(result));
@@ -48,7 +40,7 @@ class JwtServiceTest {
 
     @Test
     void shouldValidateToken() {
-        final User user = createUser(CUSTOMER_EMAIL, "John", "Kowalski");
+        final User user = UserCreatorHelper.I.createCustomer();
         final String token = jwtService.generateToken(Map.of(), user);
 
         final boolean result = jwtService.isTokenValid(token, user);
@@ -58,8 +50,8 @@ class JwtServiceTest {
 
     @Test
     void shouldNotValidateTokenWhenUserDetailsDoNotMatch() {
-        final User user = createUser(CUSTOMER_EMAIL, "John", "Kowalski");
-        final User differentUser = createUser(DIFFERENT_CUSTOMER_EMAIL, "Tony", "Hawk");
+        final User user = UserCreatorHelper.I.createCustomer();
+        final User differentUser = UserCreatorHelper.I.createDifferentCustomer();
         final String token = jwtService.generateToken(Map.of(), user);
 
         final boolean result = jwtService.isTokenValid(token, differentUser);
@@ -69,7 +61,7 @@ class JwtServiceTest {
 
     @Test
     void shouldNotValidateTokenWhenTokenIsExpired() {
-        final User user = createUser(CUSTOMER_EMAIL, "John", "Kowalski");
+        final User user = UserCreatorHelper.I.createCustomer();
         final String token = generateExpiredToken(user);
 
         assertThrows(ExpiredJwtException.class, () -> jwtService.isTokenValid(token, user));
@@ -77,7 +69,7 @@ class JwtServiceTest {
 
     @Test
     void shouldExtractUsernameFromToken() {
-        final User user = createUser(CUSTOMER_EMAIL, "John", "Kowalski");
+        final User user = UserCreatorHelper.I.createCustomer();
         final String token = jwtService.generateToken(Map.of(), user);
 
         final String result = jwtService.extractUsername(token);
@@ -93,15 +85,9 @@ class JwtServiceTest {
         return expiredJwtService.generateToken(Map.of(), user);
     }
 
-    private static User createUser(final String email, final String firstName, final String lastName) {
-        final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO customerRegisterDTO = new UserRegisterDTO(email, PASSWORD, firstName, lastName, UserRole.CUSTOMER, addressDTO);
-        return User.createUser(customerRegisterDTO, PASSWORD);
-    }
-
     private boolean isStringNotEmpty(final String s) {
         final String trimmedString = s != null ? s.trim() : "";
-        return trimmedString.length() > 0;
+        return !trimmedString.isEmpty();
     }
 
 }

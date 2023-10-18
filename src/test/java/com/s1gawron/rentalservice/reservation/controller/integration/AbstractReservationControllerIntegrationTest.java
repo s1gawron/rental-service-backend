@@ -1,7 +1,6 @@
 package com.s1gawron.rentalservice.reservation.controller.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
@@ -9,14 +8,13 @@ import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserDAO;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.AfterEach;
@@ -27,7 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -82,9 +79,6 @@ abstract class AbstractReservationControllerIntegrationTest {
     protected ReservationService reservationService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     protected long currentToolId;
@@ -100,17 +94,12 @@ abstract class AbstractReservationControllerIntegrationTest {
     @BeforeEach
     @Transactional
     void setUp() {
-        final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO customerRegisterDTO = new UserRegisterDTO(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
-        final UserRegisterDTO differentCustomerRegisterDTO = new UserRegisterDTO(DIFFERENT_CUSTOMER_EMAIL, PASSWORD, "Tony", "Hawk", UserRole.CUSTOMER,
-            addressDTO);
+        final User customer = UserCreatorHelper.I.createCustomer();
+        final User differentCustomer = UserCreatorHelper.I.createDifferentCustomer();
+        userService.saveUser(customer);
+        userService.saveUser(differentCustomer);
 
-        userService.validateAndRegisterUser(customerRegisterDTO);
-        userService.validateAndRegisterUser(differentCustomerRegisterDTO);
-
-        final UserRegisterDTO workerRegisterDTO = new UserRegisterDTO(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER, null);
-        final String workerEncodedPassword = passwordEncoder.encode(PASSWORD);
-        final User workerUser = User.createUser(workerRegisterDTO, workerEncodedPassword);
+        final User workerUser = UserCreatorHelper.I.createWorker();
         userService.saveUser(workerUser);
 
         final Tool hammer = ToolCreatorHelper.I.createTool();

@@ -18,7 +18,7 @@ import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.service.ToolService;
-import com.s1gawron.rentalservice.user.helper.UserCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.user.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

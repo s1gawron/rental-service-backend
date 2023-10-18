@@ -11,7 +11,7 @@ import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.repository.ToolDAO;
-import com.s1gawron.rentalservice.user.helper.UserCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.BeforeEach;

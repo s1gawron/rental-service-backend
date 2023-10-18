@@ -9,7 +9,7 @@ import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.exception.UserEmailExistsException;
 import com.s1gawron.rentalservice.user.exception.WorkerRegisteredByNonAdminUserException;
-import com.s1gawron.rentalservice.user.helper.UserCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.user.model.User;
 import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserDAO;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
 
-    private static final String EMAIL = "test@test.pl";
+    private static final String EMAIL = "customer@test.pl";
 
     private Authentication authenticationMock;
 
@@ -102,7 +102,7 @@ class UserServiceTest {
     void shouldThrowExceptionWhenEmailAlreadyExistsWhileRegisteringUser() {
         final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
         final UserRegisterDTO userRegisterDTO = new UserRegisterDTO(EMAIL, "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
-        final User user = User.createUser(userRegisterDTO, "encryptedPassword");
+        final User user = User.createFrom(userRegisterDTO, "encryptedPassword");
 
         Mockito.when(userDaoMock.findByEmail(EMAIL)).thenReturn(Optional.of(user));
 

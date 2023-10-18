@@ -1,13 +1,11 @@
 package com.s1gawron.rentalservice.user.service;
 
-import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.security.JwtService;
 import com.s1gawron.rentalservice.shared.exception.UserNotFoundException;
+import com.s1gawron.rentalservice.shared.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.repository.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,9 +41,7 @@ class UserAuthenticationServiceTest {
 
     @Test
     void shouldLoginUser() {
-        final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO customerRegisterDTO = new UserRegisterDTO(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
-        final User user = User.createUser(customerRegisterDTO, PASSWORD);
+        final User user = UserCreatorHelper.I.createCustomer();
         final UserLoginDTO userLoginDTO = new UserLoginDTO(CUSTOMER_EMAIL, PASSWORD);
 
         Mockito.when(userDAOMock.findByEmail(CUSTOMER_EMAIL)).thenReturn(Optional.of(user));
@@ -67,7 +63,7 @@ class UserAuthenticationServiceTest {
 
     private boolean isStringNotEmpty(final String s) {
         final String trimmedString = s != null ? s.trim() : "";
-        return trimmedString.length() > 0;
+        return !trimmedString.isEmpty();
     }
 
 }

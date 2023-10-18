@@ -60,9 +60,19 @@ public class User implements UserDetails {
         this.userRole = userRole;
     }
 
-    public static User createUser(final UserRegisterDTO userRegisterDTO, final String encryptedPassword) {
-        return new User(true, userRegisterDTO.email(), encryptedPassword, userRegisterDTO.firstName(), userRegisterDTO.lastName(),
-            userRegisterDTO.userRole());
+    public User(final boolean active, final String email, final String password, final String firstName, final String lastName, final UserRole userRole,
+        final Address customerAddress) {
+        this.active = active;
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userRole = userRole;
+        this.customerAddress = customerAddress;
+    }
+
+    public static User createFrom(final UserRegisterDTO userRegisterDTO, final String encryptedPassword) {
+        return new User(true, userRegisterDTO.email(), encryptedPassword, userRegisterDTO.firstName(), userRegisterDTO.lastName(), userRegisterDTO.userRole());
     }
 
     public UserDTO toUserDTO() {

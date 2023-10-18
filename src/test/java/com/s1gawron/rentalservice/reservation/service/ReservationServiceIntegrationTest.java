@@ -1,16 +1,14 @@
 package com.s1gawron.rentalservice.reservation.service;
 
-import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.tool.dto.ToolDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
-import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.model.UserRole;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +39,7 @@ class ReservationServiceIntegrationTest {
         final ToolDTO toolDTO = ToolCreatorHelper.I.createToolDTO();
         final ToolDetailsDTO toolBeforePriceChange = toolService.validateAndAddTool(toolDTO);
 
-        final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO customerRegisterDTO = new UserRegisterDTO("test@test.pl", "Start00!", "John", "Kowalski", UserRole.CUSTOMER, addressDTO);
-        final User user = User.createUser(customerRegisterDTO, "Start00!");
+        final User user = UserCreatorHelper.I.createCustomer();
         userService.saveUser(user);
 
         UserContextProvider.I.setLoggedInUser(user);
