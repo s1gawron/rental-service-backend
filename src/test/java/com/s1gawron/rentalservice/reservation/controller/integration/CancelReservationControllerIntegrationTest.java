@@ -31,7 +31,7 @@ class CancelReservationControllerIntegrationTest extends AbstractReservationCont
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertEquals(1, resultObject.tools().size());
-        assertTrue(getReservationDetails(currentReservationId).isCanceled());
+        assertTrue(getReservationDetails(currentReservationId).getReservationStatus().isCanceled());
         assertEquals(currentToolId, resultObject.tools().get(0).toolId());
         assertEquals("Hammer", resultObject.tools().get(0).name());
         assertEquals(BigDecimal.valueOf(10.99), resultObject.reservationFinalPrice());

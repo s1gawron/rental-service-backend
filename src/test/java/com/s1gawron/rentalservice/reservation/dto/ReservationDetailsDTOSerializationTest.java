@@ -2,6 +2,7 @@ package com.s1gawron.rentalservice.reservation.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.s1gawron.rentalservice.reservation.model.ReservationStatus;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ class ReservationDetailsDTOSerializationTest {
 
     @Test
     void shouldSerialize() throws IOException {
-        final ReservationDetailsDTO reservationDetailsDTO = new ReservationDetailsDTO(1L, true, false, LocalDate.parse("2022-12-04"),
+        final ReservationDetailsDTO reservationDetailsDTO = new ReservationDetailsDTO(1L, ReservationStatus.COMPLETED, LocalDate.parse("2022-12-04"),
             LocalDate.parse("2022-12-16"), BigDecimal.valueOf(10.99), "Hammer, loader and a crane", ToolCreatorHelper.I.createToolDTOList());
 
         final String toolDTOJsonResult = mapper.writeValueAsString(reservationDetailsDTO);

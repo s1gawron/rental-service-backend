@@ -228,7 +228,7 @@ class ReservationControllerTest {
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(reservationDetailsDTOResult);
         assertEquals("Hammer", reservationDetailsDTOResult.additionalComment());
-        assertTrue(reservationDetailsDTOResult.canceled());
+        assertTrue(reservationDetailsDTOResult.reservationStatus().isCanceled());
         assertEquals("Hammer", reservationDetailsDTOResult.tools().get(0).name());
         assertTrue(reservationDetailsDTOResult.tools().get(0).available());
     }

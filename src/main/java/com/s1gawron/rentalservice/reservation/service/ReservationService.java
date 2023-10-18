@@ -120,12 +120,12 @@ public class ReservationService {
     }
 
     @Transactional
-    public void expireReservation(final Long reservationIdToExpire) {
-        final Reservation reservation = reservationDAO.findByReservationId(reservationIdToExpire)
-            .orElseThrow(() -> ReservationNotFoundException.create(reservationIdToExpire));
+    public void completeReservation(final Long reservationIdToComplete) {
+        final Reservation reservation = reservationDAO.findByReservationId(reservationIdToComplete)
+            .orElseThrow(() -> ReservationNotFoundException.create(reservationIdToComplete));
 
         reservation.getReservationTools().forEach(reservationTool -> toolService.makeToolAvailableAndSave(reservationTool.getTool()));
-        reservation.expireReservation();
+        reservation.completeReservation();
         reservationDAO.save(reservation);
     }
 

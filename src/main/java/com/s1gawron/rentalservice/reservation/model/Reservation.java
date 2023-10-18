@@ -23,11 +23,9 @@ public class Reservation {
     @Column(name = "reservation_id", nullable = false, unique = true)
     private Long reservationId;
 
-    @Column(name = "is_expired", nullable = false)
-    private boolean expired;
-
-    @Column(name = "is_canceled", nullable = false)
-    private boolean canceled;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "reservation_status", nullable = false)
+    private ReservationStatus reservationStatus;
 
     @Column(name = "date_from", nullable = false)
     private LocalDate dateFrom;
@@ -51,18 +49,17 @@ public class Reservation {
     public Reservation() {
     }
 
-    private Reservation(final LocalDate dateFrom, final LocalDate dateTo, final String additionalComment) {
+    private Reservation(final ReservationStatus reservationStatus, final LocalDate dateFrom, final LocalDate dateTo, final String additionalComment) {
+        this.reservationStatus = reservationStatus;
         this.dateFrom = dateFrom;
         this.dateTo = dateTo;
         this.additionalComment = additionalComment;
     }
 
-    private Reservation(final Long reservationId, final boolean expired, final boolean canceled, final LocalDate dateFrom, final LocalDate dateTo,
-        final BigDecimal reservationFinalPrice,
-        final String additionalComment) {
+    private Reservation(final Long reservationId, final ReservationStatus reservationStatus, final LocalDate dateFrom, final LocalDate dateTo,
+        final BigDecimal reservationFinalPrice, final String additionalComment) {
         this.reservationId = reservationId;
-        this.expired = expired;
-        this.canceled = canceled;
+        this.reservationStatus = reservationStatus;
         this.dateFrom = dateFrom;
         this.dateTo = dateTo;
         this.reservationFinalPrice = reservationFinalPrice;
@@ -70,13 +67,12 @@ public class Reservation {
     }
 
     public static Reservation from(final ReservationDTO reservationDTO) {
-        return new Reservation(reservationDTO.dateFrom(), reservationDTO.dateTo(), reservationDTO.additionalComment());
+        return new Reservation(ReservationStatus.ACTIVE, reservationDTO.dateFrom(), reservationDTO.dateTo(), reservationDTO.additionalComment());
     }
 
     public static Reservation from(final ReservationDetailsDTO reservationDetailsDTO) {
-        return new Reservation(reservationDetailsDTO.reservationId(), reservationDetailsDTO.expired(), reservationDetailsDTO.canceled(),
-            reservationDetailsDTO.dateFrom(), reservationDetailsDTO.dateTo(), reservationDetailsDTO.reservationFinalPrice(),
-            reservationDetailsDTO.additionalComment());
+        return new Reservation(reservationDetailsDTO.reservationId(), reservationDetailsDTO.reservationStatus(), reservationDetailsDTO.dateFrom(),
+            reservationDetailsDTO.dateTo(), reservationDetailsDTO.reservationFinalPrice(), reservationDetailsDTO.additionalComment());
     }
 
     public ReservationTool addTool(final Tool tool) {
@@ -100,28 +96,24 @@ public class Reservation {
     }
 
     public ReservationDetailsDTO toReservationDetailsDTO(final List<ToolDetailsDTO> toolDetails) {
-        return new ReservationDetailsDTO(this.reservationId, this.expired, this.canceled, this.dateFrom, this.dateTo, this.reservationFinalPrice,
+        return new ReservationDetailsDTO(this.reservationId, this.reservationStatus, this.dateFrom, this.dateTo, this.reservationFinalPrice,
             this.additionalComment, toolDetails);
     }
 
     public void cancelReservation() {
-        this.canceled = true;
+        this.reservationStatus = ReservationStatus.CANCELED;
     }
 
-    public void expireReservation() {
-        this.expired = true;
+    public void completeReservation() {
+        this.reservationStatus = ReservationStatus.COMPLETED;
     }
 
     public Long getReservationId() {
         return reservationId;
     }
 
-    public boolean isExpired() {
-        return expired;
-    }
-
-    public boolean isCanceled() {
-        return canceled;
+    public ReservationStatus getReservationStatus() {
+        return reservationStatus;
     }
 
     public LocalDate getDateTo() {

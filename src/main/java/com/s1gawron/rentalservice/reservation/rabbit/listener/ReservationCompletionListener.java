@@ -11,30 +11,30 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReservationExpiryListener {
+public class ReservationCompletionListener {
 
-    private static final Logger log = LoggerFactory.getLogger(ReservationExpiryListener.class);
+    private static final Logger log = LoggerFactory.getLogger(ReservationCompletionListener.class);
 
     private final ReservationService reservationService;
 
     private final RabbitTemplate rabbitTemplate;
 
-    public ReservationExpiryListener(final ReservationService reservationService, final RabbitTemplate rabbitTemplate) {
+    public ReservationCompletionListener(final ReservationService reservationService, final RabbitTemplate rabbitTemplate) {
         this.reservationService = reservationService;
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    @RabbitListener(queues = RabbitConfiguration.RESERVATION_EXPIRY_QUEUE, concurrency = "1-5")
+    @RabbitListener(queues = RabbitConfiguration.RESERVATION_COMPLETION_QUEUE, concurrency = "1-5")
     public void handle(@Payload final Long reservationId) {
-        log.info("Received reservation expiry message for reservation#{}", reservationId);
-        reservationService.expireReservation(reservationId);
-        log.info("Reservation#{} expiry clean job finished successfully", reservationId);
+        log.info("Received reservation completion message for reservation#{}", reservationId);
+        reservationService.completeReservation(reservationId);
+        log.info("Reservation#{} completed successfully", reservationId);
     }
 
-    @RabbitListener(queues = RabbitConfiguration.RESERVATION_EXPIRY_DEAD_LETTER_QUEUE)
+    @RabbitListener(queues = RabbitConfiguration.RESERVATION_COMPLETION_DEAD_LETTER_QUEUE)
     public void handleDeadLetterQueue(@Payload final Message failedMessage) {
         log.info("Requeuing failed message: {}", failedMessage.toString());
-        rabbitTemplate.send(RabbitConfiguration.RESERVATION_EXPIRY_EXCHANGE, failedMessage.getMessageProperties().getReceivedRoutingKey(), failedMessage);
+        rabbitTemplate.send(RabbitConfiguration.RESERVATION_COMPLETION_EXCHANGE, failedMessage.getMessageProperties().getReceivedRoutingKey(), failedMessage);
     }
 
 }

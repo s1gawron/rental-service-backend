@@ -18,21 +18,29 @@ public enum ToolCreatorHelper {
     private static final String REMOVED_SUFFIX = "removed";
 
     public List<ToolDetailsDTO> createToolDTOList() {
+        return createToolDTOList(true);
+    }
+
+    public List<ToolDetailsDTO> createToolDTOList(final boolean toolsAvailable) {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
-        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, true, false, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT.name(),
+        final ToolDetailsDTO newToolDetailsDTO = new ToolDetailsDTO(1L, toolsAvailable, false, "Hammer", "It's just a hammer :)", ToolCategory.LIGHT.name(),
             BigDecimal.valueOf(10.99), newState, "www.image.com/hammer");
         final ToolStateDTO usedState = new ToolStateDTO(ToolStateType.MINIMAL_WEAR.name(), "No signs of usage");
-        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, true, false, "Loader", "4 wheeled loader :)", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO usedToolDetailsDTO = new ToolDetailsDTO(2L, toolsAvailable, false, "Loader", "4 wheeled loader :)", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(1000.99), usedState, "www.image.com/loader");
         final ToolStateDTO wornState = new ToolStateDTO(ToolStateType.WELL_WORN.name(), "Rusty");
-        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, true, false, "Crane", "Mechanical giraffe", ToolCategory.HEAVY.name(),
+        final ToolDetailsDTO wornToolDetailsDTO = new ToolDetailsDTO(3L, toolsAvailable, false, "Crane", "Mechanical giraffe", ToolCategory.HEAVY.name(),
             BigDecimal.valueOf(19999.99), wornState, "www.image.com/crane");
 
         return List.of(newToolDetailsDTO, usedToolDetailsDTO, wornToolDetailsDTO);
     }
 
     public List<Tool> createToolList() {
-        return createToolDTOList().stream()
+        return createToolList(true);
+    }
+
+    public List<Tool> createToolList(final boolean toolAvailable) {
+        return createToolDTOList(toolAvailable).stream()
             .map(Tool::from)
             .toList();
     }
@@ -83,8 +91,12 @@ public enum ToolCreatorHelper {
     }
 
     public ToolDetailsDTO createToolDetailsDTO() {
+        return createToolDetailsDTO(true);
+    }
+
+    public ToolDetailsDTO createToolDetailsDTO(final boolean toolAvailable) {
         final ToolStateDTO newState = new ToolStateDTO(ToolStateType.NEW.name(), "New and shiny tool");
-        return new ToolDetailsDTO(1L, true, false, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(), BigDecimal.valueOf(10.99), newState,
+        return new ToolDetailsDTO(1L, toolAvailable, false, "Hammer", "It's just a hammer :)", ToolCategory.HEAVY.name(), BigDecimal.valueOf(10.99), newState,
             "www.image.com/hammer");
     }
 

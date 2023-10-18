@@ -4,8 +4,7 @@
   "reservations": [
     {
       "reservationId": 1,
-      "expired": false,
-      "canceled": false,
+      "reservationStatus": "ACTIVE",
       "dateFrom": "2022-12-04",
       "dateTo": "2022-12-16",
       "reservationFinalPrice": 10.99,
@@ -13,7 +12,7 @@
       "tools": [
         {
           "toolId": 1,
-          "available": true,
+          "available": false,
           "removed": false,
           "name": "Hammer",
           "description": "It's just a hammer :)",
@@ -29,8 +28,7 @@
     },
     {
       "reservationId": 2,
-      "expired": false,
-      "canceled": false,
+      "reservationStatus": "ACTIVE",
       "dateFrom": "2023-02-04",
       "dateTo": "2023-03-16",
       "reservationFinalPrice": 1000.99,
@@ -38,7 +36,7 @@
       "tools": [
         {
           "toolId": 2,
-          "available": true,
+          "available": false,
           "removed": false,
           "name": "Loader",
           "description": "4 wheeled loader :)",
@@ -54,8 +52,7 @@
     },
     {
       "reservationId": 3,
-      "expired": false,
-      "canceled": false,
+      "reservationStatus": "ACTIVE",
       "dateFrom": "2023-01-01",
       "dateTo": "2023-01-15",
       "reservationFinalPrice": 19999.99,
@@ -63,7 +60,7 @@
       "tools": [
         {
           "toolId": 3,
-          "available": true,
+          "available": false,
           "removed": false,
           "name": "Crane",
           "description": "Mechanical giraffe",

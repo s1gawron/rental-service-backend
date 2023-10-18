@@ -207,7 +207,7 @@ class ReservationServiceTest {
 
         assertEquals(LocalDate.now(), result.dateFrom());
         assertEquals(LocalDate.now().plusDays(3L), result.dateTo());
-        assertTrue(result.canceled());
+        assertTrue(result.reservationStatus().isCanceled());
         assertEquals("Hammer", result.additionalComment());
         assertEquals(1, result.tools().size());
         assertTrue(result.tools().get(0).available());
@@ -225,18 +225,18 @@ class ReservationServiceTest {
     }
 
     @Test
-    void shouldExpireReservation() {
-        final Reservation reservation = ReservationCreatorHelper.I.createReservationForExpiry();
+    void shouldCompleteReservation() {
+        final Reservation reservation = ReservationCreatorHelper.I.createReservationForCompletion();
         final List<Tool> toolsOnReservation = reservation.getReservationTools().stream()
             .map(ReservationTool::getTool)
             .toList();
 
         Mockito.when(reservationDAO.findByReservationId(1L)).thenReturn(Optional.of(reservation));
 
-        reservationService.expireReservation(1L);
+        reservationService.completeReservation(1L);
 
         assertTrue(toolsOnReservation.get(0).isAvailable());
-        assertTrue(reservation.isExpired());
+        assertTrue(reservation.getReservationStatus().isCompleted());
     }
 
     private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool) {

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 @Component
-public class EndOfDayReservationExpiryStatusCheckJob {
+public class EndOfDayReservationCompleteStatusCheckJob {
 
     private static final String EVERY_DAY_AT_MIDNIGHT = "0 0 0 * * *";
 
@@ -17,17 +17,17 @@ public class EndOfDayReservationExpiryStatusCheckJob {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public EndOfDayReservationExpiryStatusCheckJob(final ReservationService reservationService, final RabbitTemplate rabbitTemplate) {
+    public EndOfDayReservationCompleteStatusCheckJob(final ReservationService reservationService, final RabbitTemplate rabbitTemplate) {
         this.reservationService = reservationService;
         this.rabbitTemplate = rabbitTemplate;
     }
 
     @Scheduled(cron = EVERY_DAY_AT_MIDNIGHT)
-    public void checkReservationExpiryStatusJob() {
+    public void checkReservationCompleteStatusJob() {
         final LocalDateTime now = LocalDateTime.now();
 
         reservationService.getReservationIdsForDateToOlderThan(now)
-            .forEach(id -> rabbitTemplate.convertAndSend(RabbitConfiguration.RESERVATION_EXPIRY_EXCHANGE, RabbitConfiguration.RESERVATION_EXPIRY_QUEUE, id));
+            .forEach(id -> rabbitTemplate.convertAndSend(RabbitConfiguration.RESERVATION_COMPLETION_EXCHANGE, RabbitConfiguration.RESERVATION_COMPLETION_QUEUE, id));
     }
 
 }
