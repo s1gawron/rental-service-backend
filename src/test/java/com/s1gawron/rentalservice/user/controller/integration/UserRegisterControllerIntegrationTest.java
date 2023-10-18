@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserRegisterControllerIntegrationTest extends AbstractUserControllerIntegrationTest {
 
-    private static final String USER_REGISTER_ENDPOINT = "/api/public/user/register";
+    private static final String USER_REGISTER_ENDPOINT = "/api/public/user/v1/register";
 
     @Test
     void shouldRegisterUser() throws Exception {
@@ -36,6 +36,55 @@ class UserRegisterControllerIntegrationTest extends AbstractUserControllerIntegr
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertTrue(userService.getUserByEmail("new@test.pl").isPresent());
+    }
+
+    @Test
+    void shouldRegisterWorkerByAdminUser() throws Exception {
+        final String json = """
+            {
+              "email": "new@test.pl",
+              "password": "Start00!",
+              "firstName": "John",
+              "lastName": "Kowalski",
+              "userRole": "WORKER",
+              "address": {
+                "country": "Poland",
+                "city": "Warsaw",
+                "street": "Test",
+                "postCode": "01-000"
+              }
+            }""";
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
+            .header("Authorization", getAuthorizationTokenForAdmin());
+
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        assertTrue(userService.getUserByEmail("new@test.pl").isPresent());
+    }
+
+    @Test
+    void shouldNotRegisterWorkerWhenNotInvokedByAdmin() throws Exception {
+        final String json = """
+            {
+              "email": "new@test.pl",
+              "password": "Start00!",
+              "firstName": "John",
+              "lastName": "Kowalski",
+              "userRole": "WORKER",
+              "address": {
+                "country": "Poland",
+                "city": "Warsaw",
+                "street": "Test",
+                "postCode": "01-000"
+              }
+            }""";
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON);
+
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+        assertTrue(userService.getUserByEmail("new@test.pl").isEmpty());
     }
 
     @Test

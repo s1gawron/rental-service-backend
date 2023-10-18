@@ -12,6 +12,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class GetReservationControllerIntegrationTest extends AbstractReservationControllerIntegrationTest {
 
@@ -26,7 +28,8 @@ class GetReservationControllerIntegrationTest extends AbstractReservationControl
         final ReservationListingDTO resultObject = objectMapper.readValue(resultJson, ReservationListingDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(2, resultObject.count());
+        assertEquals(1, resultObject.numberOfPages());
+        assertEquals(2, resultObject.totalNumberOfReservations());
 
         for (final ReservationDetailsDTO reservationDetailsDTO : resultObject.reservations()) {
             assertEquals(1, reservationDetailsDTO.tools().size());
@@ -39,10 +42,8 @@ class GetReservationControllerIntegrationTest extends AbstractReservationControl
 
         final String endpoint = RESERVATION_ENDPOINT + "get/all";
         final RequestBuilder request = MockMvcRequestBuilders.get(endpoint).header("Authorization", getAuthorizationToken(WORKER_EMAIL));
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.FORBIDDEN, NO_ACCESS_FOR_USER_ROLE_EXCEPTION.getMessage(), endpoint,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request).andExpect(status().isForbidden());
     }
 
     @Test
@@ -71,10 +72,18 @@ class GetReservationControllerIntegrationTest extends AbstractReservationControl
 
         final String endpoint = RESERVATION_ENDPOINT + "get/id/" + currentReservationId;
         final RequestBuilder request = MockMvcRequestBuilders.get(endpoint).header("Authorization", getAuthorizationToken(WORKER_EMAIL));
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.FORBIDDEN, NO_ACCESS_FOR_USER_ROLE_EXCEPTION.getMessage(), endpoint,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnForbiddenResponseWhenUserIsUnauthenticated() throws Exception {
+        performMakeReservationRequests();
+
+        final String endpoint = RESERVATION_ENDPOINT + "get/id/" + currentReservationId;
+        final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
     }
 
     @Test
@@ -84,10 +93,10 @@ class GetReservationControllerIntegrationTest extends AbstractReservationControl
         final ReservationNotFoundException expectedException = ReservationNotFoundException.create(currentReservationId);
         final String endpoint = RESERVATION_ENDPOINT + "get/id/" + currentReservationId;
         final RequestBuilder request = MockMvcRequestBuilders.get(endpoint).header("Authorization", getAuthorizationToken(DIFFERENT_CUSTOMER_EMAIL));
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), endpoint,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
 }

@@ -3,7 +3,7 @@ package com.s1gawron.rentalservice.tool.dto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
-import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +19,7 @@ class ToolListingDTOSerializationTest {
     @Test
     void shouldSerialize() throws IOException {
         final List<ToolDetailsDTO> toolDetailsDTOList = ToolCreatorHelper.I.createToolDTOList();
-        final ToolListingDTO toolListingDTO = new ToolListingDTO(toolDetailsDTOList.size(), toolDetailsDTOList);
+        final ToolListingDTO toolListingDTO = new ToolListingDTO(1, toolDetailsDTOList.size(), toolDetailsDTOList);
 
         final String toolListingDTOJsonResult = mapper.writeValueAsString(toolListingDTO);
         final String expectedToolListingDTOJsonResult = Files.readString(Path.of("src/test/resources/tool-listing-dto.json"));

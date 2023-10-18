@@ -1,6 +1,7 @@
 {
   "toolId": 1,
   "available": true,
+  "removed": false,
   "name": "Hammer",
   "description": "It's just a hammer :)",
   "toolCategory": "LIGHT",

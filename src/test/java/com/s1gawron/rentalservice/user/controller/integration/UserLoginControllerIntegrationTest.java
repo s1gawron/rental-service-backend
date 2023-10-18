@@ -1,5 +1,6 @@
 package com.s1gawron.rentalservice.user.controller.integration;
 
+import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -14,23 +15,19 @@ class UserLoginControllerIntegrationTest extends AbstractUserControllerIntegrati
         final UserLoginDTO userLoginDTO = new UserLoginDTO(EMAIL, PASSWORD);
 
         final MvcResult result = performLoginAction(userLoginDTO);
-        final String token = result.getResponse().getHeader("Authorization");
+        final AuthenticationResponse authResponse = objectMapper.readValue(result.getResponse().getContentAsString(), AuthenticationResponse.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertNotNull(token);
-        assertTrue(token.startsWith("Bearer"));
+        assertNotNull(authResponse.token());
     }
 
     @Test
-    void shouldReturnUnauthorizedStatus() throws Exception {
-        final UserLoginDTO userLoginDTO = new UserLoginDTO("testUser", "wrongPassword");
+    void shouldReturnForbiddenStatus() throws Exception {
+        final UserLoginDTO userLoginDTO = new UserLoginDTO("test@test.pl", "wrongPassword");
 
         final MvcResult result = performLoginAction(userLoginDTO);
-        final String token = result.getResponse().getHeader("Authorization");
 
-        assertEquals(HttpStatus.UNAUTHORIZED.value(), result.getResponse().getStatus());
-
-        assertNull(token);
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
     }
 
 }

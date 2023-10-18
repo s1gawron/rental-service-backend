@@ -3,13 +3,15 @@ package com.s1gawron.rentalservice.tool.controller;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolListingDTO;
 import com.s1gawron.rentalservice.tool.dto.ToolSearchDTO;
+import com.s1gawron.rentalservice.tool.model.ToolCategory;
 import com.s1gawron.rentalservice.tool.service.ToolService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("api/public/tool")
+@RequestMapping("api/public/tool/v1")
 public class ToolController extends ToolErrorHandlerController {
 
     private final ToolService toolService;
@@ -19,8 +21,11 @@ public class ToolController extends ToolErrorHandlerController {
     }
 
     @GetMapping("get/category/{category}")
-    public ToolListingDTO getToolsByCategory(@PathVariable String category) {
-        return toolService.getToolsByCategory(category);
+    public ToolListingDTO getToolsByCategory(@PathVariable ToolCategory category,
+        @RequestParam(defaultValue = "0") final int pageNumber,
+        @RequestParam(defaultValue = "25") final int pageSize) {
+        final PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        return toolService.getToolsByCategory(category, pageRequest);
     }
 
     @GetMapping("get/new")
@@ -34,8 +39,16 @@ public class ToolController extends ToolErrorHandlerController {
     }
 
     @PostMapping("get/name")
-    public List<ToolDetailsDTO> getToolsByName(@RequestBody final ToolSearchDTO toolSearchDTO) {
-        return toolService.getToolsByName(toolSearchDTO);
+    public ToolListingDTO getToolsByName(@RequestBody final ToolSearchDTO toolSearchDTO, @RequestParam(defaultValue = "0") final int pageNumber,
+        @RequestParam(defaultValue = "25") final int pageSize) {
+        final PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        return toolService.getToolsByName(toolSearchDTO, pageRequest);
+    }
+
+    @GetMapping("get/all")
+    public ToolListingDTO getAllTools(@RequestParam(defaultValue = "0") final int pageNumber, @RequestParam(defaultValue = "25") final int pageSize) {
+        final PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        return toolService.getAllTools(pageRequest);
     }
 
 }

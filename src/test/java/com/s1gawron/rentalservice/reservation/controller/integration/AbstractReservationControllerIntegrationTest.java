@@ -1,53 +1,49 @@
 package com.s1gawron.rentalservice.reservation.controller.integration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
-import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
-import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
+import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
-import com.s1gawron.rentalservice.shared.ErrorResponse;
-import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
-import com.s1gawron.rentalservice.tool.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.ToolCreatorHelper;
+import com.s1gawron.rentalservice.shared.helper.UserCreatorHelper;
 import com.s1gawron.rentalservice.tool.model.Tool;
-import com.s1gawron.rentalservice.tool.repository.ToolRepository;
+import com.s1gawron.rentalservice.tool.repository.ToolDAO;
 import com.s1gawron.rentalservice.tool.service.ToolService;
+import com.s1gawron.rentalservice.user.dto.AuthenticationResponse;
 import com.s1gawron.rentalservice.user.dto.UserLoginDTO;
-import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
-import com.s1gawron.rentalservice.user.model.UserRole;
-import com.s1gawron.rentalservice.user.repository.UserRepository;
+import com.s1gawron.rentalservice.user.model.User;
+import com.s1gawron.rentalservice.user.repository.UserDAO;
 import com.s1gawron.rentalservice.user.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 abstract class AbstractReservationControllerIntegrationTest {
 
-    protected static final String USER_LOGIN_ENDPOINT = "/api/public/user/login";
+    protected static final String ERROR_RESPONSE_MESSAGE_PLACEHOLDER = "$.message";
 
-    protected static final String RESERVATION_ENDPOINT = "/api/customer/reservation/";
+    protected static final String USER_LOGIN_ENDPOINT = "/api/public/user/v1/login";
+
+    protected static final String RESERVATION_ENDPOINT = "/api/customer/reservation/v1/";
 
     protected static final String MAKE_RESERVATION_ENDPOINT = RESERVATION_ENDPOINT + "make";
 
@@ -59,33 +55,31 @@ abstract class AbstractReservationControllerIntegrationTest {
 
     protected static final String PASSWORD = "Start00!";
 
-    protected static final NoAccessForUserRoleException NO_ACCESS_FOR_USER_ROLE_EXCEPTION = NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
-
     @Autowired
     protected MockMvc mockMvc;
 
     protected final ObjectMapper objectMapper = ObjectMapperCreator.I.getMapper();
 
     @Autowired
-    protected UserRepository userRepository;
+    protected UserDAO userDAO;
 
     @Autowired
     protected UserService userService;
 
     @Autowired
-    protected ToolRepository toolRepository;
+    protected ToolDAO toolDAO;
 
     @Autowired
     protected ToolService toolService;
 
     @Autowired
-    protected ReservationRepository reservationRepository;
-
-    @Autowired
-    protected ReservationHasToolRepository reservationHasToolRepository;
+    protected ReservationDAO reservationDAO;
 
     @Autowired
     protected ReservationService reservationService;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     protected long currentToolId;
 
@@ -95,39 +89,36 @@ abstract class AbstractReservationControllerIntegrationTest {
 
     protected long loaderToolId;
 
+    protected long removedToolId;
+
     @BeforeEach
     @Transactional
     void setUp() {
-        final AddressDTO addressDTO = new AddressDTO("Poland", "Warsaw", "Test", "01-000");
-        final UserRegisterDTO customerRegisterDTO = new UserRegisterDTO(CUSTOMER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.CUSTOMER.name(), addressDTO);
-        final UserRegisterDTO differentCustomerRegisterDTO = new UserRegisterDTO(DIFFERENT_CUSTOMER_EMAIL, PASSWORD, "Tony", "Hawk",
-            UserRole.CUSTOMER.name(), addressDTO);
-        final UserRegisterDTO workerRegisterDTO = new UserRegisterDTO(WORKER_EMAIL, PASSWORD, "John", "Kowalski", UserRole.WORKER.name(), null);
+        final User customer = UserCreatorHelper.I.createCustomer();
+        final User differentCustomer = UserCreatorHelper.I.createDifferentCustomer();
+        userService.saveUser(customer);
+        userService.saveUser(differentCustomer);
 
-        userService.validateAndRegisterUser(customerRegisterDTO);
-        userService.validateAndRegisterUser(differentCustomerRegisterDTO);
-        userService.validateAndRegisterUser(workerRegisterDTO);
+        final User workerUser = UserCreatorHelper.I.createWorker();
+        userService.saveUser(workerUser);
 
         final Tool hammer = ToolCreatorHelper.I.createTool();
-        toolRepository.save(hammer);
-        currentToolId = hammer.getToolId();
+        currentToolId = toolDAO.save(hammer).getToolId();
 
         final Tool chainsaw = ToolCreatorHelper.I.createChainsaw();
-        toolRepository.save(chainsaw);
-        nextToolId = chainsaw.getToolId();
+        nextToolId = toolDAO.save(chainsaw).getToolId();
 
         final Tool loader = ToolCreatorHelper.I.createLoader();
-        toolRepository.save(loader);
-        loaderToolId = loader.getToolId();
+        loaderToolId = toolDAO.save(loader).getToolId();
+
+        final Tool removedHammer = ToolCreatorHelper.I.createRemovedHammerWithAvailability();
+        removedToolId = toolDAO.save(removedHammer).getToolId();
     }
 
     @AfterEach
     @Transactional
     void cleanUp() {
-        reservationHasToolRepository.deleteAll();
-        reservationRepository.deleteAll();
-        toolRepository.deleteAll();
-        userRepository.deleteAll();
+        JdbcTestUtils.deleteFromTables(jdbcTemplate, "reservation_tool", "reservation", "tool", "user");
     }
 
     protected void performMakeReservationRequests() throws Exception {
@@ -173,27 +164,15 @@ abstract class AbstractReservationControllerIntegrationTest {
     protected String getAuthorizationToken(final String email) throws Exception {
         final UserLoginDTO userLoginDTO = new UserLoginDTO(email, PASSWORD);
         final String userLoginJson = objectMapper.writeValueAsString(userLoginDTO);
-        final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson);
-        final MvcResult loginResult = mockMvc.perform(request).andReturn();
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_LOGIN_ENDPOINT).content(userLoginJson).contentType(MediaType.APPLICATION_JSON);
+        final MockHttpServletResponse response = mockMvc.perform(request).andReturn().getResponse();
+        final AuthenticationResponse authResponse = objectMapper.readValue(response.getContentAsString(), AuthenticationResponse.class);
 
-        return loginResult.getResponse().getHeader("Authorization");
+        return "Bearer " + authResponse.token();
     }
 
-    protected void assertErrorResponse(final HttpStatus expectedStatus, final String expectedMessage, final String expectedUri,
-        final ErrorResponse actualErrorResponse) {
-        assertEquals(expectedStatus.value(), actualErrorResponse.code());
-        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.error());
-        assertEquals(expectedMessage, actualErrorResponse.message());
-        assertEquals(expectedUri, actualErrorResponse.URI());
-    }
-
-    protected ErrorResponse toErrorResponse(final String responseMessage) throws JsonProcessingException {
-        return objectMapper.readValue(responseMessage, ErrorResponse.class);
-    }
-
-    @Transactional(readOnly = true)
     protected Reservation getReservationDetails(final long reservationId) {
-        return reservationRepository.findByReservationId(reservationId).orElseThrow(() -> ReservationNotFoundException.create(reservationId));
+        return reservationDAO.findByReservationId(reservationId).orElseThrow(() -> ReservationNotFoundException.create(reservationId));
     }
 
 }

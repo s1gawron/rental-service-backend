@@ -1,8 +1,6 @@
 package com.s1gawron.rentalservice.reservation.controller.webmvc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.s1gawron.rentalservice.jwt.JwtConfig;
 import com.s1gawron.rentalservice.reservation.controller.ReservationController;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDTO;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
@@ -12,16 +10,18 @@ import com.s1gawron.rentalservice.reservation.exception.ReservationEmptyProperti
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.helper.ReservationCreatorHelper;
 import com.s1gawron.rentalservice.reservation.service.ReservationService;
-import com.s1gawron.rentalservice.shared.ErrorResponse;
-import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
+import com.s1gawron.rentalservice.security.JwtService;
 import com.s1gawron.rentalservice.shared.ObjectMapperCreator;
 import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
+import com.s1gawron.rentalservice.tool.exception.ToolRemovedException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -31,40 +31,43 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ReservationController.class)
 @ActiveProfiles("test")
 @WithMockUser
 class ReservationControllerTest {
 
-    private static final String RESERVATION_ENDPOINT = "/api/customer/reservation/";
+    private static final String ERROR_RESPONSE_MESSAGE_PLACEHOLDER = "$.message";
+
+    private static final String RESERVATION_ENDPOINT = "/api/customer/reservation/v1/";
+
+    private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 25);
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private DataSource dataSourceMock;
-
-    @MockBean
-    private JwtConfig jwtConfigMock;
-
-    @MockBean
     private ReservationService reservationServiceMock;
+
+    @MockBean
+    private JwtService jwtServiceMock;
 
     private final ObjectMapper objectMapper = ObjectMapperCreator.I.getMapper();
 
     @Test
     void shouldGetUserReservations() throws Exception {
         final List<ReservationDetailsDTO> reservationDetailsList = ReservationCreatorHelper.I.createReservationDetailsList();
-        final ReservationListingDTO reservationListingDTO = new ReservationListingDTO(reservationDetailsList.size(), reservationDetailsList);
+        final ReservationListingDTO reservationListingDTO = new ReservationListingDTO(1, reservationDetailsList.size(), reservationDetailsList);
 
-        Mockito.when(reservationServiceMock.getUserReservations()).thenReturn(reservationListingDTO);
+        Mockito.when(reservationServiceMock.getUserReservations(DEFAULT_PAGEABLE)).thenReturn(reservationListingDTO);
 
         final RequestBuilder request = MockMvcRequestBuilders.get(RESERVATION_ENDPOINT + "get/all");
         final MvcResult result = mockMvc.perform(request).andReturn();
@@ -73,20 +76,8 @@ class ReservationControllerTest {
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(reservationDetailsListResult);
-        assertEquals(3, reservationDetailsListResult.count());
-    }
-
-    @Test
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToGetUserReservations() throws Exception {
-        final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
-
-        Mockito.when(reservationServiceMock.getUserReservations()).thenThrow(expectedException);
-
-        final String endpoint = RESERVATION_ENDPOINT + "get/all";
-        final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
-
-        assertErrorResponse(HttpStatus.FORBIDDEN, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        assertEquals(1, reservationDetailsListResult.numberOfPages());
+        assertEquals(3, reservationDetailsListResult.totalNumberOfReservations());
     }
 
     @Test
@@ -107,19 +98,6 @@ class ReservationControllerTest {
     }
 
     @Test
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToGetReservationDetails() throws Exception {
-        final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
-
-        Mockito.when(reservationServiceMock.getReservationDetails(1L)).thenThrow(expectedException);
-
-        final String endpoint = RESERVATION_ENDPOINT + "get/id/1";
-        final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
-
-        assertErrorResponse(HttpStatus.FORBIDDEN, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
-    }
-
-    @Test
     void shouldReturnNotFoundResponseWhenReservationWasNotFoundWhileGettingReservationDetails() throws Exception {
         final ReservationNotFoundException expectedException = ReservationNotFoundException.create(1L);
 
@@ -127,9 +105,10 @@ class ReservationControllerTest {
 
         final String endpoint = RESERVATION_ENDPOINT + "get/id/1";
         final RequestBuilder request = MockMvcRequestBuilders.get(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -140,8 +119,9 @@ class ReservationControllerTest {
 
         Mockito.when(reservationServiceMock.makeReservation(Mockito.any(ReservationDTO.class))).thenReturn(reservationDetailsDTO);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(RESERVATION_ENDPOINT + "make").content(reservationDTOJson)
+        final RequestBuilder request = MockMvcRequestBuilders.post(RESERVATION_ENDPOINT + "make").with(csrf()).content(reservationDTOJson)
             .contentType(MediaType.APPLICATION_JSON);
+
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final ReservationDetailsDTO reservationDetailsDTOResult = objectMapper.readValue(jsonResult, ReservationDetailsDTO.class);
@@ -162,10 +142,11 @@ class ReservationControllerTest {
         Mockito.when(reservationServiceMock.makeReservation(Mockito.any(ReservationDTO.class))).thenThrow(expectedException);
 
         final String endpoint = RESERVATION_ENDPOINT + "make";
-        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
+        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).with(csrf()).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
 
-        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -177,25 +158,11 @@ class ReservationControllerTest {
         Mockito.when(reservationServiceMock.makeReservation(Mockito.any(ReservationDTO.class))).thenThrow(expectedException);
 
         final String endpoint = RESERVATION_ENDPOINT + "make";
-        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
+        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).with(csrf()).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
 
-        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
-    }
-
-    @Test
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToMakeReservation() throws Exception {
-        final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
-        final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(3L), "Hammer", List.of(1L));
-        final String reservationDTOJson = objectMapper.writeValueAsString(reservationDTO);
-
-        Mockito.when(reservationServiceMock.makeReservation(Mockito.any(ReservationDTO.class))).thenThrow(expectedException);
-
-        final String endpoint = RESERVATION_ENDPOINT + "make";
-        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
-
-        assertErrorResponse(HttpStatus.FORBIDDEN, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -207,10 +174,11 @@ class ReservationControllerTest {
         Mockito.when(reservationServiceMock.makeReservation(Mockito.any(ReservationDTO.class))).thenThrow(expectedException);
 
         final String endpoint = RESERVATION_ENDPOINT + "make";
-        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
+        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).with(csrf()).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
 
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -222,10 +190,27 @@ class ReservationControllerTest {
         Mockito.when(reservationServiceMock.makeReservation(Mockito.any(ReservationDTO.class))).thenThrow(expectedException);
 
         final String endpoint = RESERVATION_ENDPOINT + "make";
-        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
-        final MvcResult result = mockMvc.perform(request).andReturn();
+        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).with(csrf()).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
 
-        assertErrorResponse(HttpStatus.BAD_REQUEST, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+    }
+
+    @Test
+    void shouldReturnBadRequestResponseWhenToolIsRemovedWhileMakingReservation() throws Exception {
+        final ToolRemovedException expectedException = ToolRemovedException.create(1L);
+        final ReservationDTO reservationDTO = new ReservationDTO(LocalDate.now(), LocalDate.now().plusDays(3L), "Hammer", List.of(1L));
+        final String reservationDTOJson = objectMapper.writeValueAsString(reservationDTO);
+
+        Mockito.when(reservationServiceMock.makeReservation(Mockito.any(ReservationDTO.class))).thenThrow(expectedException);
+
+        final String endpoint = RESERVATION_ENDPOINT + "make";
+        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).with(csrf()).content(reservationDTOJson).contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
     @Test
@@ -234,7 +219,8 @@ class ReservationControllerTest {
 
         Mockito.when(reservationServiceMock.cancelReservation(1L)).thenReturn(canceledReservation);
 
-        final RequestBuilder request = MockMvcRequestBuilders.post(RESERVATION_ENDPOINT + "cancel/1");
+        final RequestBuilder request = MockMvcRequestBuilders.post(RESERVATION_ENDPOINT + "cancel/1").with(csrf());
+
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String jsonResult = result.getResponse().getContentAsString();
         final ReservationDetailsDTO reservationDetailsDTOResult = objectMapper.readValue(jsonResult, ReservationDetailsDTO.class);
@@ -242,22 +228,9 @@ class ReservationControllerTest {
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertNotNull(reservationDetailsDTOResult);
         assertEquals("Hammer", reservationDetailsDTOResult.additionalComment());
-        assertTrue(reservationDetailsDTOResult.canceled());
+        assertTrue(reservationDetailsDTOResult.reservationStatus().isCanceled());
         assertEquals("Hammer", reservationDetailsDTOResult.tools().get(0).name());
         assertTrue(reservationDetailsDTOResult.tools().get(0).available());
-    }
-
-    @Test
-    void shouldReturnForbiddenResponseWhenUserIsNotAllowedToCancelReservation() throws Exception {
-        final NoAccessForUserRoleException expectedException = NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
-
-        Mockito.when(reservationServiceMock.cancelReservation(1L)).thenThrow(expectedException);
-
-        final String endpoint = RESERVATION_ENDPOINT + "cancel/1";
-        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
-
-        assertErrorResponse(HttpStatus.FORBIDDEN, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
     }
 
     @Test
@@ -267,22 +240,11 @@ class ReservationControllerTest {
         Mockito.when(reservationServiceMock.cancelReservation(1L)).thenThrow(expectedException);
 
         final String endpoint = RESERVATION_ENDPOINT + "cancel/1";
-        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint);
-        final MvcResult result = mockMvc.perform(request).andReturn();
+        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).with(csrf());
 
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), endpoint, toErrorResponse(result.getResponse().getContentAsString()));
-    }
-
-    void assertErrorResponse(final HttpStatus expectedStatus, final String expectedMessage, final String expectedUri,
-        final ErrorResponse actualErrorResponse) {
-        assertEquals(expectedStatus.value(), actualErrorResponse.code());
-        assertEquals(expectedStatus.getReasonPhrase(), actualErrorResponse.error());
-        assertEquals(expectedMessage, actualErrorResponse.message());
-        assertEquals(expectedUri, actualErrorResponse.URI());
-    }
-
-    ErrorResponse toErrorResponse(final String responseMessage) throws JsonProcessingException {
-        return objectMapper.readValue(responseMessage, ErrorResponse.class);
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
 }

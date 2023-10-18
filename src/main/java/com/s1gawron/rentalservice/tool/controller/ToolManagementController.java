@@ -6,7 +6,7 @@ import com.s1gawron.rentalservice.tool.service.ToolService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/tool")
+@RequestMapping("api/management/tool/v1")
 public class ToolManagementController extends ToolErrorHandlerController {
 
     private final ToolService toolService;

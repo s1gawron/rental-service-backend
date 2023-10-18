@@ -1,36 +1,34 @@
 package com.s1gawron.rentalservice.address.model;
 
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
-import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "address")
-@DynamicUpdate
 public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "address_id")
+    @Column(name = "address_id", nullable = false, unique = true)
     private Long addressId;
 
-    @Column(name = "country")
+    @Column(name = "country", nullable = false)
     private String country;
 
-    @Column(name = "city")
+    @Column(name = "city", nullable = false)
     private String city;
 
-    @Column(name = "street")
+    @Column(name = "street", nullable = false)
     private String street;
 
-    @Column(name = "post_code")
+    @Column(name = "post_code", nullable = false)
     private String postCode;
 
     public Address() {
     }
 
-    private Address(final String country, final String city, final String street, final String postCode) {
+    public Address(final String country, final String city, final String street, final String postCode) {
         this.country = country;
         this.city = city;
         this.street = street;

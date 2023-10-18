@@ -12,10 +12,12 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class CancelReservationControllerIntegrationTest extends AbstractReservationControllerIntegrationTest {
 
-    private static final String CANCEL_RESERVATION_ENDPOINT = "/api/customer/reservation/cancel/";
+    private static final String CANCEL_RESERVATION_ENDPOINT = "/api/customer/reservation/v1/cancel/";
 
     @Test
     void shouldCancelReservation() throws Exception {
@@ -29,7 +31,7 @@ class CancelReservationControllerIntegrationTest extends AbstractReservationCont
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
         assertEquals(1, resultObject.tools().size());
-        assertTrue(getReservationDetails(currentReservationId).isCanceled());
+        assertTrue(getReservationDetails(currentReservationId).getReservationStatus().isCanceled());
         assertEquals(currentToolId, resultObject.tools().get(0).toolId());
         assertEquals("Hammer", resultObject.tools().get(0).name());
         assertEquals(BigDecimal.valueOf(10.99), resultObject.reservationFinalPrice());
@@ -42,10 +44,18 @@ class CancelReservationControllerIntegrationTest extends AbstractReservationCont
 
         final String endpoint = CANCEL_RESERVATION_ENDPOINT + currentReservationId;
         final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).header("Authorization", getAuthorizationToken(WORKER_EMAIL));
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.FORBIDDEN, NO_ACCESS_FOR_USER_ROLE_EXCEPTION.getMessage(), endpoint,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnForbiddenResponseWhenUserIsUnauthenticated() throws Exception {
+        performMakeReservationRequests();
+
+        final String endpoint = CANCEL_RESERVATION_ENDPOINT + currentReservationId;
+        final RequestBuilder request = MockMvcRequestBuilders.post(endpoint);
+
+        mockMvc.perform(request).andExpect(status().isForbidden());
     }
 
     @Test
@@ -55,10 +65,10 @@ class CancelReservationControllerIntegrationTest extends AbstractReservationCont
         final ReservationNotFoundException expectedException = ReservationNotFoundException.create(currentReservationId);
         final String endpoint = CANCEL_RESERVATION_ENDPOINT + currentReservationId;
         final RequestBuilder request = MockMvcRequestBuilders.post(endpoint).header("Authorization", getAuthorizationToken(DIFFERENT_CUSTOMER_EMAIL));
-        final MvcResult result = mockMvc.perform(request).andReturn();
 
-        assertErrorResponse(HttpStatus.NOT_FOUND, expectedException.getMessage(), endpoint,
-            toErrorResponse(result.getResponse().getContentAsString()));
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
 }

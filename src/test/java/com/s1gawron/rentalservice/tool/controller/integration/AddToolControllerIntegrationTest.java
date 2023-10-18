@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.tool.controller.integration;
 
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
+import com.s1gawron.rentalservice.user.model.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AddToolControllerIntegrationTest extends AbstractToolControllerIntegrationTest {
 
-    private static final String TOOL_ADD_ENDPOINT = "/api/tool/add";
+    private static final String TOOL_ADD_ENDPOINT = "/api/management/tool/v1/add";
 
     @Test
     void shouldValidateAndAddTool() throws Exception {
@@ -29,14 +30,14 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
             }""";
         final ToolDetailsDTO expectedObject = objectMapper.readValue(json, ToolDetailsDTO.class);
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
         final String resultJson = result.getResponse().getContentAsString();
         final ToolDetailsDTO resultObject = objectMapper.readValue(resultJson, ToolDetailsDTO.class);
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        assertEquals(1, toolRepository.findAll().size());
+        assertEquals(1, toolDAO.findAll().size());
         assertToolDetailsDTO(expectedObject, resultObject, true);
     }
 
@@ -54,12 +55,33 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getCustomerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.CUSTOMER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
+    }
+
+    @Test
+    void shouldReturnForbiddenResponseWhenUserIsNotAuthenticated() throws Exception {
+        final String json = """
+            {
+              "name": "Hammer",
+              "description": "It's just a hammer :)",
+              "toolCategory": "LIGHT",
+              "price": 10.99,
+              "toolState": {
+                "stateType": "NEW",
+                "description": "New and shiny tool"
+              }
+            }""";
+        final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON);
+
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -75,12 +97,12 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -96,12 +118,12 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -117,12 +139,12 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -139,12 +161,12 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -160,12 +182,12 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -178,12 +200,12 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               "price": 10.99
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -199,12 +221,12 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -221,12 +243,12 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     @Test
@@ -242,12 +264,12 @@ class AddToolControllerIntegrationTest extends AbstractToolControllerIntegration
               }
             }""";
         final RequestBuilder request = MockMvcRequestBuilders.post(TOOL_ADD_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON)
-            .header("Authorization", getWorkerAuthorizationToken());
+            .header("Authorization", getAuthorizationToken(UserRole.WORKER));
 
         final MvcResult result = mockMvc.perform(request).andReturn();
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        assertEquals(0, toolRepository.findAll().size());
+        assertEquals(0, toolDAO.findAll().size());
     }
 
     private void assertToolDetailsDTO(final ToolDetailsDTO expected, final ToolDetailsDTO resultTool, final boolean isAvailable) {

@@ -6,166 +6,133 @@ import com.s1gawron.rentalservice.reservation.dto.ReservationListingDTO;
 import com.s1gawron.rentalservice.reservation.dto.validator.ReservationDTOValidator;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
-import com.s1gawron.rentalservice.reservation.model.ReservationHasTool;
-import com.s1gawron.rentalservice.reservation.repository.ReservationHasToolRepository;
-import com.s1gawron.rentalservice.reservation.repository.ReservationRepository;
-import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
-import com.s1gawron.rentalservice.shared.UserNotFoundException;
+import com.s1gawron.rentalservice.reservation.model.ReservationStatus;
+import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
+import com.s1gawron.rentalservice.reservationtool.model.ReservationTool;
+import com.s1gawron.rentalservice.reservationtool.service.ReservationToolService;
+import com.s1gawron.rentalservice.shared.usercontext.UserContextProvider;
 import com.s1gawron.rentalservice.tool.dto.ToolDetailsDTO;
 import com.s1gawron.rentalservice.tool.model.Tool;
 import com.s1gawron.rentalservice.tool.service.ToolService;
 import com.s1gawron.rentalservice.user.model.User;
-import com.s1gawron.rentalservice.user.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
 
-    private static final Logger log = LoggerFactory.getLogger(ReservationService.class);
+    private final ReservationDAO reservationDAO;
 
-    private static final String ELEMENT_NAME = "CUSTOMER RESERVATIONS";
-
-    private final ReservationRepository reservationRepository;
-
-    private final ReservationHasToolRepository reservationHasToolRepository;
-
-    private final UserService userService;
+    private final ReservationToolService reservationToolService;
 
     private final ToolService toolService;
 
-    public ReservationService(final ReservationRepository reservationRepository, final ReservationHasToolRepository reservationHasToolRepository,
-        final UserService userService,
-        final ToolService toolService) {
-        this.reservationRepository = reservationRepository;
-        this.reservationHasToolRepository = reservationHasToolRepository;
-        this.userService = userService;
+    public ReservationService(final ReservationDAO reservationDAO, final ReservationToolService reservationToolService, final ToolService toolService) {
+        this.reservationDAO = reservationDAO;
+        this.reservationToolService = reservationToolService;
         this.toolService = toolService;
     }
 
     @Transactional(readOnly = true)
-    public ReservationListingDTO getUserReservations() {
-        final User customer = getAndCheckIfUserIsCustomer();
-        final List<ReservationDetailsDTO> userReservations = reservationRepository.findAllByCustomer(customer).stream()
+    public ReservationListingDTO getUserReservations(final Pageable pageable) {
+        final User customer = UserContextProvider.I.getLoggedInUser();
+        final Page<Reservation> allReservations = reservationDAO.findAllByCustomer(customer, pageable);
+        final List<ReservationDetailsDTO> userReservations = allReservations.stream()
             .map(reservation -> {
-                final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservation.getReservationHasTools());
+                final List<ToolDetailsDTO> toolDetails = reservation.getReservationTools().stream()
+                    .map(ReservationTool::toToolDetailsDTO)
+                    .toList();
                 return reservation.toReservationDetailsDTO(toolDetails);
             })
-            .collect(Collectors.toList());
+            .toList();
 
-        return new ReservationListingDTO(userReservations.size(), userReservations);
+        return new ReservationListingDTO(allReservations.getTotalPages(), (int) allReservations.getTotalElements(), userReservations);
     }
 
     @Transactional(readOnly = true)
     public ReservationDetailsDTO getReservationDetails(final Long reservationId) {
-        final User customer = getAndCheckIfUserIsCustomer();
-        customer.doesReservationBelongToUser(reservationId);
-
-        final Reservation reservationById = reservationRepository.findByReservationId(reservationId)
+        final User customer = UserContextProvider.I.getLoggedInUser();
+        final Reservation reservationByIdAndCustomer = reservationDAO.findByReservationIdAndCustomer(reservationId, customer)
             .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
-        final List<ToolDetailsDTO> toolDetails = toolService.getToolDetailsByReservationHasTools(reservationById.getReservationHasTools());
+        final List<ToolDetailsDTO> toolDetails = reservationByIdAndCustomer.getReservationTools().stream()
+            .map(ReservationTool::toToolDetailsDTO)
+            .toList();
 
-        return reservationById.toReservationDetailsDTO(toolDetails);
+        return reservationByIdAndCustomer.toReservationDetailsDTO(toolDetails);
     }
 
     @Transactional
     public ReservationDetailsDTO makeReservation(final ReservationDTO reservationDTO) {
         ReservationDTOValidator.I.validate(reservationDTO);
 
-        final User customer = getAndCheckIfUserIsCustomer();
-        reservationDTO.toolIds().forEach(toolService::isToolAvailable);
+        final User customer = UserContextProvider.I.getLoggedInUser();
+        reservationDTO.toolIds().forEach(toolService::isToolAvailableOrRemoved);
 
         final Reservation reservation = Reservation.from(reservationDTO);
         reservation.addCustomer(customer);
 
         final AtomicReference<BigDecimal> reservationFinalPrice = new AtomicReference<>(BigDecimal.valueOf(0.00));
         final List<ToolDetailsDTO> toolDetails = new ArrayList<>();
+        final ArrayList<ReservationTool> reservationTools = new ArrayList<>();
 
         reservationDTO.toolIds().forEach(toolId -> {
             final Tool tool = toolService.getToolById(toolId);
-            final ReservationHasTool reservationHasTool = reservation.addTool(tool);
-            final ReservationHasTool savedReservationHasTool = reservationHasToolRepository.save(reservationHasTool);
+            final ReservationTool reservationTool = reservation.addTool(tool);
 
-            tool.addReservation(savedReservationHasTool);
+            reservationTools.add(reservationTool);
             toolService.makeToolUnavailableAndSave(tool);
 
-            toolDetails.add(tool.toToolDetailsDTO());
+            toolDetails.add(reservationTool.toToolDetailsDTO());
             reservationFinalPrice.getAndUpdate(currentValue -> currentValue.add(tool.getPrice()));
         });
 
         reservation.setReservationFinalPrice(reservationFinalPrice.get());
 
-        final Reservation savedReservation = reservationRepository.save(reservation);
-
-        customer.addReservation(savedReservation);
-        userService.saveCustomerWithReservation(customer);
+        final Reservation savedReservation = reservationDAO.save(reservation);
+        reservationToolService.saveAll(reservationTools);
 
         return savedReservation.toReservationDetailsDTO(toolDetails);
     }
 
     @Transactional
     public ReservationDetailsDTO cancelReservation(final Long reservationId) {
-        final User customer = getAndCheckIfUserIsCustomer();
-        customer.doesReservationBelongToUser(reservationId);
-
-        final Reservation reservationById = reservationRepository.findByReservationId(reservationId)
+        final User customer = UserContextProvider.I.getLoggedInUser();
+        final Reservation reservationByIdAndCustomer = reservationDAO.findByReservationIdAndCustomer(reservationId, customer)
             .orElseThrow(() -> ReservationNotFoundException.create(reservationId));
-        final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservationById.getReservationHasTools());
         final List<ToolDetailsDTO> toolDetails = new ArrayList<>();
 
-        toolsFromReservation.forEach(tool -> {
-            toolService.makeToolAvailableAndSave(tool);
-            toolDetails.add(tool.toToolDetailsDTO());
+        reservationByIdAndCustomer.getReservationTools().forEach(reservationTool -> {
+            toolService.makeToolAvailableAndSave(reservationTool.getTool());
+            toolDetails.add(reservationTool.toToolDetailsDTO());
         });
-        reservationById.cancelReservation();
-        reservationRepository.save(reservationById);
 
-        return reservationById.toReservationDetailsDTO(toolDetails);
-    }
+        reservationByIdAndCustomer.cancelReservation();
+        reservationDAO.save(reservationByIdAndCustomer);
 
-    @Transactional(readOnly = true)
-    public List<Long> getReservationIds() {
-        return reservationRepository.getAllIds();
+        return reservationByIdAndCustomer.toReservationDetailsDTO(toolDetails);
     }
 
     @Transactional
-    public void checkReservationsExpiryStatus(final List<Long> reservationIds) {
-        final List<Reservation> reservationsById = reservationRepository.findAllById(reservationIds);
+    public void completeReservation(final Long reservationIdToComplete) {
+        final Reservation reservation = reservationDAO.findByReservationId(reservationIdToComplete)
+            .orElseThrow(() -> ReservationNotFoundException.create(reservationIdToComplete));
 
-        reservationsById.forEach(reservation -> {
-            final LocalDate today = LocalDate.now();
-
-            if (today.isAfter(reservation.getDateTo())) {
-                log.info("Reservation#{} expired, performing clean job", reservation.getReservationId());
-
-                final List<Tool> toolsFromReservation = toolService.getToolsByReservationHasTools(reservation.getReservationHasTools());
-                toolsFromReservation.forEach(toolService::makeToolAvailableAndSave);
-                reservation.expireReservation();
-                reservationRepository.save(reservation);
-
-                log.info("Clean job for reservation#{} finished successfully", reservation.getReservationId());
-            }
-        });
+        reservation.getReservationTools().forEach(reservationTool -> toolService.makeToolAvailableAndSave(reservationTool.getTool()));
+        reservation.completeReservation();
+        reservationDAO.save(reservation);
     }
 
-    private User getAndCheckIfUserIsCustomer() {
-        final String authenticatedUserEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        final User user = userService.getUserByEmail(authenticatedUserEmail).orElseThrow(() -> UserNotFoundException.create(authenticatedUserEmail));
-
-        if (user.isWorker()) {
-            throw NoAccessForUserRoleException.create(ELEMENT_NAME);
-        }
-
-        return user;
+    @Transactional(readOnly = true)
+    public List<Long> getReservationIdsForCompletion() {
+        final LocalDateTime now = LocalDateTime.now();
+        return reservationDAO.getReservationIdsWithDateToOlderThanAndStatus(now, ReservationStatus.ACTIVE);
     }
 }

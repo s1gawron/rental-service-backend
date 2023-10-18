@@ -5,19 +5,18 @@ import com.s1gawron.rentalservice.address.exception.PostCodePatternViolationExce
 import com.s1gawron.rentalservice.shared.AbstractErrorHandlerController;
 import com.s1gawron.rentalservice.shared.ErrorResponse;
 import com.s1gawron.rentalservice.user.exception.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.Instant;
 
 public abstract class UserErrorHandlerController extends AbstractErrorHandlerController {
 
     @ExceptionHandler(UserEmailExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse userEmailExistsExceptionHandler(final UserEmailExistsException userEmailExistsException,
-        final HttpServletRequest httpServletRequest) {
+    public ErrorResponse userEmailExistsExceptionHandler(final UserEmailExistsException userEmailExistsException, final HttpServletRequest httpServletRequest) {
         return new ErrorResponse(Instant.now().toString(), HttpStatus.CONFLICT.value(), HttpStatus.CONFLICT.getReasonPhrase(),
             userEmailExistsException.getMessage(), httpServletRequest.getRequestURI());
     }
@@ -62,12 +61,12 @@ public abstract class UserErrorHandlerController extends AbstractErrorHandlerCon
             postCodePatternViolationException.getMessage(), httpServletRequest.getRequestURI());
     }
 
-    @ExceptionHandler(UserRoleDoesNotExistException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse userRoleDoesNotExistExceptionHandler(final UserRoleDoesNotExistException userRoleDoesNotExistException,
+    @ExceptionHandler(WorkerRegisteredByNonAdminUserException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse workerRegisteredByNonAdminUserExceptionHandler(final WorkerRegisteredByNonAdminUserException workerRegisteredByNonAdminUserException,
         final HttpServletRequest httpServletRequest) {
-        return new ErrorResponse(Instant.now().toString(), HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(),
-            userRoleDoesNotExistException.getMessage(), httpServletRequest.getRequestURI());
+        return new ErrorResponse(Instant.now().toString(), HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.getReasonPhrase(),
+            workerRegisteredByNonAdminUserException.getMessage(), httpServletRequest.getRequestURI());
     }
 
 }

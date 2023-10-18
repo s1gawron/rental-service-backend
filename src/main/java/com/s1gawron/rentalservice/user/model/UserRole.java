@@ -1,19 +1,30 @@
 package com.s1gawron.rentalservice.user.model;
 
-import com.s1gawron.rentalservice.user.exception.UserRoleDoesNotExistException;
-
-import java.util.Arrays;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public enum UserRole {
 
+    ANONYMOUS,
     CUSTOMER,
+    WORKER,
+    ADMIN;
 
-    WORKER;
+    private static final String ANONYMOUS_ROLE_NAME = "ROLE_ANONYMOUS";
 
-    public static UserRole findByValue(final String role) {
-        return Arrays.stream(values()).filter(value -> value.name().equalsIgnoreCase(role))
-            .findFirst()
-            .orElseThrow(() -> UserRoleDoesNotExistException.create(role));
+    public SimpleGrantedAuthority toSimpleGrantedAuthority() {
+        if (this.equals(ANONYMOUS)) {
+            return new SimpleGrantedAuthority(ANONYMOUS_ROLE_NAME);
+        }
+
+        return new SimpleGrantedAuthority(this.name());
+    }
+
+    public static UserRole getUserRole(final String name) {
+        if (name.equals(ANONYMOUS_ROLE_NAME)) {
+            return ANONYMOUS;
+        }
+
+        return valueOf(name);
     }
 
 }

@@ -2,47 +2,46 @@ package com.s1gawron.rentalservice.user.model;
 
 import com.s1gawron.rentalservice.address.dto.AddressDTO;
 import com.s1gawron.rentalservice.address.model.Address;
-import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
-import com.s1gawron.rentalservice.shared.NoAccessForUserRoleException;
 import com.s1gawron.rentalservice.user.dto.UserDTO;
 import com.s1gawron.rentalservice.user.dto.UserRegisterDTO;
-import org.hibernate.annotations.DynamicUpdate;
+import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.*;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "user")
-@DynamicUpdate
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false, unique = true)
     private Long userId;
 
-    @Column(name = "active")
+    @Column(name = "active", nullable = false)
     private boolean active;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "first_name")
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "last_name")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_role")
+    @Column(name = "user_role", nullable = false)
     private UserRole userRole;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "customer_address_id", referencedColumnName = "address_id")
     private Address customerAddress;
 
@@ -61,8 +60,19 @@ public class User {
         this.userRole = userRole;
     }
 
-    public static User createUser(final UserRegisterDTO userRegisterDTO, final UserRole userRole, final String encryptedPassword) {
-        return new User(true, userRegisterDTO.email(), encryptedPassword, userRegisterDTO.firstName(), userRegisterDTO.lastName(), userRole);
+    public User(final boolean active, final String email, final String password, final String firstName, final String lastName, final UserRole userRole,
+        final Address customerAddress) {
+        this.active = active;
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userRole = userRole;
+        this.customerAddress = customerAddress;
+    }
+
+    public static User createFrom(final UserRegisterDTO userRegisterDTO, final String encryptedPassword) {
+        return new User(true, userRegisterDTO.email(), encryptedPassword, userRegisterDTO.firstName(), userRegisterDTO.lastName(), userRegisterDTO.userRole());
     }
 
     public UserDTO toUserDTO() {
@@ -74,46 +84,12 @@ public class User {
         return new UserDTO(this.firstName, this.lastName, this.email, this.userRole.name(), null);
     }
 
-    public boolean isWorker() {
-        return this.userRole == UserRole.WORKER;
-    }
-
-    public boolean isCustomer() {
-        return this.userRole == UserRole.CUSTOMER;
-    }
-
     public void setCustomerAddress(final Address customerAddress) {
         this.customerAddress = customerAddress;
     }
 
-    public void addReservation(final Reservation reservation) {
-        if (this.customerReservations == null) {
-            this.customerReservations = new ArrayList<>();
-        }
-
-        this.customerReservations.add(reservation);
-    }
-
-    public void doesReservationBelongToUser(final Long reservationId) {
-        if (isWorker()) {
-            throw NoAccessForUserRoleException.create("CUSTOMER RESERVATIONS");
-        }
-
-        final long doesReservationBelongToUser = this.customerReservations.stream()
-            .filter(reservation -> reservation.getReservationId().equals(reservationId))
-            .count();
-
-        if (doesReservationBelongToUser == 0) {
-            throw ReservationNotFoundException.create(reservationId);
-        }
-    }
-
     public String getEmail() {
         return email;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public String getFirstName() {
@@ -130,6 +106,41 @@ public class User {
 
     public Address getCustomerAddress() {
         return customerAddress;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(userRole.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return active;
     }
 
 }
