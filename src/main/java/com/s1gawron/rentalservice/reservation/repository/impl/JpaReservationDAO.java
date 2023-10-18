@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.reservation.repository.impl;
 
 import com.s1gawron.rentalservice.reservation.model.Reservation;
+import com.s1gawron.rentalservice.reservation.model.ReservationStatus;
 import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
 import com.s1gawron.rentalservice.user.model.User;
 import org.springframework.data.domain.Page;
@@ -36,7 +37,7 @@ public class JpaReservationDAO implements ReservationDAO {
         return reservationJpaRepository.findByReservationId(reservationId);
     }
 
-    @Override public List<Long> getReservationIdsForDateToOlderThan(final LocalDateTime dateTime) {
-        return reservationJpaRepository.getReservationIdsForDateToOlderThan(dateTime);
+    @Override public List<Long> getReservationIdsWithDateToOlderThanAndStatus(final LocalDateTime dateTime, final ReservationStatus reservationStatus) {
+        return reservationJpaRepository.getReservationIdsWithDateToOlderThanAndStatus(dateTime, reservationStatus);
     }
 }

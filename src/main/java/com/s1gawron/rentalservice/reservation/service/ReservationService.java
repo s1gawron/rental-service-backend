@@ -6,6 +6,7 @@ import com.s1gawron.rentalservice.reservation.dto.ReservationListingDTO;
 import com.s1gawron.rentalservice.reservation.dto.validator.ReservationDTOValidator;
 import com.s1gawron.rentalservice.reservation.exception.ReservationNotFoundException;
 import com.s1gawron.rentalservice.reservation.model.Reservation;
+import com.s1gawron.rentalservice.reservation.model.ReservationStatus;
 import com.s1gawron.rentalservice.reservation.repository.ReservationDAO;
 import com.s1gawron.rentalservice.reservationtool.model.ReservationTool;
 import com.s1gawron.rentalservice.reservationtool.service.ReservationToolService;
@@ -130,7 +131,8 @@ public class ReservationService {
     }
 
     @Transactional(readOnly = true)
-    public List<Long> getReservationIdsForDateToOlderThan(final LocalDateTime dateTime) {
-        return reservationDAO.getReservationIdsForDateToOlderThan(dateTime);
+    public List<Long> getReservationIdsForCompletion() {
+        final LocalDateTime now = LocalDateTime.now();
+        return reservationDAO.getReservationIdsWithDateToOlderThanAndStatus(now, ReservationStatus.ACTIVE);
     }
 }

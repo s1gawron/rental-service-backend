@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.reservation.repository.impl;
 
 import com.s1gawron.rentalservice.reservation.model.Reservation;
+import com.s1gawron.rentalservice.reservation.model.ReservationStatus;
 import com.s1gawron.rentalservice.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,8 @@ public interface ReservationJpaRepository extends JpaRepository<Reservation, Lon
 
     Optional<Reservation> findByReservationIdAndCustomer(final Long reservationId, final User customer);
 
-    @Query(value = "SELECT reservationId FROM Reservation WHERE dateTo < :dateTime")
-    List<Long> getReservationIdsForDateToOlderThan(@Param(value = "dateTime") final LocalDateTime dateTime);
+    @Query(value = "SELECT reservationId FROM Reservation WHERE dateTo < :dateTime AND reservationStatus = :reservationStatus")
+    List<Long> getReservationIdsWithDateToOlderThanAndStatus(@Param(value = "dateTime") final LocalDateTime dateTime,
+        @Param(value = "reservationStatus") final ReservationStatus reservationStatus);
 
 }

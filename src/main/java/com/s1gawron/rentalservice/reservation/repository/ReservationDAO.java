@@ -1,6 +1,7 @@
 package com.s1gawron.rentalservice.reservation.repository;
 
 import com.s1gawron.rentalservice.reservation.model.Reservation;
+import com.s1gawron.rentalservice.reservation.model.ReservationStatus;
 import com.s1gawron.rentalservice.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,6 @@ public interface ReservationDAO {
 
     Optional<Reservation> findByReservationId(final long reservationId);
 
-    List<Long> getReservationIdsForDateToOlderThan(LocalDateTime dateTime);
+    List<Long> getReservationIdsWithDateToOlderThanAndStatus(LocalDateTime dateTime, ReservationStatus reservationStatus);
 
 }
