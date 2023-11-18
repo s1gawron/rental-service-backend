@@ -7,8 +7,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserRegisterControllerIntegrationTest extends AbstractUserControllerIntegrationTest {
 
@@ -203,6 +202,48 @@ class UserRegisterControllerIntegrationTest extends AbstractUserControllerIntegr
 
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
         assertTrue(userService.getUserByEmail("wrong-post-code@test.pl").isEmpty());
+    }
+
+    @Test
+    void shouldReturnConflictResponseWhenUserEmailAlreadyExistsWhileRegisteringUser() throws Exception {
+        final String json = """
+            {
+              "email": "new@test.pl",
+              "password": "Start00!",
+              "firstName": "John",
+              "lastName": "Kowalski",
+              "userRole": "CUSTOMER",
+              "address": {
+                "country": "Poland",
+                "city": "Warsaw",
+                "street": "Test",
+                "postCode": "01-000"
+              }
+            }""";
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request).andReturn();
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertEquals(HttpStatus.CONFLICT.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    void shouldReturnBadRequestResponseWhenAddressRegisterPropertiesAreEmptyWhileRegisteringUser() throws Exception {
+        final String json = """
+            {
+              "email": "new@test.pl",
+              "password": "Start00!",
+              "firstName": "John",
+              "lastName": "Kowalski",
+              "userRole": "CUSTOMER"
+            }""";
+        final RequestBuilder request = MockMvcRequestBuilders.post(USER_REGISTER_ENDPOINT).content(json).contentType(MediaType.APPLICATION_JSON);
+
+        final MvcResult result = mockMvc.perform(request).andReturn();
+
+        assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
+        assertFalse(userService.getUserByEmail("new@test.pl").isPresent());
     }
 
 }
