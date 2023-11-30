@@ -3,7 +3,7 @@ FROM openjdk:17-alpine
 ARG PROFILE=local
 
 WORKDIR app
-ADD target/rental-service-1.0-SNAPSHOT.jar /app/rental-service-1.0-SNAPSHOT.jar
+ADD target/rental-service-1.1-SNAPSHOT.jar /app/rental-service-1.1-SNAPSHOT.jar
 
 COPY target/classes/application.properties /app/application.properties
 COPY target/classes/application-${PROFILE}.properties /app/application-${PROFILE}.properties

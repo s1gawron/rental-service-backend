@@ -2,7 +2,7 @@ version: '3'
 services:
   rentalservice:
     container_name: rental-service
-    image: s1gawron/rental-service:1.0
+    image: s1gawron/rental-service:1.1
     environment:
       SPRING_PROFILES_ACTIVE: dev
     ports:
@@ -22,7 +22,7 @@ services:
       - "3306:3306"
   rabbitmq:
     container_name: rabbitmq
-    image: rabbitmq:3.12.4-management-alpine
+    image: rabbitmq:3.9.13-management-alpine
     ports:
       - "5672:5672"
       - "15672:15672"
