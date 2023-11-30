@@ -3,6 +3,7 @@ package com.s1gawron.rentalservice.reservation.controller.integration;
 import com.s1gawron.rentalservice.reservation.dto.ReservationDetailsDTO;
 import com.s1gawron.rentalservice.reservation.exception.DateMismatchException;
 import com.s1gawron.rentalservice.reservation.exception.ReservationEmptyPropertiesException;
+import com.s1gawron.rentalservice.tool.exception.ToolNotFoundException;
 import com.s1gawron.rentalservice.tool.exception.ToolRemovedException;
 import com.s1gawron.rentalservice.tool.exception.ToolUnavailableException;
 import org.junit.jupiter.api.Test;
@@ -209,6 +210,27 @@ class MakeReservationControllerIntegrationTest extends AbstractReservationContro
 
         mockMvc.perform(request)
             .andExpect(status().isBadRequest())
+            .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
+    }
+
+    @Test
+    void shouldReturnNotFoundResponseWhenToolDoesNotExist() throws Exception {
+        final long notExistingToolId = 99999L;
+        final String loaderReservationJson = "{\n"
+            + "  \"dateFrom\": \"" + LocalDate.now() + "\",\n"
+            + "  \"dateTo\": \"" + LocalDate.now().plusDays(3L) + "\",\n"
+            + "  \"additionalComment\": \"Removed ha,,er\",\n"
+            + "  \"toolIds\": [\n"
+            + "    " + notExistingToolId + "\n"
+            + "  ]\n"
+            + "}";
+
+        final ToolNotFoundException expectedException = ToolNotFoundException.create(notExistingToolId);
+        final RequestBuilder request = MockMvcRequestBuilders.post(MAKE_RESERVATION_ENDPOINT).content(loaderReservationJson)
+            .contentType(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationToken(CUSTOMER_EMAIL));
+
+        mockMvc.perform(request)
+            .andExpect(status().isNotFound())
             .andExpect(jsonPath(ERROR_RESPONSE_MESSAGE_PLACEHOLDER).value(expectedException.getMessage()));
     }
 
