@@ -37,12 +37,6 @@ public class Tool {
     private BigDecimal price;
 
     @Embedded
-    @AttributeOverride(name = "stateType",
-                       column = @Column(name = "state_type", nullable = false)
-    )
-    @AttributeOverride(name = "stateDescription",
-                       column = @Column(name = "state_description")
-    )
     private ToolState toolState;
 
     @Column(name = "date_added", nullable = false)

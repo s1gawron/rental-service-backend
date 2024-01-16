@@ -8,8 +8,10 @@ import jakarta.persistence.*;
 public class ToolState {
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "state_type", nullable = false)
     private ToolStateType stateType;
 
+    @Column(name = "state_description")
     private String stateDescription;
 
     public ToolState() {
